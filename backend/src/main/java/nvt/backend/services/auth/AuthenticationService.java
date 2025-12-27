@@ -34,7 +34,7 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final EmailService emailService;
+    //private final EmailService emailService;
 
     private String generateSecurePassword() {
         SecureRandom secureRandom = new SecureRandom();
@@ -56,7 +56,7 @@ public class AuthenticationService {
         user.setSurname(request.getSurname());
         user.setRole(Role.C);
         user.setAuthorities("CUSTOMER");
-
+        user.setPhoneNumber(request.getPhoneNumber());
 
         long activationTokenExpire = 24 * 60 * 60 * 1000;
         String activationToken = jwtService.generateActivationToken(user, activationTokenExpire);
@@ -66,26 +66,26 @@ public class AuthenticationService {
 
         user = repository.save(user);
 
-        sendActivationEmail(user.getUsername(), activationToken);
+        //sendActivationEmail(user.getUsername(), activationToken);
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
         saveUserToken(accessToken, refreshToken, user);
 
-        return new RegisterResponseDTO(user.getId(), "User Created Successfully", user.getUsername(), user.getName(), user.getSurname(),request.getOrganization(), accessToken, refreshToken);
+        return new RegisterResponseDTO(user.getId(), "User Created Successfully", user.getUsername(), user.getName(), user.getSurname(),request.getPhoneNumber(), accessToken, refreshToken);
 
     }
 
     private void sendActivationEmail(String email, String token) {
         String activationLink = "http://localhost:8080/api/v1/auth/activate?token=" + token;
-        emailService.sendMail(
-                "system@securely.com",
-                email,
-                "Activate Your Account",
-                "Click the link to activate your account: \n\n" + "<a href='" + activationLink + "'> Activate" + "</a>" +
-                        "\n\nThe link will expire in 24 hours."
-        );
+//        emailService.sendMail(
+//                "system@tetakly.com",
+//                email,
+//                "Activate Your Account",
+//                "Click the link to activate your account: \n\n" + "<a href='" + activationLink + "'> Activate" + "</a>" +
+//                        "\n\nThe link will expire in 24 hours."
+//        );
     }
 
     public LoginResponseDTO authenticate(LoginRequestDTO request) {
