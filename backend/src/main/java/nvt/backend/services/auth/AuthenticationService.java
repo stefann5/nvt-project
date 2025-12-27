@@ -34,7 +34,7 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    //private final EmailService emailService;
+    private final EmailService emailService;
 
     private String generateSecurePassword() {
         SecureRandom secureRandom = new SecureRandom();
@@ -66,7 +66,7 @@ public class AuthenticationService {
 
         user = repository.save(user);
 
-        //sendActivationEmail(user.getUsername(), activationToken);
+        sendActivationEmail(user.getUsername(), activationToken);
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -79,13 +79,13 @@ public class AuthenticationService {
 
     private void sendActivationEmail(String email, String token) {
         String activationLink = "http://localhost:8080/api/v1/auth/activate?token=" + token;
-//        emailService.sendMail(
-//                "system@tetakly.com",
-//                email,
-//                "Activate Your Account",
-//                "Click the link to activate your account: \n\n" + "<a href='" + activationLink + "'> Activate" + "</a>" +
-//                        "\n\nThe link will expire in 24 hours."
-//        );
+        emailService.sendMail(
+                "system@tetakly.com",
+                email,
+                "Activate Your Account",
+                "Click the link to activate your account: \n\n" + "<a href='" + activationLink + "'> Activate" + "</a>" +
+                        "\n\nThe link will expire in 24 hours."
+        );
     }
 
     public LoginResponseDTO authenticate(LoginRequestDTO request) {
