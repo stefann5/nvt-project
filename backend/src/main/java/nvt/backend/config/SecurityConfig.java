@@ -26,11 +26,14 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImp userDetailsServiceImp;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomLogoutHandler logoutHandler;
 
     public SecurityConfig(UserDetailsServiceImp userDetailsServiceImp,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomLogoutHandler logoutHandler) {
         this.userDetailsServiceImp = userDetailsServiceImp;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.logoutHandler = logoutHandler;
     }
 
     @Bean
@@ -43,6 +46,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh_token",
                                 "/api/v1/auth/register", "/api/v1/auth/activate")
                         .permitAll()
+
+                        // Public certificate verification endpoints (for CRL, OCSP)
+                        .requestMatchers("/api/v1/pki/crl/**", "/api/v1/pki/ocsp/**",
+                                "/api/v1/pki/ca-certificates/public")
+                        .permitAll()
+
                         // Admin only endpoints
                         .requestMatchers("/api/v1/admin/**")
                         .hasAuthority("ADMIN")
@@ -71,6 +80,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")
+                        .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpStatus.OK.value());
                         })
