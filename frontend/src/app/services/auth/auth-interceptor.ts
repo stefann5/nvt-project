@@ -70,20 +70,28 @@ export class AuthInterceptor implements HttpInterceptor {
   private addAuthHeader(request: HttpRequest<any>): HttpRequest<any> {
     const accessToken = this.authService.getAccessToken();
     
+    // Don't set Content-Type for FormData - let the browser set it with the boundary
+    const isFormData = request.body instanceof FormData;
+    
     if (accessToken && this.authService.isAuthenticated()) {
+      const headers: { [key: string]: string } = {
+        Authorization: `Bearer ${accessToken}`
+      };
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+      return request.clone({ setHeaders: headers });
+    }
+    
+    if (!isFormData) {
       return request.clone({
         setHeaders: {
-          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         }
       });
     }
     
-    return request.clone({
-      setHeaders: {
-        'Content-Type': 'application/json'
-      }
-    });
+    return request;
   }
 
   /**

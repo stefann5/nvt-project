@@ -1,5 +1,6 @@
 package nvt.backend.model.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,5 +16,6 @@ public class City {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id")
+    @JsonIgnore
     private Country country;
 }

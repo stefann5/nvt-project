@@ -1,5 +1,6 @@
 package nvt.backend.model.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -15,5 +16,6 @@ public class Country {
     private String name;
 
     @OneToMany(mappedBy = "country")
+    @JsonIgnore
     private List<City> cities;
 }

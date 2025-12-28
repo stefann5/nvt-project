@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/registration-requests")
+@RequestMapping("api/v1/registration-requests")
 @RequiredArgsConstructor
 public class RegistrationRequestController {
 
