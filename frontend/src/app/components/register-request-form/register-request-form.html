@@ -57,14 +57,29 @@
       </div>
 
       <!-- Street Address -->
-      <div class="flex flex-column gap-2 mb-4">
-        <label for="street" class="font-semibold">Address (street and number) *</label>
-        <input 
-          pInputText 
-          id="street" 
-          formControlName="street" 
-          placeholder="Enter address or select on map"
-          class="w-full" />
+      <div class="grid mb-4">
+        <div class="col-12 md:col-8">
+          <div class="flex flex-column gap-2">
+            <label for="street" class="font-semibold">Street *</label>
+            <input 
+              pInputText 
+              id="street" 
+              formControlName="street" 
+              placeholder="Enter street name"
+              class="w-full" />
+          </div>
+        </div>
+        <div class="col-12 md:col-4">
+          <div class="flex flex-column gap-2">
+            <label for="streetNumber" class="font-semibold">Street Number *</label>
+            <input 
+              pInputText 
+              id="streetNumber" 
+              formControlName="streetNumber" 
+              placeholder="e.g. 123"
+              class="w-full" />
+          </div>
+        </div>
       </div>
 
       <p-divider></p-divider>

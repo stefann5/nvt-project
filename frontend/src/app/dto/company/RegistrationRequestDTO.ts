@@ -10,6 +10,7 @@ export interface RegistrationRequestDTO {
   countryName: string;
   cityName: string;
   street: string;
+  streetNumber: string;
   latitude: number;
   longitude: number;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';

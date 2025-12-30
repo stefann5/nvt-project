@@ -3,11 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CompanyRegistrationService } from '../../../services/company/company-registration.service';
 import { RegistrationRequestDTO } from '../../../dto/company/RegistrationRequestDTO';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-registration-requests',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    CardModule, 
+    TableModule, 
+    ButtonModule, 
+    TagModule,
+    ProgressSpinnerModule,
+    MessageModule
+  ],
   templateUrl: './registration-requests.html',
   styleUrl: './registration-requests.scss'
 })
@@ -49,12 +64,12 @@ export class RegistrationRequestsComponent implements OnInit {
     this.loadRequests();
   }
 
-  getStatusClass(status: string): string {
+  getStatusSeverity(status: string): 'warn' | 'success' | 'danger' | 'info' {
     switch (status) {
-      case 'PENDING': return 'status-pending';
-      case 'APPROVED': return 'status-approved';
-      case 'REJECTED': return 'status-rejected';
-      default: return '';
+      case 'PENDING': return 'warn';
+      case 'APPROVED': return 'success';
+      case 'REJECTED': return 'danger';
+      default: return 'info';
     }
   }
 

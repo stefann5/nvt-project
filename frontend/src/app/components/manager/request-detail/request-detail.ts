@@ -4,6 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CompanyRegistrationService } from '../../../services/company/company-registration.service';
 import { RegistrationRequestDTO } from '../../../dto/company/RegistrationRequestDTO';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
+import { DividerModule } from 'primeng/divider';
+import { DialogModule } from 'primeng/dialog';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { GalleriaModule } from 'primeng/galleria';
 
 interface FileWithUrl {
   id: number;
@@ -15,7 +26,22 @@ interface FileWithUrl {
 @Component({
   selector: 'app-request-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    RouterModule,
+    CardModule,
+    ButtonModule,
+    TagModule,
+    ProgressSpinnerModule,
+    MessageModule,
+    DividerModule,
+    DialogModule,
+    TextareaModule,
+    ToastModule,
+    GalleriaModule
+  ],
+  providers: [MessageService],
   templateUrl: './request-detail.html',
   styleUrl: './request-detail.scss'
 })
@@ -134,12 +160,12 @@ export class RequestDetailComponent implements OnInit {
     });
   }
 
-  getStatusClass(status: string): string {
+  getStatusSeverity(status: string): 'warn' | 'success' | 'danger' | 'info' {
     switch (status) {
-      case 'PENDING': return 'status-pending';
-      case 'APPROVED': return 'status-approved';
-      case 'REJECTED': return 'status-rejected';
-      default: return '';
+      case 'PENDING': return 'warn';
+      case 'APPROVED': return 'success';
+      case 'REJECTED': return 'danger';
+      default: return 'info';
     }
   }
 

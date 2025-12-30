@@ -75,7 +75,8 @@ export class RegisterRequestForm implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2)]],
       country: [null, Validators.required],
       city: [null, Validators.required],
-      street: ['', Validators.required]
+      street: ['', Validators.required],
+      streetNumber: ['', Validators.required]
     });
   }
 
@@ -128,9 +129,10 @@ export class RegisterRequestForm implements OnInit {
     this.selectedStreet = address.street ?? '';
     this.locationSelected = true;
     
-    // Update street in the form
+    // Update street and street number in the form
     this.registrationForm.patchValue({
-      street: this.selectedStreet
+      street: this.selectedStreet,
+      streetNumber: address.number ?? ''
     });
 
     this.messageService.add({
@@ -200,6 +202,7 @@ export class RegisterRequestForm implements OnInit {
       countryId: this.selectedCountry!.id,
       cityId: this.selectedCity!.id,
       street: this.registrationForm.get('street')?.value,
+      streetNumber: this.registrationForm.get('streetNumber')?.value,
       latitude: this.selectedLatitude!,
       longitude: this.selectedLongitude!
     };

@@ -32,6 +32,7 @@ public class RegistrationRequest {
     private City city;
 
     private String street;
+    private String streetNumber;
     private double latitude;
     private double longitude;
 

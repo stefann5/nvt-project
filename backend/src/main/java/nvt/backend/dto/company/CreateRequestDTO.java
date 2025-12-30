@@ -8,6 +8,7 @@ public class CreateRequestDTO {
     private Long countryId;
     private Long cityId;
     private String street;
+    private String streetNumber;
     private Double latitude;
     private Double longitude;
 }
