@@ -11,17 +11,13 @@ import nvt.backend.model.user.User;
 import nvt.backend.repositories.common.CityRepository;
 import nvt.backend.repositories.common.CountryRepository;
 import nvt.backend.repositories.company.RegistrationRequestRepository;
-import org.springframework.beans.factory.annotation.Value;
+import nvt.backend.services.storage.MinioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +26,7 @@ public class RegistrationRequestService {
     private final RegistrationRequestRepository requestRepository;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
-
-    @Value("${app.upload.path:./uploads}")
-    private String uploadPath;
+    private final MinioService minioService;
 
     @Transactional
     public RegistrationRequest create(CreateRequestDTO dto,
@@ -57,36 +51,33 @@ public class RegistrationRequestService {
 
         request = requestRepository.save(request);
 
+        // Upload images to MinIO
+        String imagesBucket = minioService.getCompanyImagesBucket();
         for (MultipartFile file : images) {
-            String path = saveFile(file, "images");
+            String minioPath = minioService.uploadFile(file, imagesBucket, "company-" + request.getId());
+
             CompanyImage img = new CompanyImage();
             img.setOriginalName(file.getOriginalFilename());
-            img.setPath(path);
+            img.setMinioPath(minioPath);
+            img.setMinioBucket(imagesBucket);
             img.setRequest(request);
             request.getImages().add(img);
         }
 
+        // Upload documents to MinIO
+        String documentsBucket = minioService.getCompanyDocumentsBucket();
         for (MultipartFile file : documents) {
-            String path = saveFile(file, "documents");
+            String minioPath = minioService.uploadFile(file, documentsBucket, "company-" + request.getId());
+
             CompanyDocument doc = new CompanyDocument();
             doc.setOriginalName(file.getOriginalFilename());
-            doc.setPath(path);
+            doc.setMinioPath(minioPath);
+            doc.setMinioBucket(documentsBucket);
             doc.setContentType(file.getContentType());
             doc.setRequest(request);
             request.getDocuments().add(doc);
         }
 
         return requestRepository.save(request);
-    }
-
-    private String saveFile(MultipartFile file, String folder) throws IOException {
-        Path dir = Paths.get(uploadPath, folder);
-        Files.createDirectories(dir);
-
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path filePath = dir.resolve(filename);
-        Files.copy(file.getInputStream(), filePath);
-
-        return folder + "/" + filename;
     }
 }

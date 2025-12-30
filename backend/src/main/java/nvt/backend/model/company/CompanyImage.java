@@ -12,7 +12,8 @@ public class CompanyImage {
     private Long id;
 
     private String originalName;
-    private String path;
+    private String minioPath;
+    private String minioBucket;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")

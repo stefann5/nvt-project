@@ -48,24 +48,9 @@ public class SecurityConfig {
                         .permitAll()
 
                         // Public certificate verification endpoints (for CRL, OCSP)
-                        .requestMatchers("/api/v1/pki/crl/**", "/api/v1/pki/ocsp/**",
-                                "/api/v1/pki/ca-certificates/public")
+                        .requestMatchers("api/v1/registration-requests/**")
                         .permitAll()
 
-                        // Admin only endpoints
-                        .requestMatchers("/api/v1/admin/**")
-                        .hasAuthority("ADMIN")
-
-                        // CA and Admin endpoints for certificate management
-                        .requestMatchers("/api/v1/certificates/issue",
-                                "/api/v1/certificates/templates")
-                        .hasAnyAuthority("ADMIN", "CA")
-
-                        .requestMatchers("/api/v1/certificates/csr")
-                        .hasAnyAuthority("ADMIN", "CA","COMMON")
-
-                        .requestMatchers("/api/v1/admin/**")
-                        .hasAuthority("ADMIN")
 
                         // All other requests need authentication
                         .anyRequest()

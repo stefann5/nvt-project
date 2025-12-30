@@ -12,7 +12,8 @@ public class CompanyDocument {
     private Long id;
 
     private String originalName;
-    private String path;
+    private String minioPath;
+    private String minioBucket;
     private String contentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
