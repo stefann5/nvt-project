@@ -1,4 +1,21 @@
-<p>dashboard works!</p>
-<div>
+<div class="dashboard-layout">
+  <nav class="sidebar">
+    <div class="nav-header">
+      <h3>Smartly</h3>
+    </div>
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/app/home" routerLinkActive="active">Home</a>
+      </li>
+      <li *ngIf="authService.IsManager()">
+        <a routerLink="/app/manager/requests" routerLinkActive="active">Registration Requests</a>
+      </li>
+    </ul>
+    <div class="nav-footer">
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+  <main class="main-content">
     <router-outlet></router-outlet>
+  </main>
 </div>

@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment';
 import { CountryDTO } from '../../dto/company/CountryDTO';
 import { CityDTO } from '../../dto/company/CityDTO';
 import { CreateRequestDTO } from '../../dto/company/CreateRequestDTO';
+import { RegistrationRequestDTO } from '../../dto/company/RegistrationRequestDTO';
+import { ProcessRequestDTO } from '../../dto/company/ProcessRequestDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -29,19 +31,50 @@ export class CompanyRegistrationService {
   ): Observable<number> {
     const formData = new FormData();
     
-    // Append the JSON data as a blob with correct content type
     formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }));
     
-    // Append images
     images.forEach((image) => {
       formData.append('images', image, image.name);
     });
     
-    // Append documents
     documents.forEach((document) => {
       formData.append('documents', document, document.name);
     });
 
     return this.http.post<number>(`${this.baseUrl}registration-requests`, formData);
+  }
+
+  getPendingRequests(): Observable<RegistrationRequestDTO[]> {
+    return this.http.get<RegistrationRequestDTO[]>(`${this.baseUrl}registration-requests/pending`);
+  }
+
+  getAllRequests(): Observable<RegistrationRequestDTO[]> {
+    return this.http.get<RegistrationRequestDTO[]>(`${this.baseUrl}registration-requests/all`);
+  }
+
+  getRequestById(id: number): Observable<RegistrationRequestDTO> {
+    return this.http.get<RegistrationRequestDTO>(`${this.baseUrl}registration-requests/${id}`);
+  }
+
+  processRequest(id: number, dto: ProcessRequestDTO): Observable<RegistrationRequestDTO> {
+    return this.http.put<RegistrationRequestDTO>(`${this.baseUrl}registration-requests/${id}/process`, dto);
+  }
+
+  getImagePresignedUrl(imageId: number): Observable<{ url: string; originalName: string }> {
+    return this.http.get<{ url: string; originalName: string }>(`${this.baseUrl}files/image/${imageId}/url`);
+  }
+
+  getDocumentPresignedUrl(documentId: number): Observable<{ url: string; originalName: string; contentType: string }> {
+    return this.http.get<{ url: string; originalName: string; contentType: string }>(`${this.baseUrl}files/document/${documentId}/url`);
+  }
+
+  getRequestFiles(requestId: number): Observable<{
+    images: { id: number; originalName: string; url: string }[];
+    documents: { id: number; originalName: string; contentType: string; url: string }[];
+  }> {
+    return this.http.get<{
+      images: { id: number; originalName: string; url: string }[];
+      documents: { id: number; originalName: string; contentType: string; url: string }[];
+    }>(`${this.baseUrl}files/request/${requestId}/files`);
   }
 }

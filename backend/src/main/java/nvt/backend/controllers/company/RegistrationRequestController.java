@@ -3,6 +3,8 @@ package nvt.backend.controllers.company;
 
 import lombok.RequiredArgsConstructor;
 import nvt.backend.dto.company.CreateRequestDTO;
+import nvt.backend.dto.company.ProcessRequestDTO;
+import nvt.backend.dto.company.RegistrationRequestResponseDTO;
 import nvt.backend.model.company.RegistrationRequest;
 import nvt.backend.model.user.User;
 import nvt.backend.repositories.user.UserRepository;
@@ -10,6 +12,7 @@ import nvt.backend.services.company.RegistrationRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +39,41 @@ public class RegistrationRequestController {
             User owner = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
             RegistrationRequest request = service.create(dto, images, documents, owner);
             return ResponseEntity.status(HttpStatus.CREATED).body(request.getId());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    public ResponseEntity<List<RegistrationRequestResponseDTO>> getPendingRequests() {
+        return ResponseEntity.ok(service.getPendingRequests());
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    public ResponseEntity<List<RegistrationRequestResponseDTO>> getAllRequests() {
+        return ResponseEntity.ok(service.getAllRequests());
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    public ResponseEntity<?> getRequestById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.getRequestById(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/process")
+    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    public ResponseEntity<?> processRequest(
+            @PathVariable Long id,
+            @RequestBody ProcessRequestDTO dto) {
+        try {
+            RegistrationRequestResponseDTO response = service.processRequest(id, dto);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

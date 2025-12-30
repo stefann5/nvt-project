@@ -252,6 +252,10 @@ export class AuthService {
     return this.getRoleFromToken() == 'CA';
   }
 
+  IsManager(): boolean {
+    return this.getRoleFromToken() == 'M' || this.getRoleFromToken() == 'S';
+  }
+
   IsAdmin(): boolean {
     return this.getRoleFromToken() == 'A';
   }

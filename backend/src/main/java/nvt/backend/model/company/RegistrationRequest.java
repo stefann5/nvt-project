@@ -8,7 +8,9 @@ import nvt.backend.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "registration_requests")
@@ -36,6 +38,11 @@ public class RegistrationRequest {
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
+    @Column(length = 1000)
+    private String rejectionReason;
+
+    private LocalDateTime processedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -43,10 +50,10 @@ public class RegistrationRequest {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CompanyImage> images = new ArrayList<>();
+    private Set<CompanyImage> images = new HashSet<>();
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CompanyDocument> documents = new ArrayList<>();
+    private Set<CompanyDocument> documents = new HashSet<>();
 
     public enum Status { PENDING, APPROVED, REJECTED }
 }

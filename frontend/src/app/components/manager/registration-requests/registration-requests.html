@@ -1,0 +1,54 @@
+<div class="requests-container">
+  <div class="header">
+    <h2>Company Registration Requests</h2>
+    <button class="filter-btn" (click)="toggleFilter()">
+      {{ showAll ? 'Show Pending Only' : 'Show All Requests' }}
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading requests...</div>
+  
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="no-requests" *ngIf="!loading && !error && requests.length === 0">
+    No registration requests found.
+  </div>
+
+  <div class="requests-table" *ngIf="!loading && requests.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company Name</th>
+          <th>Owner</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of requests">
+          <td>{{ request.id }}</td>
+          <td>{{ request.companyName }}</td>
+          <td>
+            <div>{{ request.ownerName }}</div>
+            <small>{{ request.ownerEmail }}</small>
+          </td>
+          <td>{{ request.cityName }}, {{ request.countryName }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(request.status)">
+              {{ request.status }}
+            </span>
+          </td>
+          <td>{{ formatDate(request.createdAt) }}</td>
+          <td>
+            <a [routerLink]="['/app/manager/requests', request.id]" class="view-btn">
+              View Details
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
