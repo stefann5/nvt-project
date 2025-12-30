@@ -1,0 +1,132 @@
+<div class="detail-container">
+  <button class="back-btn" (click)="goBack()">Back to List</button>
+
+  <div class="loading" *ngIf="loading">Loading request details...</div>
+  
+  <div class="error-message" *ngIf="error">{{ error }}</div>
+  <div class="success-message" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div class="request-detail" *ngIf="request && !loading">
+    <div class="detail-header">
+      <h2>{{ request.companyName }}</h2>
+      <span class="status-badge" [ngClass]="getStatusClass(request.status)">
+        {{ request.status }}
+      </span>
+    </div>
+
+    <div class="info-sections">
+      <div class="info-section">
+        <h3>Company Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Company Name</label>
+            <span>{{ request.companyName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Country</label>
+            <span>{{ request.countryName }}</span>
+          </div>
+          <div class="info-item">
+            <label>City</label>
+            <span>{{ request.cityName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Street</label>
+            <span>{{ request.street }}</span>
+          </div>
+          <div class="info-item">
+            <label>Coordinates</label>
+            <span>{{ request.latitude }}, {{ request.longitude }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Owner Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Name</label>
+            <span>{{ request.ownerName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <span>{{ request.ownerEmail }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Request Details</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Submitted</label>
+            <span>{{ formatDate(request.createdAt) }}</span>
+          </div>
+          <div class="info-item" *ngIf="request.processedAt">
+            <label>Processed</label>
+            <span>{{ formatDate(request.processedAt) }}</span>
+          </div>
+          <div class="info-item" *ngIf="request.rejectionReason">
+            <label>Rejection Reason</label>
+            <span class="rejection-reason">{{ request.rejectionReason }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Images ({{ request.images.length }})</h3>
+        <div class="loading-files" *ngIf="filesLoading">Loading images...</div>
+        <div class="files-grid" *ngIf="!filesLoading && imageUrls.length > 0">
+          <div class="image-item" *ngFor="let image of imageUrls">
+            <a [href]="image.url" target="_blank">
+              <img [src]="image.url" [alt]="image.originalName" />
+            </a>
+            <span class="file-name">{{ image.originalName }}</span>
+          </div>
+        </div>
+        <p *ngIf="!filesLoading && imageUrls.length === 0" class="no-files">No images uploaded</p>
+      </div>
+
+      <div class="info-section">
+        <h3>Documents ({{ request.documents.length }})</h3>
+        <div class="loading-files" *ngIf="filesLoading">Loading documents...</div>
+        <div class="documents-list" *ngIf="!filesLoading && documentUrls.length > 0">
+          <a *ngFor="let doc of documentUrls" 
+             [href]="doc.url" 
+             target="_blank"
+             class="document-link">
+            {{ doc.originalName }}
+          </a>
+        </div>
+        <p *ngIf="!filesLoading && documentUrls.length === 0" class="no-files">No documents uploaded</p>
+      </div>
+    </div>
+
+    <div class="actions" *ngIf="request.status === 'PENDING'">
+      <button class="approve-btn" (click)="approveRequest()" [disabled]="processing">
+        {{ processing ? 'Processing...' : 'Approve Request' }}
+      </button>
+      <button class="reject-btn" (click)="openRejectModal()" [disabled]="processing">
+        Reject Request
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Reject Registration Request</h3>
+    <p>Please provide a reason for rejecting this request:</p>
+    <textarea 
+      [(ngModel)]="rejectionReason" 
+      placeholder="Enter rejection reason..."
+      rows="4">
+    </textarea>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeRejectModal()">Cancel</button>
+      <button class="confirm-reject-btn" (click)="confirmReject()" [disabled]="processing || !rejectionReason.trim()">
+        {{ processing ? 'Processing...' : 'Confirm Rejection' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RegistrationRequestRepository extends JpaRepository<RegistrationRequest, Long> {
@@ -14,4 +15,22 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
 
     @Query("SELECT r FROM RegistrationRequest r JOIN r.documents doc WHERE doc.id = :documentId")
     Optional<RegistrationRequest> findByDocumentId(@Param("documentId") Long documentId);
+
+    List<RegistrationRequest> findByStatus(RegistrationRequest.Status status);
+
+    @Query("SELECT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "LEFT JOIN FETCH r.images " +
+           "LEFT JOIN FETCH r.documents " +
+           "WHERE r.id = :id")
+    Optional<RegistrationRequest> findByIdWithDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "WHERE r.status = :status")
+    List<RegistrationRequest> findByStatusWithDetails(@Param("status") RegistrationRequest.Status status);
 }
