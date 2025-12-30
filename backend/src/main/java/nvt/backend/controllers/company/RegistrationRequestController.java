@@ -45,19 +45,19 @@ public class RegistrationRequestController {
     }
 
     @GetMapping("/pending")
-    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<List<RegistrationRequestResponseDTO>> getPendingRequests() {
         return ResponseEntity.ok(service.getPendingRequests());
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<List<RegistrationRequestResponseDTO>> getAllRequests() {
         return ResponseEntity.ok(service.getAllRequests());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> getRequestById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(service.getRequestById(id));
@@ -67,7 +67,7 @@ public class RegistrationRequestController {
     }
 
     @PutMapping("/{id}/process")
-    @PreAuthorize("hasAnyAuthority('M','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> processRequest(
             @PathVariable Long id,
             @RequestBody ProcessRequestDTO dto) {

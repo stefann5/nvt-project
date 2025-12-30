@@ -47,7 +47,7 @@ INSERT INTO "user"
 VALUES
     (2, 'Goran', 'Bijelic', 'tetak',
      '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     1, 'CA', true, NULL, NULL, 'Manager')
+     1, 'MANAGER', true, NULL, NULL, 'Manager')
     ON CONFLICT (id) DO NOTHING;
 
 
@@ -57,7 +57,7 @@ INSERT INTO "user"
 VALUES
     (3, 'Miki', 'Bijelic', 'miki',
      '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'CA', true, NULL, NULL, 'Customer')
+     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
     ON CONFLICT (id) DO NOTHING;
 
 
@@ -67,7 +67,7 @@ INSERT INTO "user"
 VALUES
     (4, 'Stefan', 'Nikolić', 'user@company.com',
      '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'COMMON', true, NULL, NULL, 'Customer')
+     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
     ON CONFLICT (id) DO NOTHING;
 
 
@@ -77,7 +77,7 @@ INSERT INTO "user"
 VALUES
     (5, 'Test', 'Testović', 'test@test.com',
      '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'COMMON', true, NULL, NULL, 'Customer')
+     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
     ON CONFLICT (id) DO NOTHING;
 
 -- Countries

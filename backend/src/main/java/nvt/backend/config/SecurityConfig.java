@@ -4,6 +4,7 @@ import nvt.backend.filter.JwtAuthenticationFilter;
 import nvt.backend.services.auth.UserDetailsServiceImp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // Enable method-level security
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final UserDetailsServiceImp userDetailsServiceImp;
@@ -47,12 +48,19 @@ public class SecurityConfig {
                                 "/api/v1/auth/register", "/api/v1/auth/activate")
                         .permitAll()
 
-                        // Public certificate verification endpoints (for CRL, OCSP)
-                        .requestMatchers("api/v1/registration-requests/**")
-                        .permitAll()
+                        .requestMatchers("/api/v1/registration-requests/pending",
+                                "/api/v1/registration-requests/all")
+                        .hasAnyAuthority("MANAGER", "ADMIN")
 
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/registration-requests/*/process")
+                        .hasAnyAuthority("MANAGER", "ADMIN")
 
-                        // All other requests need authentication
+                        .requestMatchers(HttpMethod.GET, "/api/v1/registration-requests/{id}")
+                        .hasAnyAuthority("MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/registration-requests")
+                        .hasAnyAuthority("CUSTOMER", "MANAGER", "ADMIN")
+
                         .anyRequest()
                         .authenticated()
                 )
