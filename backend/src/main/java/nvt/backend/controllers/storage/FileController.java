@@ -22,7 +22,7 @@ public class FileController {
     private final RegistrationRequestRepository registrationRequestRepository;
 
     @GetMapping("/image/{imageId}/url")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'M')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
     public ResponseEntity<Map<String, String>> getImageUrl(@PathVariable Long imageId) {
         var request = registrationRequestRepository.findByImageId(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
@@ -47,7 +47,7 @@ public class FileController {
     }
 
     @GetMapping("/document/{documentId}/url")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'M')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
     public ResponseEntity<Map<String, String>> getDocumentUrl(@PathVariable Long documentId) {
         var request = registrationRequestRepository.findByDocumentId(documentId)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
@@ -72,7 +72,7 @@ public class FileController {
     }
 
     @GetMapping("/request/{requestId}/files")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'M')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
     public ResponseEntity<Map<String, Object>> getRequestFiles(@PathVariable Long requestId) {
         var request = registrationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));

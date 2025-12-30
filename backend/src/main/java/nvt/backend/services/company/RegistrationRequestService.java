@@ -54,6 +54,7 @@ public class RegistrationRequestService {
         request.setCountry(country);
         request.setCity(city);
         request.setStreet(dto.getStreet());
+        request.setStreetNumber(dto.getStreetNumber());
         request.setLatitude(dto.getLatitude());
         request.setLongitude(dto.getLongitude());
         request.setOwner(owner);

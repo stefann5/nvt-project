@@ -3,6 +3,7 @@ export interface CreateRequestDTO {
   countryId: number;
   cityId: number;
   street: string;
+  streetNumber: string;
   latitude: number;
   longitude: number;
 }

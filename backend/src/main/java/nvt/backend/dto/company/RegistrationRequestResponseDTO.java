@@ -15,6 +15,7 @@ public class RegistrationRequestResponseDTO {
     private String countryName;
     private String cityName;
     private String street;
+    private String streetNumber;
     private double latitude;
     private double longitude;
     private String status;
@@ -41,6 +42,7 @@ public class RegistrationRequestResponseDTO {
                 .countryName(request.getCountry().getName())
                 .cityName(request.getCity().getName())
                 .street(request.getStreet())
+                .streetNumber(request.getStreetNumber())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .status(request.getStatus().name())
