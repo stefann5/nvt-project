@@ -48,6 +48,10 @@ public class SecurityConfig {
                                 "/api/v1/auth/register", "/api/v1/auth/activate")
                         .permitAll()
 
+                        // WebSocket endpoint
+                        .requestMatchers("/ws/**")
+                        .permitAll()
+
                         .requestMatchers("/api/v1/registration-requests/pending",
                                 "/api/v1/registration-requests/all")
                         .hasAnyAuthority("MANAGER", "ADMIN")
