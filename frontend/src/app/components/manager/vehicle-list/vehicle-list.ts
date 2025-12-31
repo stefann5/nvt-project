@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -32,7 +33,8 @@ import { InputIconModule } from 'primeng/inputicon';
     ConfirmDialogModule,
     ToastModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    TooltipModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './vehicle-list.html',

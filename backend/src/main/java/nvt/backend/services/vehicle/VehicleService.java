@@ -1,14 +1,19 @@
 package nvt.backend.services.vehicle;
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.vehicle.AvailabilityStatisticsDTO;
 import nvt.backend.dto.vehicle.CreateVehicleDTO;
+import nvt.backend.dto.vehicle.DistanceStatisticsDTO;
 import nvt.backend.dto.vehicle.UpdateVehicleDTO;
+import nvt.backend.dto.vehicle.VehicleLocationDTO;
 import nvt.backend.dto.vehicle.VehicleResponseDTO;
 import nvt.backend.model.vehicle.Vehicle;
 import nvt.backend.model.vehicle.VehicleBrand;
 import nvt.backend.model.vehicle.VehicleImage;
+import nvt.backend.model.vehicle.VehicleLocation;
 import nvt.backend.model.vehicle.VehicleModel;
 import nvt.backend.repositories.vehicle.VehicleBrandRepository;
+import nvt.backend.repositories.vehicle.VehicleLocationRepository;
 import nvt.backend.repositories.vehicle.VehicleModelRepository;
 import nvt.backend.repositories.vehicle.VehicleRepository;
 import nvt.backend.services.storage.MinioService;
@@ -18,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,6 +35,8 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleBrandRepository brandRepository;
     private final VehicleModelRepository modelRepository;
+    private final VehicleLocationRepository locationRepository;
+    private final VehicleTelemetryService telemetryService;
     private final MinioService minioService;
 
     @Value("${minio.bucket.vehicle-images}")
@@ -173,5 +182,28 @@ public class VehicleService {
 
     public List<VehicleModel> getModelsByBrand(Long brandId) {
         return modelRepository.findByBrandId(brandId);
+    }
+
+    public VehicleLocationDTO getLastLocation(Long vehicleId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
+        return locationRepository.findByVehicleId(vehicleId)
+                .map(VehicleLocationDTO::fromEntity)
+                .orElse(null);
+    }
+
+    public DistanceStatisticsDTO getDistanceStatistics(Long vehicleId, LocalDate startDate, LocalDate endDate) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
+        return telemetryService.getAggregatedDistance(vehicleId, vehicle.getLicensePlate(), startDate, endDate);
+    }
+
+    public AvailabilityStatisticsDTO getAvailabilityStatistics(Long vehicleId, Instant startTime, Instant endTime) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
+        return telemetryService.getAggregatedAvailability(vehicleId, vehicle.getLicensePlate(), startTime, endTime);
     }
 }

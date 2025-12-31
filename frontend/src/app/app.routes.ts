@@ -10,6 +10,7 @@ import { RegistrationRequestsComponent } from './components/manager/registration
 import { RequestDetailComponent } from './components/manager/request-detail/request-detail';
 import { VehicleListComponent } from './components/manager/vehicle-list/vehicle-list';
 import { VehicleFormComponent } from './components/manager/vehicle-form/vehicle-form';
+import { VehicleDetailComponent } from './components/manager/vehicle-detail/vehicle-detail';
 
 export const routes: Routes = [
     { path: '', component: Login },
@@ -42,6 +43,11 @@ export const routes: Routes = [
             {
                 path: 'manager/vehicles/new',
                 component: VehicleFormComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/vehicles/:id',
+                component: VehicleDetailComponent,
                 canActivate: [ManagerGuard]
             },
             {

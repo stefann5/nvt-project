@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { VehicleBrandDTO } from '../../dto/vehicle/VehicleBrandDTO';
@@ -7,6 +7,9 @@ import { VehicleModelDTO } from '../../dto/vehicle/VehicleModelDTO';
 import { VehicleResponseDTO } from '../../dto/vehicle/VehicleResponseDTO';
 import { CreateVehicleDTO } from '../../dto/vehicle/CreateVehicleDTO';
 import { UpdateVehicleDTO } from '../../dto/vehicle/UpdateVehicleDTO';
+import { VehicleLocationDTO } from '../../dto/vehicle/VehicleLocationDTO';
+import { DistanceStatisticsDTO } from '../../dto/vehicle/DistanceStatisticsDTO';
+import { AvailabilityStatisticsDTO } from '../../dto/vehicle/AvailabilityStatisticsDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -68,5 +71,33 @@ export class VehicleService {
     return this.http.get<{
       images: { id: number; originalName: string; url: string }[];
     }>(`${this.baseUrl}files/vehicle/${vehicleId}/images`);
+  }
+
+  getLastLocation(vehicleId: number): Observable<VehicleLocationDTO> {
+    return this.http.get<VehicleLocationDTO>(`${this.baseUrl}vehicles/${vehicleId}/location`);
+  }
+
+  getDistanceStatsByPeriod(vehicleId: number, period: string): Observable<DistanceStatisticsDTO> {
+    const params = new HttpParams().set('period', period);
+    return this.http.get<DistanceStatisticsDTO>(`${this.baseUrl}vehicles/${vehicleId}/distance/stats`, { params });
+  }
+
+  getDistanceStatsByDateRange(vehicleId: number, startDate: string, endDate: string): Observable<DistanceStatisticsDTO> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<DistanceStatisticsDTO>(`${this.baseUrl}vehicles/${vehicleId}/distance/stats`, { params });
+  }
+
+  getAvailabilityStatsByPeriod(vehicleId: number, period: string): Observable<AvailabilityStatisticsDTO> {
+    const params = new HttpParams().set('period', period);
+    return this.http.get<AvailabilityStatisticsDTO>(`${this.baseUrl}vehicles/${vehicleId}/availability/stats`, { params });
+  }
+
+  getAvailabilityStatsByDateRange(vehicleId: number, startTime: string, endTime: string): Observable<AvailabilityStatisticsDTO> {
+    const params = new HttpParams()
+      .set('startTime', startTime)
+      .set('endTime', endTime);
+    return this.http.get<AvailabilityStatisticsDTO>(`${this.baseUrl}vehicles/${vehicleId}/availability/stats`, { params });
   }
 }
