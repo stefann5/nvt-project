@@ -39,6 +39,11 @@ export class Dashboard {
         icon: 'pi pi-list',
         routerLink: '/app/manager/requests'
       });
+      this.menuItems[0].items?.push({
+        label: 'Vehicles',
+        icon: 'pi pi-truck',
+        routerLink: '/app/manager/vehicles'
+      });
     }
   }
 

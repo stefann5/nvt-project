@@ -8,6 +8,8 @@ import { RegisterRequestForm } from './components/register-request-form/register
 import { ManagerGuard } from './services/auth/manager-guard';
 import { RegistrationRequestsComponent } from './components/manager/registration-requests/registration-requests';
 import { RequestDetailComponent } from './components/manager/request-detail/request-detail';
+import { VehicleListComponent } from './components/manager/vehicle-list/vehicle-list';
+import { VehicleFormComponent } from './components/manager/vehicle-form/vehicle-form';
 
 export const routes: Routes = [
     { path: '', component: Login },
@@ -30,6 +32,21 @@ export const routes: Routes = [
             {
                 path: 'manager/requests/:id',
                 component: RequestDetailComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/vehicles',
+                component: VehicleListComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/vehicles/new',
+                component: VehicleFormComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/vehicles/:id/edit',
+                component: VehicleFormComponent,
                 canActivate: [ManagerGuard]
             }
         ]
