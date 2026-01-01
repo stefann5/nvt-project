@@ -8,7 +8,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "vehicles", indexes = {
+    @Index(name = "idx_vehicle_license_plate", columnList = "licensePlate"),
+    @Index(name = "idx_vehicle_brand", columnList = "brand_id"),
+    @Index(name = "idx_vehicle_model", columnList = "model_id"),
+    @Index(name = "idx_vehicle_created_at", columnList = "createdAt")
+})
 @Data
 public class Vehicle {
     @Id

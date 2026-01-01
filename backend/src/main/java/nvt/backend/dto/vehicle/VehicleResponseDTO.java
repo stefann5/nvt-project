@@ -1,15 +1,20 @@
 package nvt.backend.dto.vehicle;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import nvt.backend.model.vehicle.Vehicle;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
-public class VehicleResponseDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class VehicleResponseDTO implements Serializable {
     private Long id;
     private String licensePlate;
     private Double weightLimit;
@@ -23,7 +28,9 @@ public class VehicleResponseDTO {
 
     @Data
     @Builder
-    public static class ImageDTO {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ImageDTO implements Serializable {
         private Long id;
         private String originalName;
     }

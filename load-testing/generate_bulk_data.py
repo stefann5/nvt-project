@@ -353,7 +353,8 @@ def generate_registration_requests(conn, count, batch_size=10000):
         street_number = str(random.randint(1, 200))
         latitude = 45.2 + random.uniform(-0.5, 0.5)
         longitude = 19.8 + random.uniform(-0.5, 0.5)
-        status = random.choice(["APPROVED", "APPROVED", "APPROVED", "PENDING", "REJECTED"])
+        status = random.choice(["APPROVED", "APPROVED", "APPROVED"])
+        # status = random.choice(["APPROVED", "APPROVED", "APPROVED", "PENDING", "REJECTED"])
         owner_id = random.choice(owner_ids)
         created_at = datetime.now() - timedelta(days=random.randint(0, 365))
         
@@ -408,10 +409,35 @@ def generate_registration_requests(conn, count, batch_size=10000):
 
 def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144):
     """
-    Generate vehicle telemetry data for InfluxDB
+    Generate vehicle telemetry data for InfluxDB using existing vehicles from PostgreSQL
     
     Target: 100 vehicles * 5 years * 365.25 days * 144 readings/day = ~26.3M records
     """
+    # First, fetch existing vehicles from PostgreSQL
+    try:
+        conn = get_postgres_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, license_plate FROM vehicles 
+            ORDER BY id 
+            LIMIT %s
+        """, (num_vehicles,))
+        vehicles = cur.fetchall()
+        conn.close()
+        
+        if not vehicles:
+            print("  ✗ No vehicles found in database. Generate vehicles first with --vehicles")
+            return 0
+        
+        if len(vehicles) < num_vehicles:
+            print(f"  ⚠ Only {len(vehicles)} vehicles exist in database (requested {num_vehicles})")
+        
+        print(f"  Found {len(vehicles)} existing vehicles in PostgreSQL")
+        
+    except Exception as e:
+        print(f"  ✗ Failed to fetch vehicles from PostgreSQL: {e}")
+        return 0
+    
     client = get_influx_client()
     write_api = client.write_api(write_options=SYNCHRONOUS)
     bucket = INFLUX_CONFIG["bucket"]
@@ -424,22 +450,16 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
     # Time between readings (in seconds)
     seconds_per_reading = 86400 / readings_per_day  # 600 seconds = 10 minutes for 144/day
     
-    total_readings = int(num_vehicles * years * 365.25 * readings_per_day)
-    print(f"Generating ~{total_readings:,} InfluxDB records for {num_vehicles} vehicles over {years} years...")
-    
-    # Generate license plates for vehicles
-    vehicle_plates = {}
-    for v in range(1, num_vehicles + 1):
-        vehicle_plates[v] = random_license_plate()
+    actual_num_vehicles = len(vehicles)
+    total_readings = int(actual_num_vehicles * years * 365.25 * readings_per_day)
+    print(f"Generating ~{total_readings:,} InfluxDB records for {actual_num_vehicles} vehicles over {years} years...")
     
     batch_size = 5000
     points = []
     total_written = 0
     start_gen_time = time.time()
     
-    for vehicle_id in range(1, num_vehicles + 1):
-        license_plate = vehicle_plates[vehicle_id]
-        
+    for idx, (vehicle_id, license_plate) in enumerate(vehicles, 1):
         # Starting position (random location in Serbia)
         lat = 44.0 + random.uniform(0, 2)
         lon = 19.5 + random.uniform(0, 2)
@@ -506,9 +526,9 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
                     total_written += len(points)
                     elapsed = time.time() - start_gen_time
                     rate = total_written / elapsed if elapsed > 0 else 0
-                    progress = (vehicle_id - 1) / num_vehicles * 100 + \
+                    progress = (idx - 1) / actual_num_vehicles * 100 + \
                               ((current_time - start_time).total_seconds() / 
-                               (end_time - start_time).total_seconds()) / num_vehicles * 100
+                               (end_time - start_time).total_seconds()) / actual_num_vehicles * 100
                     print(f"  InfluxDB: {total_written:,} records ({rate:.0f}/sec) - {progress:.1f}% complete")
                 except Exception as e:
                     print(f"  Error writing batch: {e}")
@@ -516,7 +536,7 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
             
             current_time += timedelta(seconds=seconds_per_reading)
         
-        print(f"  Vehicle {vehicle_id}/{num_vehicles} complete - Total distance: {total_distance:.1f} km")
+        print(f"  Vehicle {idx}/{actual_num_vehicles} (ID: {vehicle_id}, Plate: {license_plate}) - Total distance: {total_distance:.1f} km")
     
     # Write remaining points
     if points:

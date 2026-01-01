@@ -22,7 +22,6 @@
     </p-message>
 
     <p-table [value]="requests" [tableStyle]="{'min-width': '60rem'}" *ngIf="!loading && requests.length > 0"
-             [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]"
              styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
@@ -63,5 +62,14 @@
         </tr>
       </ng-template>
     </p-table>
+
+    <p-paginator 
+      *ngIf="!loading && totalRecords > 0"
+      [rows]="pageSize" 
+      [totalRecords]="totalRecords"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [first]="currentPage * pageSize"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
   </p-card>
 </div>

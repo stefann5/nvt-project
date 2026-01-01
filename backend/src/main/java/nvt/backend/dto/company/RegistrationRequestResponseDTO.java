@@ -1,15 +1,20 @@
 package nvt.backend.dto.company;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import nvt.backend.model.company.RegistrationRequest;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
-public class RegistrationRequestResponseDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RegistrationRequestResponseDTO implements Serializable {
     private Long id;
     private String companyName;
     private String countryName;
@@ -29,7 +34,9 @@ public class RegistrationRequestResponseDTO {
 
     @Data
     @Builder
-    public static class FileDTO {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FileDTO implements Serializable {
         private Long id;
         private String originalName;
         private String contentType;

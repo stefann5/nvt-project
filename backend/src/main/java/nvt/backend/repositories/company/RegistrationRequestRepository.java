@@ -1,6 +1,8 @@
 package nvt.backend.repositories.company;
 
 import nvt.backend.model.company.RegistrationRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +35,21 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
            "LEFT JOIN FETCH r.owner " +
            "WHERE r.status = :status")
     List<RegistrationRequest> findByStatusWithDetails(@Param("status") RegistrationRequest.Status status);
+
+    @Query(value = "SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "WHERE r.status = :status",
+           countQuery = "SELECT COUNT(r) FROM RegistrationRequest r WHERE r.status = :status")
+    Page<RegistrationRequest> findByStatusWithDetailsPaged(@Param("status") RegistrationRequest.Status status, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner",
+           countQuery = "SELECT COUNT(r) FROM RegistrationRequest r")
+    Page<RegistrationRequest> findAllWithDetailsPaged(Pageable pageable);
+
+    long countByStatus(RegistrationRequest.Status status);
 }

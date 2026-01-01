@@ -1,6 +1,7 @@
 package nvt.backend.services.vehicle;
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.vehicle.AvailabilityStatisticsDTO;
 import nvt.backend.dto.vehicle.CreateVehicleDTO;
 import nvt.backend.dto.vehicle.DistanceStatisticsDTO;
@@ -10,7 +11,6 @@ import nvt.backend.dto.vehicle.VehicleResponseDTO;
 import nvt.backend.model.vehicle.Vehicle;
 import nvt.backend.model.vehicle.VehicleBrand;
 import nvt.backend.model.vehicle.VehicleImage;
-import nvt.backend.model.vehicle.VehicleLocation;
 import nvt.backend.model.vehicle.VehicleModel;
 import nvt.backend.repositories.vehicle.VehicleBrandRepository;
 import nvt.backend.repositories.vehicle.VehicleLocationRepository;
@@ -18,6 +18,13 @@ import nvt.backend.repositories.vehicle.VehicleModelRepository;
 import nvt.backend.repositories.vehicle.VehicleRepository;
 import nvt.backend.services.storage.MinioService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +50,10 @@ public class VehicleService {
     private String vehicleImagesBucket;
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "vehiclesPage", allEntries = true),
+        @CacheEvict(value = "vehicleSearch", allEntries = true)
+    })
     public VehicleResponseDTO create(CreateVehicleDTO dto, List<MultipartFile> images) throws IOException {
         if (vehicleRepository.existsByLicensePlate(dto.getLicensePlate())) {
             throw new RuntimeException("Vehicle with this license plate already exists");
@@ -90,6 +101,28 @@ public class VehicleService {
                 .toList();
     }
 
+    @Cacheable(value = "vehiclesPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
+    public PageResponseDTO<VehicleResponseDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Long> idPage = vehicleRepository.findAllIds(pageable);
+        List<Vehicle> vehicles = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : vehicleRepository.findAllWithDetailsByIds(idPage.getContent());
+        
+        return PageResponseDTO.<VehicleResponseDTO>builder()
+                .content(vehicles.stream().map(VehicleResponseDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
+                .build();
+    }
+
+    @Cacheable(value = "vehicleById", key = "#id")
     public VehicleResponseDTO getById(Long id) {
         Vehicle vehicle = vehicleRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -102,7 +135,32 @@ public class VehicleService {
                 .toList();
     }
 
+    @Cacheable(value = "vehicleSearch", key = "#query + '-' + #page + '-' + #size")
+    public PageResponseDTO<VehicleResponseDTO> searchPaged(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        
+        Page<Long> idPage = vehicleRepository.searchVehicleIds(query, pageable);
+        List<Vehicle> vehicles = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : vehicleRepository.findAllWithDetailsByIds(idPage.getContent());
+        
+        return PageResponseDTO.<VehicleResponseDTO>builder()
+                .content(vehicles.stream().map(VehicleResponseDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
+                .build();
+    }
+
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "vehicleById", key = "#id"),
+        @CacheEvict(value = "vehiclesPage", allEntries = true),
+        @CacheEvict(value = "vehicleSearch", allEntries = true)
+    })
     public VehicleResponseDTO update(Long id, UpdateVehicleDTO dto, List<MultipartFile> newImages) throws IOException {
         Vehicle vehicle = vehicleRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -165,6 +223,11 @@ public class VehicleService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "vehicleById", key = "#id"),
+        @CacheEvict(value = "vehiclesPage", allEntries = true),
+        @CacheEvict(value = "vehicleSearch", allEntries = true)
+    })
     public void delete(Long id) {
         Vehicle vehicle = vehicleRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -176,10 +239,12 @@ public class VehicleService {
         vehicleRepository.delete(vehicle);
     }
 
+    @Cacheable(value = "vehicleBrands")
     public List<VehicleBrand> getAllBrands() {
         return brandRepository.findAll();
     }
 
+    @Cacheable(value = "vehicleModels", key = "#brandId")
     public List<VehicleModel> getModelsByBrand(Long brandId) {
         return modelRepository.findByBrandId(brandId);
     }

@@ -1,6 +1,7 @@
 package nvt.backend.services.company;
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.company.CreateRequestDTO;
 import nvt.backend.dto.company.ProcessRequestDTO;
 import nvt.backend.dto.company.RegistrationRequestResponseDTO;
@@ -16,6 +17,13 @@ import nvt.backend.repositories.company.RegistrationRequestRepository;
 import nvt.backend.services.auth.EmailService;
 import nvt.backend.services.storage.MinioService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +46,10 @@ public class RegistrationRequestService {
     private String mailSender;
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "requestsPage", allEntries = true),
+        @CacheEvict(value = "pendingRequestsCount", allEntries = true)
+    })
     public RegistrationRequest create(CreateRequestDTO dto,
                                       List<MultipartFile> images,
                                       List<MultipartFile> documents,
@@ -98,12 +110,53 @@ public class RegistrationRequestService {
                 .toList();
     }
 
+    @Cacheable(value = "requestsPage", key = "'pending-' + #page + '-' + #size")
+    public PageResponseDTO<RegistrationRequestResponseDTO> getPendingRequestsPaged(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<RegistrationRequest> requestPage = requestRepository.findByStatusWithDetailsPaged(
+                RegistrationRequest.Status.PENDING, pageable);
+        
+        return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
+                .content(requestPage.getContent().stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+                .page(requestPage.getNumber())
+                .size(requestPage.getSize())
+                .totalElements(requestPage.getTotalElements())
+                .totalPages(requestPage.getTotalPages())
+                .first(requestPage.isFirst())
+                .last(requestPage.isLast())
+                .build();
+    }
+
     public List<RegistrationRequestResponseDTO> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
                 .map(RegistrationRequestResponseDTO::fromEntity)
                 .toList();
     }
+
+    @Cacheable(value = "requestsPage", key = "'all-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
+    public PageResponseDTO<RegistrationRequestResponseDTO> getAllRequestsPaged(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<RegistrationRequest> requestPage = requestRepository.findAllWithDetailsPaged(pageable);
+        
+        return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
+                .content(requestPage.getContent().stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+                .page(requestPage.getNumber())
+                .size(requestPage.getSize())
+                .totalElements(requestPage.getTotalElements())
+                .totalPages(requestPage.getTotalPages())
+                .first(requestPage.isFirst())
+                .last(requestPage.isLast())
+                .build();
+    }
+
+    @Cacheable(value = "pendingRequestsCount")
+    public long getPendingRequestsCount() {
+        return requestRepository.countByStatus(RegistrationRequest.Status.PENDING);
+    }
+
+    @Cacheable(value = "requestById", key = "#id")
 
     public RegistrationRequestResponseDTO getRequestById(Long id) {
         RegistrationRequest request = requestRepository.findByIdWithDetails(id)
@@ -112,6 +165,11 @@ public class RegistrationRequestService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "requestById", key = "#id"),
+        @CacheEvict(value = "requestsPage", allEntries = true),
+        @CacheEvict(value = "pendingRequestsCount", allEntries = true)
+    })
     public RegistrationRequestResponseDTO processRequest(Long id, ProcessRequestDTO dto) {
         RegistrationRequest request = requestRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Registration request not found"));

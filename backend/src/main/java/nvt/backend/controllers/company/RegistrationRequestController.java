@@ -2,6 +2,7 @@ package nvt.backend.controllers.company;
 
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.company.CreateRequestDTO;
 import nvt.backend.dto.company.ProcessRequestDTO;
 import nvt.backend.dto.company.RegistrationRequestResponseDTO;
@@ -50,10 +51,34 @@ public class RegistrationRequestController {
         return ResponseEntity.ok(service.getPendingRequests());
     }
 
+    @GetMapping("/pending/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<PageResponseDTO<RegistrationRequestResponseDTO>> getPendingRequestsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(service.getPendingRequestsPaged(page, size));
+    }
+
+    @GetMapping("/pending/count")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<Long> getPendingRequestsCount() {
+        return ResponseEntity.ok(service.getPendingRequestsCount());
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<List<RegistrationRequestResponseDTO>> getAllRequests() {
         return ResponseEntity.ok(service.getAllRequests());
+    }
+
+    @GetMapping("/all/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<PageResponseDTO<RegistrationRequestResponseDTO>> getAllRequestsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        return ResponseEntity.ok(service.getAllRequestsPaged(page, size, sortBy, sortDir));
     }
 
     @GetMapping("/{id}")

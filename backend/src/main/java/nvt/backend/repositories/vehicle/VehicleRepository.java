@@ -1,6 +1,8 @@
 package nvt.backend.repositories.vehicle;
 
 import nvt.backend.model.vehicle.Vehicle;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,16 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "LEFT JOIN FETCH v.model " +
             "LEFT JOIN FETCH v.images")
     List<Vehicle> findAllWithDetails();
+
+    @Query("SELECT v.id FROM Vehicle v")
+    Page<Long> findAllIds(Pageable pageable);
+
+    @Query("SELECT DISTINCT v FROM Vehicle v " +
+            "LEFT JOIN FETCH v.brand " +
+            "LEFT JOIN FETCH v.model " +
+            "LEFT JOIN FETCH v.images " +
+            "WHERE v.id IN :ids")
+    List<Vehicle> findAllWithDetailsByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT DISTINCT v FROM Vehicle v " +
             "LEFT JOIN FETCH v.brand " +
@@ -31,6 +43,14 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<Vehicle> searchVehicles(@Param("search") String search);
+
+    @Query("SELECT v.id FROM Vehicle v " +
+            "LEFT JOIN v.brand b " +
+            "LEFT JOIN v.model m " +
+            "WHERE LOWER(v.licensePlate) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Long> searchVehicleIds(@Param("search") String search, Pageable pageable);
 
     @Query("SELECT v FROM Vehicle v JOIN v.images img WHERE img.id = :imageId")
     Optional<Vehicle> findByImageId(@Param("imageId") Long imageId);

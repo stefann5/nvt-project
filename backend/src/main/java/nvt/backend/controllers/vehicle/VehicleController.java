@@ -1,6 +1,7 @@
 package nvt.backend.controllers.vehicle;
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.vehicle.*;
 import nvt.backend.model.vehicle.VehicleBrand;
 import nvt.backend.model.vehicle.VehicleModel;
@@ -50,6 +51,16 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getAll());
     }
 
+    @GetMapping("/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
+    public ResponseEntity<PageResponseDTO<VehicleResponseDTO>> getAllPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        return ResponseEntity.ok(vehicleService.getAllPaged(page, size, sortBy, sortDir));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<?> getById(@PathVariable Long id) {
@@ -64,6 +75,15 @@ public class VehicleController {
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<List<VehicleResponseDTO>> search(@RequestParam String query) {
         return ResponseEntity.ok(vehicleService.search(query));
+    }
+
+    @GetMapping("/search/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
+    public ResponseEntity<PageResponseDTO<VehicleResponseDTO>> searchPaged(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(vehicleService.searchPaged(query, page, size));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

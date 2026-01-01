@@ -10,6 +10,7 @@ import { UpdateVehicleDTO } from '../../dto/vehicle/UpdateVehicleDTO';
 import { VehicleLocationDTO } from '../../dto/vehicle/VehicleLocationDTO';
 import { DistanceStatisticsDTO } from '../../dto/vehicle/DistanceStatisticsDTO';
 import { AvailabilityStatisticsDTO } from '../../dto/vehicle/AvailabilityStatisticsDTO';
+import { PageResponseDTO } from '../../dto/common/PageResponseDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,15 @@ export class VehicleService {
     return this.http.get<VehicleResponseDTO[]>(`${this.baseUrl}vehicles`);
   }
 
+  getAllPaged(page: number = 0, size: number = 20, sortBy: string = 'id', sortDir: string = 'asc'): Observable<PageResponseDTO<VehicleResponseDTO>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
+    return this.http.get<PageResponseDTO<VehicleResponseDTO>>(`${this.baseUrl}vehicles/paged`, { params });
+  }
+
   getById(id: number): Observable<VehicleResponseDTO> {
     return this.http.get<VehicleResponseDTO>(`${this.baseUrl}vehicles/${id}`);
   }
@@ -39,6 +49,14 @@ export class VehicleService {
     return this.http.get<VehicleResponseDTO[]>(`${this.baseUrl}vehicles/search`, {
       params: { query }
     });
+  }
+
+  searchPaged(query: string, page: number = 0, size: number = 20): Observable<PageResponseDTO<VehicleResponseDTO>> {
+    const params = new HttpParams()
+      .set('query', query)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponseDTO<VehicleResponseDTO>>(`${this.baseUrl}vehicles/search/paged`, { params });
   }
 
   create(data: CreateVehicleDTO, images: File[]): Observable<VehicleResponseDTO> {
