@@ -53,7 +53,21 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers("/api/v1/registration-requests/pending",
-                                "/api/v1/registration-requests/all")
+                                "/api/v1/registration-requests/pending/paged",
+                                "/api/v1/registration-requests/pending/count",
+                                "/api/v1/registration-requests/all",
+                                "/api/v1/registration-requests/all/paged")
+                        .hasAnyAuthority("MANAGER", "ADMIN")
+
+                        .requestMatchers("/api/v1/vehicles",
+                                "/api/v1/vehicles/paged",
+                                "/api/v1/vehicles/search",
+                                "/api/v1/vehicles/search/paged",
+                                "/api/v1/vehicles/brands",
+                                "/api/v1/vehicles/brands/*/models")
+                        .hasAnyAuthority("MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/vehicles/{id}")
                         .hasAnyAuthority("MANAGER", "ADMIN")
 
                         .requestMatchers(HttpMethod.PUT, "/api/v1/registration-requests/*/process")

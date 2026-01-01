@@ -1,8 +1,10 @@
 package nvt.backend.services.company;
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.company.CreateRequestDTO;
 import nvt.backend.dto.company.ProcessRequestDTO;
+import nvt.backend.dto.company.RegistrationRequestListDTO;
 import nvt.backend.dto.company.RegistrationRequestResponseDTO;
 import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
@@ -16,6 +18,13 @@ import nvt.backend.repositories.company.RegistrationRequestRepository;
 import nvt.backend.services.auth.EmailService;
 import nvt.backend.services.storage.MinioService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +47,10 @@ public class RegistrationRequestService {
     private String mailSender;
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "requestsPage", allEntries = true),
+        @CacheEvict(value = "pendingRequestsCount", allEntries = true)
+    })
     public RegistrationRequest create(CreateRequestDTO dto,
                                       List<MultipartFile> images,
                                       List<MultipartFile> documents,
@@ -91,20 +104,73 @@ public class RegistrationRequestService {
         return requestRepository.save(request);
     }
 
-    public List<RegistrationRequestResponseDTO> getPendingRequests() {
+    @Transactional(readOnly = true)
+    public List<RegistrationRequestListDTO> getPendingRequests() {
         return requestRepository.findByStatusWithDetails(RegistrationRequest.Status.PENDING)
                 .stream()
-                .map(RegistrationRequestResponseDTO::fromEntity)
+                .map(RegistrationRequestListDTO::fromEntity)
                 .toList();
     }
 
-    public List<RegistrationRequestResponseDTO> getAllRequests() {
+    @Transactional(readOnly = true)
+    @Cacheable(value = "requestsPage", key = "'pending-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
+    public PageResponseDTO<RegistrationRequestListDTO> getPendingRequestsPaged(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Long> idPage = requestRepository.findIdsByStatus(RegistrationRequest.Status.PENDING, pageable);
+        List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : requestRepository.findAllByIds(idPage.getContent());
+        
+        return PageResponseDTO.<RegistrationRequestListDTO>builder()
+                .content(requests.stream().map(RegistrationRequestListDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<RegistrationRequestListDTO> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
-                .map(RegistrationRequestResponseDTO::fromEntity)
+                .map(RegistrationRequestListDTO::fromEntity)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = "requestsPage", key = "'all-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
+    public PageResponseDTO<RegistrationRequestListDTO> getAllRequestsPaged(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Long> idPage = requestRepository.findAllIds(pageable);
+        List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : requestRepository.findAllByIds(idPage.getContent());
+        
+        return PageResponseDTO.<RegistrationRequestListDTO>builder()
+                .content(requests.stream().map(RegistrationRequestListDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
+                .build();
+    }
+
+    @Cacheable(value = "pendingRequestsCount")
+    public long getPendingRequestsCount() {
+        return requestRepository.countByStatus(RegistrationRequest.Status.PENDING);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "requestById", key = "#id")
     public RegistrationRequestResponseDTO getRequestById(Long id) {
         RegistrationRequest request = requestRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Registration request not found"));
@@ -112,6 +178,11 @@ public class RegistrationRequestService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "requestById", key = "#id"),
+        @CacheEvict(value = "requestsPage", allEntries = true),
+        @CacheEvict(value = "pendingRequestsCount", allEntries = true)
+    })
     public RegistrationRequestResponseDTO processRequest(Long id, ProcessRequestDTO dto) {
         RegistrationRequest request = requestRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Registration request not found"));

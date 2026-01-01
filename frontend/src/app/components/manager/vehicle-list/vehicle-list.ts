@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { VehicleService } from '../../../services/vehicle/vehicle.service';
-import { VehicleResponseDTO } from '../../../dto/vehicle/VehicleResponseDTO';
+import { VehicleListDTO } from '../../../dto/vehicle/VehicleListDTO';
+import { PageResponseDTO } from '../../../dto/common/PageResponseDTO';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -16,6 +17,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -34,17 +36,24 @@ import { TooltipModule } from 'primeng/tooltip';
     ToastModule,
     IconFieldModule,
     InputIconModule,
-    TooltipModule
+    TooltipModule,
+    PaginatorModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.scss'
 })
 export class VehicleListComponent implements OnInit {
-  vehicles: VehicleResponseDTO[] = [];
+  vehicles: VehicleListDTO[] = [];
   loading = false;
   searchQuery = '';
   private searchTimeout: any;
+  
+  currentPage = 0;
+  pageSize = 20;
+  totalRecords = 0;
+  sortField = 'id';
+  sortOrder = 'asc';
 
   constructor(
     private vehicleService: VehicleService,
@@ -58,9 +67,10 @@ export class VehicleListComponent implements OnInit {
 
   loadVehicles(): void {
     this.loading = true;
-    this.vehicleService.getAll().subscribe({
-      next: (data) => {
-        this.vehicles = data;
+    this.vehicleService.getAllPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder).subscribe({
+      next: (response: PageResponseDTO<VehicleListDTO>) => {
+        this.vehicles = response.content;
+        this.totalRecords = response.totalElements;
         this.loading = false;
       },
       error: (err) => {
@@ -71,37 +81,54 @@ export class VehicleListComponent implements OnInit {
     });
   }
 
+  onPageChange(event: any): void {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+    if (this.searchQuery.trim()) {
+      this.performSearch();
+    } else {
+      this.loadVehicles();
+    }
+  }
+
   onSearch(): void {
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
 
     this.searchTimeout = setTimeout(() => {
+      this.currentPage = 0;
       if (this.searchQuery.trim()) {
-        this.loading = true;
-        this.vehicleService.search(this.searchQuery).subscribe({
-          next: (data) => {
-            this.vehicles = data;
-            this.loading = false;
-          },
-          error: (err) => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Search failed' });
-            this.loading = false;
-            console.error(err);
-          }
-        });
+        this.performSearch();
       } else {
         this.loadVehicles();
       }
     }, 300);
   }
 
+  private performSearch(): void {
+    this.loading = true;
+    this.vehicleService.searchPaged(this.searchQuery, this.currentPage, this.pageSize).subscribe({
+      next: (response: PageResponseDTO<VehicleListDTO>) => {
+        this.vehicles = response.content;
+        this.totalRecords = response.totalElements;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Search failed' });
+        this.loading = false;
+        console.error(err);
+      }
+    });
+  }
+
   clearSearch(): void {
     this.searchQuery = '';
+    this.currentPage = 0;
     this.loadVehicles();
   }
 
-  confirmDelete(vehicle: VehicleResponseDTO): void {
+  confirmDelete(vehicle: VehicleListDTO): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete vehicle "${vehicle.licensePlate}"?`,
       header: 'Confirm Delete',

@@ -198,12 +198,18 @@ export class VehicleDetailComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private initMap(): void {
     if (!this.mapContainer?.nativeElement) return;
+    if (this.map) return; // Already initialized
 
     this.map = L.map(this.mapContainer.nativeElement).setView([44.8176, 20.4633], 10);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
+
+    // If location data already loaded, place marker now
+    if (this.location) {
+      this.updateMapMarker();
+    }
   }
 
   private updateMapMarker(): void {
@@ -328,6 +334,8 @@ export class VehicleDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         this.vehicle = data;
         this.loading = false;
         this.loadImages();
+        // Initialize map after view updates (container is inside *ngIf)
+        setTimeout(() => this.initMap(), 100);
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load vehicle' });
@@ -353,13 +361,22 @@ export class VehicleDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       next: (data) => {
         this.location = data;
         this.locationLoading = false;
-        setTimeout(() => this.updateMapMarker(), 100);
+        // Try to update marker, retry if map not ready yet
+        this.tryUpdateMapMarker();
       },
       error: (err) => {
         this.locationError = 'No location data available';
         this.locationLoading = false;
       }
     });
+  }
+
+  private tryUpdateMapMarker(retries = 5): void {
+    if (this.map && this.location) {
+      this.updateMapMarker();
+    } else if (retries > 0) {
+      setTimeout(() => this.tryUpdateMapMarker(retries - 1), 200);
+    }
   }
 
   loadStatistics(): void {

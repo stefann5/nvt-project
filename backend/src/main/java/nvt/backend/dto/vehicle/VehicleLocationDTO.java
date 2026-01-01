@@ -1,14 +1,19 @@
 package nvt.backend.dto.vehicle;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import nvt.backend.model.vehicle.VehicleLocation;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class VehicleLocationDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class VehicleLocationDTO implements Serializable {
     private Long vehicleId;
     private String licensePlate;
     private Double latitude;

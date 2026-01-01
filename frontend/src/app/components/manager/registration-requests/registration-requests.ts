@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CompanyRegistrationService } from '../../../services/company/company-registration.service';
-import { RegistrationRequestDTO } from '../../../dto/company/RegistrationRequestDTO';
+import { RegistrationRequestListDTO } from '../../../dto/company/RegistrationRequestListDTO';
+import { PageResponseDTO } from '../../../dto/common/PageResponseDTO';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
+import { PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'app-registration-requests',
@@ -21,16 +23,23 @@ import { MessageModule } from 'primeng/message';
     ButtonModule, 
     TagModule,
     ProgressSpinnerModule,
-    MessageModule
+    MessageModule,
+    PaginatorModule
   ],
   templateUrl: './registration-requests.html',
   styleUrl: './registration-requests.scss'
 })
 export class RegistrationRequestsComponent implements OnInit {
-  requests: RegistrationRequestDTO[] = [];
+  requests: RegistrationRequestListDTO[] = [];
   loading = false;
   error = '';
   showAll = false;
+  
+  currentPage = 0;
+  pageSize = 20;
+  totalRecords = 0;
+  sortField = 'createdAt';
+  sortOrder = 'desc';
 
   constructor(private companyService: CompanyRegistrationService) {}
 
@@ -43,12 +52,13 @@ export class RegistrationRequestsComponent implements OnInit {
     this.error = '';
     
     const request$ = this.showAll 
-      ? this.companyService.getAllRequests()
-      : this.companyService.getPendingRequests();
+      ? this.companyService.getAllRequestsPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder)
+      : this.companyService.getPendingRequestsPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder);
 
     request$.subscribe({
-      next: (data) => {
-        this.requests = data;
+      next: (response: PageResponseDTO<RegistrationRequestListDTO>) => {
+        this.requests = response.content;
+        this.totalRecords = response.totalElements;
         this.loading = false;
       },
       error: (err) => {
@@ -59,8 +69,15 @@ export class RegistrationRequestsComponent implements OnInit {
     });
   }
 
+  onPageChange(event: any): void {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+    this.loadRequests();
+  }
+
   toggleFilter(): void {
     this.showAll = !this.showAll;
+    this.currentPage = 0;
     this.loadRequests();
   }
 

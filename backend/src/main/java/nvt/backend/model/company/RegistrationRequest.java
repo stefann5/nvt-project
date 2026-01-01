@@ -13,7 +13,12 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "registration_requests")
+@Table(name = "registration_requests", indexes = {
+    @Index(name = "idx_request_status", columnList = "status"),
+    @Index(name = "idx_request_owner", columnList = "owner_id"),
+    @Index(name = "idx_request_created_at", columnList = "createdAt"),
+    @Index(name = "idx_request_status_created", columnList = "status, createdAt")
+})
 @Data
 public class RegistrationRequest {
 

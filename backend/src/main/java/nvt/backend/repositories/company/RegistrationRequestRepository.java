@@ -1,6 +1,8 @@
 package nvt.backend.repositories.company;
 
 import nvt.backend.model.company.RegistrationRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +35,28 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
            "LEFT JOIN FETCH r.owner " +
            "WHERE r.status = :status")
     List<RegistrationRequest> findByStatusWithDetails(@Param("status") RegistrationRequest.Status status);
+
+    @Query("SELECT r.id FROM RegistrationRequest r WHERE r.status = :status")
+    Page<Long> findIdsByStatus(@Param("status") RegistrationRequest.Status status, Pageable pageable);
+
+    @Query("SELECT r.id FROM RegistrationRequest r")
+    Page<Long> findAllIds(Pageable pageable);
+
+    @Query("SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "WHERE r.id IN :ids")
+    List<RegistrationRequest> findAllByIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "LEFT JOIN FETCH r.images " +
+           "LEFT JOIN FETCH r.documents " +
+           "WHERE r.id IN :ids")
+    List<RegistrationRequest> findAllWithDetailsByIds(@Param("ids") List<Long> ids);
+
+    long countByStatus(RegistrationRequest.Status status);
 }

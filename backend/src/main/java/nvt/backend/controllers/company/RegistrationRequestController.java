@@ -2,8 +2,10 @@ package nvt.backend.controllers.company;
 
 
 import lombok.RequiredArgsConstructor;
+import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.company.CreateRequestDTO;
 import nvt.backend.dto.company.ProcessRequestDTO;
+import nvt.backend.dto.company.RegistrationRequestListDTO;
 import nvt.backend.dto.company.RegistrationRequestResponseDTO;
 import nvt.backend.model.company.RegistrationRequest;
 import nvt.backend.model.user.User;
@@ -46,14 +48,40 @@ public class RegistrationRequestController {
 
     @GetMapping("/pending")
     @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
-    public ResponseEntity<List<RegistrationRequestResponseDTO>> getPendingRequests() {
+    public ResponseEntity<List<RegistrationRequestListDTO>> getPendingRequests() {
         return ResponseEntity.ok(service.getPendingRequests());
+    }
+
+    @GetMapping("/pending/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<PageResponseDTO<RegistrationRequestListDTO>> getPendingRequestsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        return ResponseEntity.ok(service.getPendingRequestsPaged(page, size, sortBy, sortDir));
+    }
+
+    @GetMapping("/pending/count")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<Long> getPendingRequestsCount() {
+        return ResponseEntity.ok(service.getPendingRequestsCount());
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
-    public ResponseEntity<List<RegistrationRequestResponseDTO>> getAllRequests() {
+    public ResponseEntity<List<RegistrationRequestListDTO>> getAllRequests() {
         return ResponseEntity.ok(service.getAllRequests());
+    }
+
+    @GetMapping("/all/paged")
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    public ResponseEntity<PageResponseDTO<RegistrationRequestListDTO>> getAllRequestsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        return ResponseEntity.ok(service.getAllRequestsPaged(page, size, sortBy, sortDir));
     }
 
     @GetMapping("/{id}")

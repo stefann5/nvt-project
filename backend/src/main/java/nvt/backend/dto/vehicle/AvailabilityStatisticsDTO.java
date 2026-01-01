@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AvailabilityStatisticsDTO {
+public class AvailabilityStatisticsDTO implements Serializable {
     private Long vehicleId;
     private String licensePlate;
     private Instant startTime;
@@ -28,7 +29,7 @@ public class AvailabilityStatisticsDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AvailabilityDataPoint {
+    public static class AvailabilityDataPoint implements Serializable {
         private String label;
         private Instant startTime;
         private Instant endTime;
