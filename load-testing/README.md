@@ -2,26 +2,27 @@
 
 This directory contains load testing scripts for Student 3's functionalities using Locust.
 
-## Tested Endpoints (10 endpoints)
+## Tested Endpoints (12 endpoints)
 
 ### Vehicle Management (5.9)
 1. `GET /api/v1/vehicles` - Get all vehicles
 2. `GET /api/v1/vehicles/search?query=` - Search vehicles
 3. `GET /api/v1/vehicles/{id}` - Get vehicle by ID
 4. `GET /api/v1/vehicles/brands` - Get all vehicle brands
+5. `POST /api/v1/vehicles` - Create vehicle (multipart with images)
 
 ### Vehicle Telemetry (5.12)
-5. `GET /api/v1/vehicles/{id}/location` - Get vehicle last location
-6. `GET /api/v1/vehicles/{id}/distance/stats` - Get distance statistics
+6. `GET /api/v1/vehicles/{id}/location` - Get vehicle last location
+7. `GET /api/v1/vehicles/{id}/distance/stats` - Get distance statistics
 
 ### Vehicle Availability (5.15 - Bonus)
-7. `GET /api/v1/vehicles/{id}/availability/stats` - Get availability statistics
+8. `GET /api/v1/vehicles/{id}/availability/stats` - Get availability statistics
 
 ### Registration Requests (5.4, 5.5)
-8. `GET /api/v1/registration-requests/all` - Get all registration requests
-9. `GET /api/v1/registration-requests/pending` - Get pending requests
-10. `GET /api/v1/registration-requests/{id}` - Get request by ID
-11. `PUT /api/v1/registration-requests/{id}/process` - Process registration request (write test)
+9. `GET /api/v1/registration-requests/all` - Get all registration requests
+10. `GET /api/v1/registration-requests/pending` - Get pending requests
+11. `GET /api/v1/registration-requests/{id}` - Get request by ID
+12. `PUT /api/v1/registration-requests/{id}/process` - Process registration request
 
 ## Setup
 
@@ -30,7 +31,36 @@ cd load-testing
 pip install -r requirements.txt
 ```
 
-## Running Tests
+## Bulk Data Generation
+
+Generate test data for load testing and final defense:
+
+```bash
+# Generate PostgreSQL data (full scale - ~3M users, 100K vehicles)
+python generate_bulk_data.py --vehicles 100000 --managers 1000000 --customers 2000000 --requests 2000000
+
+# Generate smaller test set
+python generate_bulk_data.py --vehicles 1000 --managers 10000 --customers 20000 --requests 20000
+
+# Generate InfluxDB vehicle telemetry data (100 vehicles, 5 years, ~26M records)
+python generate_bulk_data.py --influx-vehicles 100 --influx-years 5
+
+# Generate everything at moderate scale
+python generate_bulk_data.py --vehicles 10000 --managers 100000 --customers 200000 --requests 200000 --influx-vehicles 100 --influx-years 5
+```
+
+### Data Generation Targets
+
+**PostgreSQL (Relational DB):**
+- 100,000 delivery vehicles
+- 1,000,000 managers
+- 2,000,000 customers
+- 2,000,000 registration requests (companies)
+
+**InfluxDB (Time Series DB):**
+- Vehicle distance/availability data: 100 vehicles × 5 years × 365.25 days × 144 readings/day = ~26.3M records
+
+## Running Load Tests
 
 ### Web UI Mode
 ```bash
@@ -56,13 +86,13 @@ locust -f locustfile.py --headless -u 1000 -r 50 -t 10m --host=http://localhost:
 - `-t`: Test duration
 - `--host`: Target host
 
-## Test Classes
+## Task Weights
 
-### Student3LoadTest
 Read-heavy operations with the following task weights:
 - Get Vehicle By ID: 20
 - Search Vehicles: 15
 - Get Vehicle Location: 15
+- Create Vehicle (with image upload): 10
 - Get All Vehicles: 10
 - Get Distance Statistics: 10
 - Get Availability Statistics: 10
@@ -70,9 +100,7 @@ Read-heavy operations with the following task weights:
 - Get Request By ID: 10
 - Get All Requests: 5
 - Get Vehicle Brands: 5
-
-### Student3WriteLoadTest
-Write operations for processing registration requests.
+- Process Registration Request: 2
 
 ## Expected Results
 
