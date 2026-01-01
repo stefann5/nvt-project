@@ -6,6 +6,7 @@ import nvt.backend.dto.vehicle.AvailabilityStatisticsDTO;
 import nvt.backend.dto.vehicle.CreateVehicleDTO;
 import nvt.backend.dto.vehicle.DistanceStatisticsDTO;
 import nvt.backend.dto.vehicle.UpdateVehicleDTO;
+import nvt.backend.dto.vehicle.VehicleListDTO;
 import nvt.backend.dto.vehicle.VehicleLocationDTO;
 import nvt.backend.dto.vehicle.VehicleResponseDTO;
 import nvt.backend.model.vehicle.Vehicle;
@@ -95,24 +96,24 @@ public class VehicleService {
         return VehicleResponseDTO.fromEntity(vehicle);
     }
 
-    public List<VehicleResponseDTO> getAll() {
+    public List<VehicleListDTO> getAll() {
         return vehicleRepository.findAllWithDetails().stream()
-                .map(VehicleResponseDTO::fromEntity)
+                .map(VehicleListDTO::fromEntity)
                 .toList();
     }
 
     @Cacheable(value = "vehiclesPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
-    public PageResponseDTO<VehicleResponseDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
+    public PageResponseDTO<VehicleListDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
         Page<Long> idPage = vehicleRepository.findAllIds(pageable);
         List<Vehicle> vehicles = idPage.getContent().isEmpty() 
                 ? List.of() 
-                : vehicleRepository.findAllWithDetailsByIds(idPage.getContent());
+                : vehicleRepository.findAllByIds(idPage.getContent());
         
-        return PageResponseDTO.<VehicleResponseDTO>builder()
-                .content(vehicles.stream().map(VehicleResponseDTO::fromEntity).toList())
+        return PageResponseDTO.<VehicleListDTO>builder()
+                .content(vehicles.stream().map(VehicleListDTO::fromEntity).toList())
                 .page(idPage.getNumber())
                 .size(idPage.getSize())
                 .totalElements(idPage.getTotalElements())
@@ -129,23 +130,23 @@ public class VehicleService {
         return VehicleResponseDTO.fromEntity(vehicle);
     }
 
-    public List<VehicleResponseDTO> search(String query) {
+    public List<VehicleListDTO> search(String query) {
         return vehicleRepository.searchVehicles(query).stream()
-                .map(VehicleResponseDTO::fromEntity)
+                .map(VehicleListDTO::fromEntity)
                 .toList();
     }
 
     @Cacheable(value = "vehicleSearch", key = "#query + '-' + #page + '-' + #size")
-    public PageResponseDTO<VehicleResponseDTO> searchPaged(String query, int page, int size) {
+    public PageResponseDTO<VehicleListDTO> searchPaged(String query, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         
         Page<Long> idPage = vehicleRepository.searchVehicleIds(query, pageable);
         List<Vehicle> vehicles = idPage.getContent().isEmpty() 
                 ? List.of() 
-                : vehicleRepository.findAllWithDetailsByIds(idPage.getContent());
+                : vehicleRepository.findAllByIds(idPage.getContent());
         
-        return PageResponseDTO.<VehicleResponseDTO>builder()
-                .content(vehicles.stream().map(VehicleResponseDTO::fromEntity).toList())
+        return PageResponseDTO.<VehicleListDTO>builder()
+                .content(vehicles.stream().map(VehicleListDTO::fromEntity).toList())
                 .page(idPage.getNumber())
                 .size(idPage.getSize())
                 .totalElements(idPage.getTotalElements())

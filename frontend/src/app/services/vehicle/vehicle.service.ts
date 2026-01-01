@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { VehicleBrandDTO } from '../../dto/vehicle/VehicleBrandDTO';
 import { VehicleModelDTO } from '../../dto/vehicle/VehicleModelDTO';
 import { VehicleResponseDTO } from '../../dto/vehicle/VehicleResponseDTO';
+import { VehicleListDTO } from '../../dto/vehicle/VehicleListDTO';
 import { CreateVehicleDTO } from '../../dto/vehicle/CreateVehicleDTO';
 import { UpdateVehicleDTO } from '../../dto/vehicle/UpdateVehicleDTO';
 import { VehicleLocationDTO } from '../../dto/vehicle/VehicleLocationDTO';
@@ -28,35 +29,35 @@ export class VehicleService {
     return this.http.get<VehicleModelDTO[]>(`${this.baseUrl}vehicles/brands/${brandId}/models`);
   }
 
-  getAll(): Observable<VehicleResponseDTO[]> {
-    return this.http.get<VehicleResponseDTO[]>(`${this.baseUrl}vehicles`);
+  getAll(): Observable<VehicleListDTO[]> {
+    return this.http.get<VehicleListDTO[]>(`${this.baseUrl}vehicles`);
   }
 
-  getAllPaged(page: number = 0, size: number = 20, sortBy: string = 'id', sortDir: string = 'asc'): Observable<PageResponseDTO<VehicleResponseDTO>> {
+  getAllPaged(page: number = 0, size: number = 20, sortBy: string = 'id', sortDir: string = 'asc'): Observable<PageResponseDTO<VehicleListDTO>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDir', sortDir);
-    return this.http.get<PageResponseDTO<VehicleResponseDTO>>(`${this.baseUrl}vehicles/paged`, { params });
+    return this.http.get<PageResponseDTO<VehicleListDTO>>(`${this.baseUrl}vehicles/paged`, { params });
   }
 
   getById(id: number): Observable<VehicleResponseDTO> {
     return this.http.get<VehicleResponseDTO>(`${this.baseUrl}vehicles/${id}`);
   }
 
-  search(query: string): Observable<VehicleResponseDTO[]> {
-    return this.http.get<VehicleResponseDTO[]>(`${this.baseUrl}vehicles/search`, {
+  search(query: string): Observable<VehicleListDTO[]> {
+    return this.http.get<VehicleListDTO[]>(`${this.baseUrl}vehicles/search`, {
       params: { query }
     });
   }
 
-  searchPaged(query: string, page: number = 0, size: number = 20): Observable<PageResponseDTO<VehicleResponseDTO>> {
+  searchPaged(query: string, page: number = 0, size: number = 20): Observable<PageResponseDTO<VehicleListDTO>> {
     const params = new HttpParams()
       .set('query', query)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PageResponseDTO<VehicleResponseDTO>>(`${this.baseUrl}vehicles/search/paged`, { params });
+    return this.http.get<PageResponseDTO<VehicleListDTO>>(`${this.baseUrl}vehicles/search/paged`, { params });
   }
 
   create(data: CreateVehicleDTO, images: File[]): Observable<VehicleResponseDTO> {

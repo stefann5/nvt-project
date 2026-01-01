@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { VehicleService } from '../../../services/vehicle/vehicle.service';
-import { VehicleResponseDTO } from '../../../dto/vehicle/VehicleResponseDTO';
+import { VehicleListDTO } from '../../../dto/vehicle/VehicleListDTO';
 import { PageResponseDTO } from '../../../dto/common/PageResponseDTO';
 import { CardModule } from 'primeng/card';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
@@ -44,7 +44,7 @@ import { PaginatorModule } from 'primeng/paginator';
   styleUrl: './vehicle-list.scss'
 })
 export class VehicleListComponent implements OnInit {
-  vehicles: VehicleResponseDTO[] = [];
+  vehicles: VehicleListDTO[] = [];
   loading = false;
   searchQuery = '';
   private searchTimeout: any;
@@ -68,7 +68,7 @@ export class VehicleListComponent implements OnInit {
   loadVehicles(): void {
     this.loading = true;
     this.vehicleService.getAllPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder).subscribe({
-      next: (response: PageResponseDTO<VehicleResponseDTO>) => {
+      next: (response: PageResponseDTO<VehicleListDTO>) => {
         this.vehicles = response.content;
         this.totalRecords = response.totalElements;
         this.loading = false;
@@ -109,7 +109,7 @@ export class VehicleListComponent implements OnInit {
   private performSearch(): void {
     this.loading = true;
     this.vehicleService.searchPaged(this.searchQuery, this.currentPage, this.pageSize).subscribe({
-      next: (response: PageResponseDTO<VehicleResponseDTO>) => {
+      next: (response: PageResponseDTO<VehicleListDTO>) => {
         this.vehicles = response.content;
         this.totalRecords = response.totalElements;
         this.loading = false;
@@ -128,7 +128,7 @@ export class VehicleListComponent implements OnInit {
     this.loadVehicles();
   }
 
-  confirmDelete(vehicle: VehicleResponseDTO): void {
+  confirmDelete(vehicle: VehicleListDTO): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete vehicle "${vehicle.licensePlate}"?`,
       header: 'Confirm Delete',

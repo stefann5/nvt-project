@@ -6,6 +6,7 @@ import { CountryDTO } from '../../dto/company/CountryDTO';
 import { CityDTO } from '../../dto/company/CityDTO';
 import { CreateRequestDTO } from '../../dto/company/CreateRequestDTO';
 import { RegistrationRequestDTO } from '../../dto/company/RegistrationRequestDTO';
+import { RegistrationRequestListDTO } from '../../dto/company/RegistrationRequestListDTO';
 import { ProcessRequestDTO } from '../../dto/company/ProcessRequestDTO';
 import { PageResponseDTO } from '../../dto/common/PageResponseDTO';
 
@@ -45,34 +46,34 @@ export class CompanyRegistrationService {
     return this.http.post<number>(`${this.baseUrl}registration-requests`, formData);
   }
 
-  getPendingRequests(): Observable<RegistrationRequestDTO[]> {
-    return this.http.get<RegistrationRequestDTO[]>(`${this.baseUrl}registration-requests/pending`);
+  getPendingRequests(): Observable<RegistrationRequestListDTO[]> {
+    return this.http.get<RegistrationRequestListDTO[]>(`${this.baseUrl}registration-requests/pending`);
   }
 
-  getPendingRequestsPaged(page: number = 0, size: number = 20, sortBy: string = 'createdAt', sortDir: string = 'desc'): Observable<PageResponseDTO<RegistrationRequestDTO>> {
+  getPendingRequestsPaged(page: number = 0, size: number = 20, sortBy: string = 'createdAt', sortDir: string = 'desc'): Observable<PageResponseDTO<RegistrationRequestListDTO>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDir', sortDir);
-    return this.http.get<PageResponseDTO<RegistrationRequestDTO>>(`${this.baseUrl}registration-requests/pending/paged`, { params });
+    return this.http.get<PageResponseDTO<RegistrationRequestListDTO>>(`${this.baseUrl}registration-requests/pending/paged`, { params });
   }
 
   getPendingRequestsCount(): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}registration-requests/pending/count`);
   }
 
-  getAllRequests(): Observable<RegistrationRequestDTO[]> {
-    return this.http.get<RegistrationRequestDTO[]>(`${this.baseUrl}registration-requests/all`);
+  getAllRequests(): Observable<RegistrationRequestListDTO[]> {
+    return this.http.get<RegistrationRequestListDTO[]>(`${this.baseUrl}registration-requests/all`);
   }
 
-  getAllRequestsPaged(page: number = 0, size: number = 20, sortBy: string = 'createdAt', sortDir: string = 'desc'): Observable<PageResponseDTO<RegistrationRequestDTO>> {
+  getAllRequestsPaged(page: number = 0, size: number = 20, sortBy: string = 'createdAt', sortDir: string = 'desc'): Observable<PageResponseDTO<RegistrationRequestListDTO>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDir', sortDir);
-    return this.http.get<PageResponseDTO<RegistrationRequestDTO>>(`${this.baseUrl}registration-requests/all/paged`, { params });
+    return this.http.get<PageResponseDTO<RegistrationRequestListDTO>>(`${this.baseUrl}registration-requests/all/paged`, { params });
   }
 
   getRequestById(id: number): Observable<RegistrationRequestDTO> {

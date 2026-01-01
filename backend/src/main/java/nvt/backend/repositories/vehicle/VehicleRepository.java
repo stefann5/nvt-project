@@ -14,8 +14,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     @Query("SELECT DISTINCT v FROM Vehicle v " +
             "LEFT JOIN FETCH v.brand " +
-            "LEFT JOIN FETCH v.model " +
-            "LEFT JOIN FETCH v.images")
+            "LEFT JOIN FETCH v.model")
     List<Vehicle> findAllWithDetails();
 
     @Query("SELECT v.id FROM Vehicle v")
@@ -24,9 +23,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     @Query("SELECT DISTINCT v FROM Vehicle v " +
             "LEFT JOIN FETCH v.brand " +
             "LEFT JOIN FETCH v.model " +
-            "LEFT JOIN FETCH v.images " +
             "WHERE v.id IN :ids")
-    List<Vehicle> findAllWithDetailsByIds(@Param("ids") List<Long> ids);
+    List<Vehicle> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT DISTINCT v FROM Vehicle v " +
             "LEFT JOIN FETCH v.brand " +
@@ -35,21 +33,27 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "WHERE v.id = :id")
     Optional<Vehicle> findByIdWithDetails(@Param("id") Long id);
 
-    @Query("SELECT DISTINCT v FROM Vehicle v " +
-            "LEFT JOIN FETCH v.brand b " +
-            "LEFT JOIN FETCH v.model m " +
-            "LEFT JOIN FETCH v.images " +
-            "WHERE LOWER(v.licensePlate) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))")
+    @Query(value = "SELECT DISTINCT v.* FROM vehicles v " +
+            "LEFT JOIN vehicle_brands b ON b.id = v.brand_id " +
+            "LEFT JOIN vehicle_models m ON m.id = v.model_id " +
+            "WHERE v.license_plate ILIKE CONCAT('%', :search, '%') " +
+            "OR b.name ILIKE CONCAT('%', :search, '%') " +
+            "OR m.name ILIKE CONCAT('%', :search, '%')", nativeQuery = true)
     List<Vehicle> searchVehicles(@Param("search") String search);
 
-    @Query("SELECT v.id FROM Vehicle v " +
-            "LEFT JOIN v.brand b " +
-            "LEFT JOIN v.model m " +
-            "WHERE LOWER(v.licensePlate) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))")
+    @Query(value = "SELECT v.id FROM vehicles v " +
+            "LEFT JOIN vehicle_brands b ON b.id = v.brand_id " +
+            "LEFT JOIN vehicle_models m ON m.id = v.model_id " +
+            "WHERE v.license_plate ILIKE CONCAT('%', :search, '%') " +
+            "OR b.name ILIKE CONCAT('%', :search, '%') " +
+            "OR m.name ILIKE CONCAT('%', :search, '%')",
+            countQuery = "SELECT COUNT(v.id) FROM vehicles v " +
+            "LEFT JOIN vehicle_brands b ON b.id = v.brand_id " +
+            "LEFT JOIN vehicle_models m ON m.id = v.model_id " +
+            "WHERE v.license_plate ILIKE CONCAT('%', :search, '%') " +
+            "OR b.name ILIKE CONCAT('%', :search, '%') " +
+            "OR m.name ILIKE CONCAT('%', :search, '%')",
+            nativeQuery = true)
     Page<Long> searchVehicleIds(@Param("search") String search, Pageable pageable);
 
     @Query("SELECT v FROM Vehicle v JOIN v.images img WHERE img.id = :imageId")

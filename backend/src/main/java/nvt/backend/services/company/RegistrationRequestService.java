@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.company.CreateRequestDTO;
 import nvt.backend.dto.company.ProcessRequestDTO;
+import nvt.backend.dto.company.RegistrationRequestListDTO;
 import nvt.backend.dto.company.RegistrationRequestResponseDTO;
 import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
@@ -104,26 +105,26 @@ public class RegistrationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<RegistrationRequestResponseDTO> getPendingRequests() {
+    public List<RegistrationRequestListDTO> getPendingRequests() {
         return requestRepository.findByStatusWithDetails(RegistrationRequest.Status.PENDING)
                 .stream()
-                .map(RegistrationRequestResponseDTO::fromEntity)
+                .map(RegistrationRequestListDTO::fromEntity)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "requestsPage", key = "'pending-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
-    public PageResponseDTO<RegistrationRequestResponseDTO> getPendingRequestsPaged(int page, int size, String sortBy, String sortDir) {
+    public PageResponseDTO<RegistrationRequestListDTO> getPendingRequestsPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
         Page<Long> idPage = requestRepository.findIdsByStatus(RegistrationRequest.Status.PENDING, pageable);
         List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
                 ? List.of() 
-                : requestRepository.findAllWithDetailsByIds(idPage.getContent());
+                : requestRepository.findAllByIds(idPage.getContent());
         
-        return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
-                .content(requests.stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+        return PageResponseDTO.<RegistrationRequestListDTO>builder()
+                .content(requests.stream().map(RegistrationRequestListDTO::fromEntity).toList())
                 .page(idPage.getNumber())
                 .size(idPage.getSize())
                 .totalElements(idPage.getTotalElements())
@@ -134,26 +135,26 @@ public class RegistrationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<RegistrationRequestResponseDTO> getAllRequests() {
+    public List<RegistrationRequestListDTO> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
-                .map(RegistrationRequestResponseDTO::fromEntity)
+                .map(RegistrationRequestListDTO::fromEntity)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "requestsPage", key = "'all-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
-    public PageResponseDTO<RegistrationRequestResponseDTO> getAllRequestsPaged(int page, int size, String sortBy, String sortDir) {
+    public PageResponseDTO<RegistrationRequestListDTO> getAllRequestsPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
         Page<Long> idPage = requestRepository.findAllIds(pageable);
         List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
                 ? List.of() 
-                : requestRepository.findAllWithDetailsByIds(idPage.getContent());
+                : requestRepository.findAllByIds(idPage.getContent());
         
-        return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
-                .content(requests.stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+        return PageResponseDTO.<RegistrationRequestListDTO>builder()
+                .content(requests.stream().map(RegistrationRequestListDTO::fromEntity).toList())
                 .page(idPage.getNumber())
                 .size(idPage.getSize())
                 .totalElements(idPage.getTotalElements())

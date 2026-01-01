@@ -47,13 +47,13 @@ public class VehicleController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<VehicleResponseDTO>> getAll() {
+    public ResponseEntity<List<VehicleListDTO>> getAll() {
         return ResponseEntity.ok(vehicleService.getAll());
     }
 
     @GetMapping("/paged")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<PageResponseDTO<VehicleResponseDTO>> getAllPaged(
+    public ResponseEntity<PageResponseDTO<VehicleListDTO>> getAllPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -73,13 +73,13 @@ public class VehicleController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<VehicleResponseDTO>> search(@RequestParam String query) {
+    public ResponseEntity<List<VehicleListDTO>> search(@RequestParam String query) {
         return ResponseEntity.ok(vehicleService.search(query));
     }
 
     @GetMapping("/search/paged")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<PageResponseDTO<VehicleResponseDTO>> searchPaged(
+    public ResponseEntity<PageResponseDTO<VehicleListDTO>> searchPaged(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {

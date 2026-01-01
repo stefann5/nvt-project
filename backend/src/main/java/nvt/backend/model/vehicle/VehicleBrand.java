@@ -7,7 +7,9 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
-@Table(name = "vehicle_brands")
+@Table(name = "vehicle_brands", indexes = {
+    @Index(name = "idx_brand_name", columnList = "name")
+})
 @Data
 public class VehicleBrand {
     @Id

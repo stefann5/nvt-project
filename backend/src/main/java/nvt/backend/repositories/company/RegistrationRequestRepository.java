@@ -46,6 +46,13 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
            "LEFT JOIN FETCH r.country " +
            "LEFT JOIN FETCH r.city " +
            "LEFT JOIN FETCH r.owner " +
+           "WHERE r.id IN :ids")
+    List<RegistrationRequest> findAllByIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT DISTINCT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
            "LEFT JOIN FETCH r.images " +
            "LEFT JOIN FETCH r.documents " +
            "WHERE r.id IN :ids")

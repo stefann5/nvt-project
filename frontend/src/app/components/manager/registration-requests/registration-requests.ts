@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CompanyRegistrationService } from '../../../services/company/company-registration.service';
-import { RegistrationRequestDTO } from '../../../dto/company/RegistrationRequestDTO';
+import { RegistrationRequestListDTO } from '../../../dto/company/RegistrationRequestListDTO';
 import { PageResponseDTO } from '../../../dto/common/PageResponseDTO';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -30,7 +30,7 @@ import { PaginatorModule } from 'primeng/paginator';
   styleUrl: './registration-requests.scss'
 })
 export class RegistrationRequestsComponent implements OnInit {
-  requests: RegistrationRequestDTO[] = [];
+  requests: RegistrationRequestListDTO[] = [];
   loading = false;
   error = '';
   showAll = false;
@@ -56,7 +56,7 @@ export class RegistrationRequestsComponent implements OnInit {
       : this.companyService.getPendingRequestsPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder);
 
     request$.subscribe({
-      next: (response: PageResponseDTO<RegistrationRequestDTO>) => {
+      next: (response: PageResponseDTO<RegistrationRequestListDTO>) => {
         this.requests = response.content;
         this.totalRecords = response.totalElements;
         this.loading = false;
