@@ -12,6 +12,7 @@ import nvt.backend.dto.vehicle.DistanceStatisticsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -24,13 +25,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class VehicleTelemetryService {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleTelemetryService.class);
+    private static final int MAX_DATA_POINTS = 100;
 
     private final InfluxDBClient influxDBClient;
+    private final QueryApi queryApi;
     private final String org;
     private final String bucket;
 
@@ -39,10 +43,12 @@ public class VehicleTelemetryService {
             @Value("${influxdb.org}") String org,
             @Value("${influxdb.bucket}") String bucket) {
         this.influxDBClient = influxDBClient;
+        this.queryApi = influxDBClient.getQueryApi();
         this.org = org;
         this.bucket = bucket;
     }
 
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordHeartbeat(Long vehicleId, String licensePlate, boolean online) {
         try {
             WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
@@ -58,6 +64,7 @@ public class VehicleTelemetryService {
         }
     }
 
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordStateChange(Long vehicleId, String licensePlate, String state) {
         try {
             WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
@@ -73,6 +80,7 @@ public class VehicleTelemetryService {
         }
     }
 
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordDistance(Long vehicleId, String licensePlate, Double distance) {
         try {
             WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
@@ -88,6 +96,7 @@ public class VehicleTelemetryService {
         }
     }
 
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordLocation(Long vehicleId, String licensePlate, Double latitude, Double longitude) {
         try {
             WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
@@ -112,11 +121,12 @@ public class VehicleTelemetryService {
                             "|> range(start: %s) " +
                             "|> filter(fn: (r) => r._measurement == \"vehicle_availability\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
-                            "|> sort(columns: [\"_time\"], desc: true)",
-                    bucket, range, vehicleId
+                            "|> aggregateWindow(every: 1h, fn: mean, createEmpty: false) " +
+                            "|> sort(columns: [\"_time\"], desc: true) " +
+                            "|> limit(n: %d)",
+                    bucket, range, vehicleId, MAX_DATA_POINTS
             );
 
-            QueryApi queryApi = influxDBClient.getQueryApi();
             List<FluxTable> tables = queryApi.query(flux, org);
 
             for (FluxTable table : tables) {
@@ -141,11 +151,12 @@ public class VehicleTelemetryService {
                             "|> range(start: %s) " +
                             "|> filter(fn: (r) => r._measurement == \"vehicle_distance\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
-                            "|> sort(columns: [\"_time\"], desc: true)",
-                    bucket, range, vehicleId
+                            "|> aggregateWindow(every: 1h, fn: sum, createEmpty: false) " +
+                            "|> sort(columns: [\"_time\"], desc: true) " +
+                            "|> limit(n: %d)",
+                    bucket, range, vehicleId, MAX_DATA_POINTS
             );
 
-            QueryApi queryApi = influxDBClient.getQueryApi();
             List<FluxTable> tables = queryApi.query(flux, org);
 
             for (FluxTable table : tables) {
@@ -170,11 +181,11 @@ public class VehicleTelemetryService {
                             "|> range(start: %s) " +
                             "|> filter(fn: (r) => r._measurement == \"vehicle_state\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
-                            "|> sort(columns: [\"_time\"], desc: true)",
-                    bucket, range, vehicleId
+                            "|> sort(columns: [\"_time\"], desc: true) " +
+                            "|> limit(n: %d)",
+                    bucket, range, vehicleId, MAX_DATA_POINTS
             );
 
-            QueryApi queryApi = influxDBClient.getQueryApi();
             List<FluxTable> tables = queryApi.query(flux, org);
 
             for (FluxTable table : tables) {
@@ -191,6 +202,7 @@ public class VehicleTelemetryService {
         return results;
     }
 
+    @Cacheable(value = "distanceStats", key = "#vehicleId + '-' + #startDate + '-' + #endDate")
     public DistanceStatisticsDTO getAggregatedDistance(Long vehicleId, String licensePlate, 
                                                         LocalDate startDate, LocalDate endDate) {
         long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
@@ -222,13 +234,12 @@ public class VehicleTelemetryService {
                             "|> filter(fn: (r) => r._measurement == \"vehicle_distance\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
                             "|> filter(fn: (r) => r._field == \"distance\") " +
-                            "|> aggregateWindow(every: %s, fn: sum, createEmpty: true) " +
-                            "|> fill(value: 0.0) " +
-                            "|> sort(columns: [\"_time\"], desc: false)",
-                    bucket, startTimeStr, endTimeStr, vehicleId, windowPeriod
+                            "|> aggregateWindow(every: %s, fn: sum, createEmpty: false) " +
+                            "|> sort(columns: [\"_time\"], desc: false) " +
+                            "|> limit(n: %d)",
+                    bucket, startTimeStr, endTimeStr, vehicleId, windowPeriod, MAX_DATA_POINTS
             );
 
-            QueryApi queryApi = influxDBClient.getQueryApi();
             List<FluxTable> tables = queryApi.query(flux, org);
 
             DateTimeFormatter labelFormatter = switch (aggregationType) {
@@ -310,6 +321,7 @@ public class VehicleTelemetryService {
         return 0.0;
     }
 
+    @Cacheable(value = "availabilityStats", key = "#vehicleId + '-' + #startTime.toEpochMilli() + '-' + #endTime.toEpochMilli()")
     public AvailabilityStatisticsDTO getAggregatedAvailability(Long vehicleId, String licensePlate,
                                                                 Instant startTime, Instant endTime) {
         Duration totalDuration = Duration.between(startTime, endTime);
@@ -318,10 +330,7 @@ public class VehicleTelemetryService {
         String aggregationType;
         Duration windowDuration;
 
-        if (totalHours <= 12) {
-            aggregationType = "hourly";
-            windowDuration = Duration.ofHours(1);
-        } else if (totalHours <= 168) {
+        if (totalHours <= 24) {
             aggregationType = "hourly";
             windowDuration = Duration.ofHours(1);
         } else if (totalHours <= 720) {
@@ -346,13 +355,12 @@ public class VehicleTelemetryService {
                             "|> filter(fn: (r) => r._measurement == \"vehicle_availability\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
                             "|> filter(fn: (r) => r._field == \"online\") " +
-                            "|> aggregateWindow(every: %s, fn: mean, createEmpty: true) " +
-                            "|> fill(value: 0.0) " +
-                            "|> sort(columns: [\"_time\"], desc: false)",
-                    bucket, startTime.toString(), endTime.toString(), vehicleId, windowPeriod
+                            "|> aggregateWindow(every: %s, fn: mean, createEmpty: false) " +
+                            "|> sort(columns: [\"_time\"], desc: false) " +
+                            "|> limit(n: %d)",
+                    bucket, startTime.toString(), endTime.toString(), vehicleId, windowPeriod, MAX_DATA_POINTS
             );
 
-            QueryApi queryApi = influxDBClient.getQueryApi();
             List<FluxTable> tables = queryApi.query(flux, org);
 
             DateTimeFormatter labelFormatter = switch (aggregationType) {

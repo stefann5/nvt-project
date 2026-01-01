@@ -103,6 +103,7 @@ public class RegistrationRequestService {
         return requestRepository.save(request);
     }
 
+    @Transactional(readOnly = true)
     public List<RegistrationRequestResponseDTO> getPendingRequests() {
         return requestRepository.findByStatusWithDetails(RegistrationRequest.Status.PENDING)
                 .stream()
@@ -110,23 +111,29 @@ public class RegistrationRequestService {
                 .toList();
     }
 
-    @Cacheable(value = "requestsPage", key = "'pending-' + #page + '-' + #size")
-    public PageResponseDTO<RegistrationRequestResponseDTO> getPendingRequestsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<RegistrationRequest> requestPage = requestRepository.findByStatusWithDetailsPaged(
-                RegistrationRequest.Status.PENDING, pageable);
+    @Transactional(readOnly = true)
+    @Cacheable(value = "requestsPage", key = "'pending-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
+    public PageResponseDTO<RegistrationRequestResponseDTO> getPendingRequestsPaged(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Long> idPage = requestRepository.findIdsByStatus(RegistrationRequest.Status.PENDING, pageable);
+        List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : requestRepository.findAllWithDetailsByIds(idPage.getContent());
         
         return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
-                .content(requestPage.getContent().stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
-                .page(requestPage.getNumber())
-                .size(requestPage.getSize())
-                .totalElements(requestPage.getTotalElements())
-                .totalPages(requestPage.getTotalPages())
-                .first(requestPage.isFirst())
-                .last(requestPage.isLast())
+                .content(requests.stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<RegistrationRequestResponseDTO> getAllRequests() {
         return requestRepository.findAll()
                 .stream()
@@ -134,20 +141,25 @@ public class RegistrationRequestService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "requestsPage", key = "'all-' + #page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
     public PageResponseDTO<RegistrationRequestResponseDTO> getAllRequestsPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<RegistrationRequest> requestPage = requestRepository.findAllWithDetailsPaged(pageable);
+        
+        Page<Long> idPage = requestRepository.findAllIds(pageable);
+        List<RegistrationRequest> requests = idPage.getContent().isEmpty() 
+                ? List.of() 
+                : requestRepository.findAllWithDetailsByIds(idPage.getContent());
         
         return PageResponseDTO.<RegistrationRequestResponseDTO>builder()
-                .content(requestPage.getContent().stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
-                .page(requestPage.getNumber())
-                .size(requestPage.getSize())
-                .totalElements(requestPage.getTotalElements())
-                .totalPages(requestPage.getTotalPages())
-                .first(requestPage.isFirst())
-                .last(requestPage.isLast())
+                .content(requests.stream().map(RegistrationRequestResponseDTO::fromEntity).toList())
+                .page(idPage.getNumber())
+                .size(idPage.getSize())
+                .totalElements(idPage.getTotalElements())
+                .totalPages(idPage.getTotalPages())
+                .first(idPage.isFirst())
+                .last(idPage.isLast())
                 .build();
     }
 
@@ -156,8 +168,8 @@ public class RegistrationRequestService {
         return requestRepository.countByStatus(RegistrationRequest.Status.PENDING);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "requestById", key = "#id")
-
     public RegistrationRequestResponseDTO getRequestById(Long id) {
         RegistrationRequest request = requestRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Registration request not found"));

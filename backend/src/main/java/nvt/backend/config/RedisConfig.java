@@ -65,6 +65,9 @@ public class RedisConfig {
         cacheConfigurations.put("pendingRequestsCount", defaultConfig.entryTtl(Duration.ofMinutes(1)));
         cacheConfigurations.put("requestsPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         cacheConfigurations.put("requestById", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("distanceStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("availabilityStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("vehicleLocation", defaultConfig.entryTtl(Duration.ofSeconds(30)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

@@ -76,7 +76,7 @@ public class FileController {
     @GetMapping("/request/{requestId}/files")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
     public ResponseEntity<Map<String, Object>> getRequestFiles(@PathVariable Long requestId) {
-        var request = registrationRequestRepository.findById(requestId)
+        var request = registrationRequestRepository.findByIdWithDetails(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         Map<String, Object> response = new HashMap<>();

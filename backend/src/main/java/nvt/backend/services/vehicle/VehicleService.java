@@ -249,6 +249,7 @@ public class VehicleService {
         return modelRepository.findByBrandId(brandId);
     }
 
+    @Cacheable(value = "vehicleLocation", key = "#vehicleId")
     public VehicleLocationDTO getLastLocation(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -258,6 +259,7 @@ public class VehicleService {
                 .orElse(null);
     }
 
+    @Cacheable(value = "distanceStats", key = "#vehicleId + '-' + #startDate + '-' + #endDate")
     public DistanceStatisticsDTO getDistanceStatistics(Long vehicleId, LocalDate startDate, LocalDate endDate) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -265,6 +267,7 @@ public class VehicleService {
         return telemetryService.getAggregatedDistance(vehicleId, vehicle.getLicensePlate(), startDate, endDate);
     }
 
+    @Cacheable(value = "availabilityStats", key = "#vehicleId + '-' + #startTime.toEpochMilli() + '-' + #endTime.toEpochMilli()")
     public AvailabilityStatisticsDTO getAvailabilityStatistics(Long vehicleId, Instant startTime, Instant endTime) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
