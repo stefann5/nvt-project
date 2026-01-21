@@ -1,0 +1,290 @@
+<p-toast></p-toast>
+
+<div class="flex justify-content-center p-4">
+  <div class="w-full" style="max-width: 900px;">
+    <p-button
+      label="Back to Warehouses"
+      icon="pi pi-arrow-left"
+      [outlined]="true"
+      (onClick)="goBack()"
+      class="mb-3">
+    </p-button>
+
+    <div class="flex justify-content-center p-4" *ngIf="loading">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+    </div>
+
+    <p-card [header]="isEditMode ? 'Edit Warehouse' : 'Add New Warehouse'" *ngIf="!loading">
+      <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()">
+
+        <div class="flex flex-column gap-2 mb-4">
+          <label for="name" class="font-semibold">Warehouse Name *</label>
+          <input
+            pInputText
+            id="name"
+            formControlName="name"
+            placeholder="e.g. Main Distribution Center"
+            class="w-full" />
+          @if (warehouseForm.get('name')?.invalid && warehouseForm.get('name')?.touched) {
+            <small class="text-red-500">Name is required (min. 2 characters)</small>
+          }
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4 class="mt-0 mb-3">Location</h4>
+
+        <div class="grid mb-4">
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label for="country" class="font-semibold">Country *</label>
+              <p-select
+                id="country"
+                [options]="countries"
+                formControlName="country"
+                optionLabel="name"
+                placeholder="Select a country"
+                (onChange)="onCountryChange($event)"
+                class="w-full"
+                styleClass="w-full">
+              </p-select>
+              @if (warehouseForm.get('country')?.invalid && warehouseForm.get('country')?.touched) {
+                <small class="text-red-500">Country is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label for="city" class="font-semibold">City *</label>
+              <p-select
+                id="city"
+                [options]="cities"
+                formControlName="city"
+                optionLabel="name"
+                placeholder="Select a city"
+                [disabled]="!selectedCountry"
+                class="w-full"
+                styleClass="w-full">
+              </p-select>
+              @if (warehouseForm.get('city')?.invalid && warehouseForm.get('city')?.touched) {
+                <small class="text-red-500">City is required</small>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid mb-4">
+          <div class="col-12 md:col-8">
+            <div class="flex flex-column gap-2">
+              <label for="street" class="font-semibold">Street *</label>
+              <input
+                pInputText
+                id="street"
+                formControlName="street"
+                placeholder="e.g. Industrial Avenue"
+                class="w-full" />
+              @if (warehouseForm.get('street')?.invalid && warehouseForm.get('street')?.touched) {
+                <small class="text-red-500">Street is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 md:col-4">
+            <div class="flex flex-column gap-2">
+              <label for="streetNumber" class="font-semibold">Number</label>
+              <input
+                pInputText
+                id="streetNumber"
+                formControlName="streetNumber"
+                placeholder="e.g. 123"
+                class="w-full" />
+            </div>
+          </div>
+        </div>
+
+         <!-- Map Section -->
+      <div class="mb-4">
+        <label class="font-semibold block mb-2">Location on Map *</label>
+        <p class="text-500 text-sm mb-3">Click on the map to mark the company location or use the search.</p>
+        
+        @if (locationSelected) {
+          <p-message severity="success" class="mb-3 w-full">
+            Location selected: {{ selectedStreet || 'Lat: ' + selectedLatitude + ', Lng: ' + selectedLongitude }}
+          </p-message>
+        } @else {
+          <p-message severity="warn" class="mb-3 w-full">
+            Location not selected. Click on the map to select a location.
+          </p-message>
+        }
+        
+        <div class="border-1 border-round surface-border overflow-hidden" style="height: 400px;">
+          <app-map 
+            [showSearch]="true" 
+            (addressSelected)="onAddressSelected($event)">
+          </app-map>
+        </div>
+      </div>
+
+        <div class="flex flex-column gap-2 mb-4">
+          <label for="totalCapacity" class="font-semibold">Total Capacity (units) *</label>
+          <p-inputNumber
+            id="totalCapacity"
+            formControlName="totalCapacity"
+            placeholder="e.g. 10000"
+            [min]="1"
+            mode="decimal"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="2"
+            class="w-full"
+            styleClass="w-full">
+          </p-inputNumber>
+          @if (warehouseForm.get('totalCapacity')?.invalid && warehouseForm.get('totalCapacity')?.touched) {
+            <small class="text-red-500">Capacity is required and must be greater than 0</small>
+          }
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h4 class="m-0">Sectors</h4>
+          <p-button
+            label="Add Sector"
+            icon="pi pi-plus"
+            [outlined]="true"
+            size="small"
+            (onClick)="addSector()">
+          </p-button>
+        </div>
+
+        <div formArrayName="sectors">
+          <div *ngFor="let sector of sectorsArray.controls; let i = index" [formGroupName]="i" class="surface-100 p-3 border-round mb-3">
+            <div class="flex justify-content-between align-items-center mb-3">
+              <span class="font-semibold">Sector {{ i + 1 }}</span>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                size="small"
+                (onClick)="removeSector(i)">
+              </p-button>
+            </div>
+
+            <div class="grid">
+              <div class="col-12 md:col-6">
+                <div class="flex flex-column gap-2">
+                  <label class="font-medium">Sector Name *</label>
+                  <input pInputText formControlName="name" placeholder="e.g. Cold Storage" class="w-full" />
+                </div>
+              </div>
+              <div class="col-12 md:col-6">
+                <div class="flex flex-column gap-2">
+                  <label class="font-medium">Capacity *</label>
+                  <p-inputNumber formControlName="capacity" placeholder="e.g. 1000" [min]="0" class="w-full" styleClass="w-full"></p-inputNumber>
+                </div>
+              </div>
+              <div class="col-12 md:col-6">
+                <div class="flex flex-column gap-2">
+                  <label class="font-medium">Min Temperature (&deg;C) *</label>
+                  <p-inputNumber formControlName="minTemperature" placeholder="e.g. -20" class="w-full" styleClass="w-full"></p-inputNumber>
+                </div>
+              </div>
+              <div class="col-12 md:col-6">
+                <div class="flex flex-column gap-2">
+                  <label class="font-medium">Max Temperature (&deg;C) *</label>
+                  <p-inputNumber formControlName="maxTemperature" placeholder="e.g. 5" class="w-full" styleClass="w-full"></p-inputNumber>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p-message severity="info" *ngIf="sectorsArray.length === 0" class="w-full mb-3">
+          No sectors added. Add at least one sector for temperature monitoring.
+        </p-message>
+
+        <p-divider></p-divider>
+
+        <div class="mb-4" *ngIf="isEditMode && existingImages.length > 0">
+          <label class="font-semibold block mb-2">Current Images</label>
+          <div class="grid">
+            <div class="col-6 md:col-4 lg:col-3" *ngFor="let image of existingImages">
+              <div class="relative" [class.opacity-50]="isMarkedForDeletion(image.id)">
+                <img [src]="image.url" [alt]="image.originalName"
+                     class="w-full border-round" style="height: 100px; object-fit: cover;">
+                <div class="mt-2 flex gap-1">
+                  <p-button
+                    *ngIf="!isMarkedForDeletion(image.id)"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [text]="true"
+                    size="small"
+                    (onClick)="markImageForDeletion(image.id)">
+                  </p-button>
+                  <p-button
+                    *ngIf="isMarkedForDeletion(image.id)"
+                    icon="pi pi-undo"
+                    severity="success"
+                    [text]="true"
+                    size="small"
+                    (onClick)="restoreImage(image.id)">
+                  </p-button>
+                </div>
+                <small class="text-500 block mt-1 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                  {{ image.originalName }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="font-semibold block mb-2">{{ isEditMode ? 'Add New Images' : 'Warehouse Images *' }}</label>
+          <p-fileUpload
+            mode="basic"
+            name="images"
+            accept="image/*"
+            [multiple]="true"
+            [auto]="false"
+            chooseLabel="Choose Images"
+            (onSelect)="onImageSelect($event)"
+            [customUpload]="true">
+          </p-fileUpload>
+
+          <div class="grid mt-3" *ngIf="newImages.length > 0">
+            <div class="col-6 md:col-4 lg:col-3" *ngFor="let file of newImages; let i = index">
+              <div class="flex align-items-center gap-2 p-2 surface-100 border-round">
+                <i class="pi pi-image"></i>
+                <span class="flex-1 text-overflow-ellipsis overflow-hidden white-space-nowrap">{{ file.name }}</span>
+                <p-button
+                  icon="pi pi-times"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  severity="danger"
+                  (onClick)="removeNewImage(i)">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="flex gap-2 justify-content-end">
+          <p-button
+            label="Cancel"
+            [outlined]="true"
+            (onClick)="goBack()">
+          </p-button>
+          <p-button
+            [label]="isEditMode ? 'Update Warehouse' : 'Create Warehouse'"
+            type="submit"
+            [loading]="submitting"
+            [disabled]="warehouseForm.invalid || submitting">
+          </p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>
