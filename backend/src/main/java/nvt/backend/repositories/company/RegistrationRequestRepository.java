@@ -59,4 +59,11 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
     List<RegistrationRequest> findAllWithDetailsByIds(@Param("ids") List<Long> ids);
 
     long countByStatus(RegistrationRequest.Status status);
+
+    @Query("SELECT r FROM RegistrationRequest r " +
+           "LEFT JOIN FETCH r.country " +
+           "LEFT JOIN FETCH r.city " +
+           "LEFT JOIN FETCH r.owner " +
+           "WHERE r.owner.id = :ownerId AND r.status = :status")
+    List<RegistrationRequest> findByOwnerIdAndStatus(@Param("ownerId") Integer ownerId, @Param("status") RegistrationRequest.Status status);
 }

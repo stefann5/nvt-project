@@ -1,0 +1,284 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="surface-ground min-h-screen p-4">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-between align-items-center p-3">
+        <h2 class="m-0">Nova porudzbina</h2>
+        <div class="flex align-items-center gap-3">
+          <p-tag
+            [value]="'Korpa: ' + getCartItemCount() + ' stavki'"
+            icon="pi pi-shopping-cart"
+            [severity]="cart.length > 0 ? 'success' : 'secondary'">
+          </p-tag>
+          <span class="font-bold text-xl text-primary">{{ formatPrice(getCartTotal()) }}</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Steps indicator -->
+    <div class="flex justify-content-center mb-4">
+      <div class="flex gap-4">
+        <div
+          class="step-indicator"
+          [class.active]="currentStep === 0"
+          [class.completed]="currentStep > 0"
+          (click)="goToStep(0)">
+          <span class="step-number">1</span>
+          <span class="step-label">Izbor proizvoda</span>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 0"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep === 1"
+          [class.completed]="currentStep > 1"
+          (click)="canProceedToStep2() ? goToStep(1) : null">
+          <span class="step-number">2</span>
+          <span class="step-label">Izbor firme</span>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 1"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep === 2"
+          (click)="canProceedToStep3() ? goToStep(2) : null">
+          <span class="step-number">3</span>
+          <span class="step-label">Potvrda</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Product Selection -->
+    <div *ngIf="currentStep === 0">
+      <app-product-catalog></app-product-catalog>
+
+      <!-- Cart Summary -->
+      <p-card class="mt-4" *ngIf="cart.length > 0">
+        <ng-template pTemplate="header">
+          <div class="p-3">
+            <h3 class="m-0">Korpa ({{ cart.length }} proizvoda)</h3>
+          </div>
+        </ng-template>
+
+        <p-table [value]="cart" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Proizvod</th>
+              <th>Cena</th>
+              <th>Kolicina</th>
+              <th>Ukupno</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>
+                <span class="font-semibold">{{ item.product.name }}</span>
+                <br>
+                <span class="text-500 text-sm">{{ item.product.sku }}</span>
+              </td>
+              <td>{{ formatPrice(item.product.price) }}</td>
+              <td>
+                <p-inputNumber
+                  [(ngModel)]="item.quantity"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  [min]="1"
+                  [max]="item.product.totalQuantity"
+                  (ngModelChange)="updateCartQuantity(item.product.id, $event)"
+                  [style]="{'width': '120px'}">
+                </p-inputNumber>
+              </td>
+              <td class="font-semibold">{{ formatPrice(item.product.price * item.quantity) }}</td>
+              <td>
+                <p-button
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  (onClick)="removeFromCart(item.product.id)">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="3" class="text-right font-bold">UKUPNO:</td>
+              <td class="font-bold text-xl text-primary">{{ formatPrice(getCartTotal()) }}</td>
+              <td></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+      <div class="flex justify-content-end mt-4">
+        <p-button
+          label="Nastavi"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [disabled]="!canProceedToStep2()"
+          (onClick)="nextStep()">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Step 2: Company Selection -->
+    <div *ngIf="currentStep === 1">
+      <div class="flex justify-content-center p-4" *ngIf="loadingCompanies">
+        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+      </div>
+
+      <div *ngIf="!loadingCompanies">
+        <p-card class="mb-4">
+          <ng-template pTemplate="header">
+            <div class="p-3">
+              <h3 class="m-0">Izaberite firmu za dostavu</h3>
+            </div>
+          </ng-template>
+
+          <div *ngIf="companies.length === 0" class="text-center p-4">
+            <i class="pi pi-building text-4xl text-500 mb-3"></i>
+            <p class="text-500">Nemate registrovanih firmi.</p>
+            <p-button
+              label="Registrujte firmu"
+              icon="pi pi-plus"
+              routerLink="/app/register-company">
+            </p-button>
+          </div>
+
+          <div *ngIf="companies.length > 0">
+            <div class="grid">
+              <div class="col-12 md:col-6" *ngFor="let company of companies">
+                <div
+                  class="company-card p-3 border-round cursor-pointer"
+                  [class.selected]="selectedCompanyId === company.id"
+                  (click)="selectedCompanyId = company.id">
+                  <div class="flex align-items-center gap-3">
+                    <div class="company-icon">
+                      <i class="pi pi-building text-2xl"></i>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-lg">{{ company.name }}</div>
+                      <div class="text-500">{{ company.cityName }}, {{ company.countryName }}</div>
+                    </div>
+                    <div class="ml-auto" *ngIf="selectedCompanyId === company.id">
+                      <i class="pi pi-check-circle text-2xl text-primary"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </p-card>
+
+        <p-card *ngIf="selectedCompanyId">
+          <ng-template pTemplate="header">
+            <div class="p-3">
+              <h3 class="m-0">Napomena (opciono)</h3>
+            </div>
+          </ng-template>
+          <textarea
+            pInputTextarea
+            [(ngModel)]="orderNotes"
+            rows="3"
+            placeholder="Unesite napomenu za porudzbinu..."
+            class="w-full">
+          </textarea>
+        </p-card>
+      </div>
+
+      <div class="flex justify-content-between mt-4">
+        <p-button
+          label="Nazad"
+          icon="pi pi-arrow-left"
+          [text]="true"
+          (onClick)="prevStep()">
+        </p-button>
+        <p-button
+          label="Nastavi"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [disabled]="!canProceedToStep3()"
+          (onClick)="nextStep()">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div *ngIf="currentStep === 2">
+      <p-card class="mb-4">
+        <ng-template pTemplate="header">
+          <div class="p-3">
+            <h3 class="m-0">Pregled porudzbine</h3>
+          </div>
+        </ng-template>
+
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <h4>Dostava na adresu:</h4>
+            <div class="p-3 surface-100 border-round">
+              <div class="font-semibold text-lg mb-2">{{ getSelectedCompany()?.name }}</div>
+              <div class="text-500">
+                {{ getSelectedCompany()?.cityName }}, {{ getSelectedCompany()?.countryName }}
+              </div>
+            </div>
+          </div>
+          <div class="col-12 md:col-6" *ngIf="orderNotes">
+            <h4>Napomena:</h4>
+            <div class="p-3 surface-100 border-round">
+              {{ orderNotes }}
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4>Stavke porudzbine:</h4>
+        <p-table [value]="cart" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Proizvod</th>
+              <th>Kolicina</th>
+              <th>Jed. cena</th>
+              <th>Ukupno</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>
+                <span class="font-semibold">{{ item.product.name }}</span>
+                <span class="text-500 ml-2">({{ item.product.sku }})</span>
+              </td>
+              <td>{{ item.quantity }} {{ item.product.unit }}</td>
+              <td>{{ formatPrice(item.product.price) }}</td>
+              <td class="font-semibold">{{ formatPrice(item.product.price * item.quantity) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="3" class="text-right font-bold text-xl">UKUPNO ZA UPLATU:</td>
+              <td class="font-bold text-2xl text-primary">{{ formatPrice(getCartTotal()) }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+      <div class="flex justify-content-between mt-4">
+        <p-button
+          label="Nazad"
+          icon="pi pi-arrow-left"
+          [text]="true"
+          [disabled]="submitting"
+          (onClick)="prevStep()">
+        </p-button>
+        <p-button
+          label="Poruci"
+          icon="pi pi-check"
+          [loading]="submitting"
+          [disabled]="!canSubmitOrder()"
+          (onClick)="submitOrder()">
+        </p-button>
+      </div>
+    </div>
+  </p-card>
+</div>

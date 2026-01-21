@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS id_generator (
 
 -- Initialize sequences
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('user', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('registration_requests', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('orders', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('order_items', 300) ON CONFLICT (sequence_name) DO NOTHING;
 
 -- 1. ADMIN
 INSERT INTO "user"
@@ -183,3 +186,257 @@ INSERT INTO vehicle_models (id, name, brand_id) VALUES (37, 'Berlingo', 9) ON CO
 INSERT INTO vehicle_models (id, name, brand_id) VALUES (38, 'Hilux', 10) ON CONFLICT (id) DO NOTHING;
 INSERT INTO vehicle_models (id, name, brand_id) VALUES (39, 'Proace', 10) ON CONFLICT (id) DO NOTHING;
 INSERT INTO vehicle_models (id, name, brand_id) VALUES (40, 'Proace City', 10) ON CONFLICT (id) DO NOTHING;
+
+-- Products
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(1, 'Guma 195/55 R15 H', 'Letnja guma za putnička vozila, dimenzije 195/55 R15, indeks brzine H (210 km/h)', 'TIRE-195-55-R15-H', 45.99, 8.5, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(2, 'Guma 225/65 R17 W', 'Letnja guma za SUV vozila, dimenzije 225/65 R17, indeks brzine W (270 km/h)', 'TIRE-225-65-R17-W', 89.99, 12.0, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(3, 'Guma 205/60 R16 Y', 'Letnja guma za putnička vozila, dimenzije 205/60 R16, indeks brzine Y (300 km/h)', 'TIRE-205-60-R16-Y', 65.99, 9.5, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(4, 'Zimska guma 195/65 R15', 'Zimska guma za putnička vozila sa M+S oznakama', 'TIRE-WIN-195-65-R15', 55.99, 9.0, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(5, 'Ulje 5W30 1L', 'Sintetičko motorno ulje 5W30, API SN/CF', 'OIL-5W30-1L', 12.99, 1.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(6, 'Ulje 10W40 5L', 'Polusintetičko motorno ulje 10W40, ACEA A3/B4', 'OIL-10W40-5L', 35.99, 5.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(7, 'Kočione pločice prednje', 'Kočione pločice za prednje kočnice, univerzalne dimenzije', 'BRAKE-PAD-FRONT', 28.99, 0.8, 'Kočioni sistem', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(8, 'Kočioni disk 280mm', 'Ventilirani kočioni disk prečnika 280mm', 'BRAKE-DISC-280', 45.99, 6.5, 'Kočioni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(9, 'Filter ulja', 'Univerzalni filter ulja za putnička vozila', 'FILTER-OIL-UNI', 8.99, 0.3, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(10, 'Filter vazduha', 'Filter vazduha za putnička vozila', 'FILTER-AIR-UNI', 15.99, 0.2, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(11, 'Akumulator 60Ah', 'Startni akumulator 12V 60Ah 540A', 'BATTERY-60AH', 85.99, 15.0, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(12, 'Akumulator 74Ah', 'Startni akumulator 12V 74Ah 680A', 'BATTERY-74AH', 99.99, 18.0, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(13, 'Svećice za paljenje', 'Set od 4 svećice za paljenje, iridijum', 'SPARK-PLUG-4SET', 32.99, 0.2, 'Električni delovi', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(14, 'Antifriz 5L', 'Koncentrat antifriza G12+ crveni', 'COOLANT-G12-5L', 24.99, 5.5, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(15, 'Tečnost za stakla 5L', 'Zimska tečnost za pranje stakala -20°C', 'WASHER-WIN-5L', 6.99, 5.0, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouses
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
+(1, 'Glavni magacin Beograd', 1, 1, 'Industrijska', '25', 44.8176, 20.4633, 10000.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
+(2, 'Magacin Novi Sad', 1, 2, 'Temerinska', '100', 45.2671, 19.8335, 5000.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
+(3, 'Magacin Zagreb', 2, 6, 'Industrijska zona', '15', 45.8150, 15.9819, 7500.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(1, 'Sektor A - Gume', 10.0, 25.0, 18.0, 3000.0, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(2, 'Sektor B - Ulja i hemija', 5.0, 20.0, 15.0, 2000.0, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(3, 'Sektor C - Delovi', 10.0, 30.0, 20.0, 5000.0, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(4, 'Sektor A - Gume', 10.0, 25.0, 17.0, 2000.0, 2) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(5, 'Sektor B - Ostalo', 5.0, 25.0, 18.0, 3000.0, 2) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
+(6, 'Glavni sektor', 5.0, 25.0, 19.0, 7500.0, 3) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory (stock levels)
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(1, 1, 1, 1, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(2, 2, 1, 1, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(3, 3, 1, 1, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(4, 4, 1, 1, 250, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(5, 5, 1, 2, 1000, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(6, 6, 1, 2, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(7, 7, 1, 3, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(8, 8, 1, 3, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(9, 9, 1, 3, 2000, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(10, 10, 1, 3, 1500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(11, 11, 1, 3, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(12, 12, 1, 3, 150, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(13, 13, 1, 3, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(14, 14, 1, 2, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(15, 15, 1, 2, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(16, 1, 2, 4, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(17, 2, 2, 4, 150, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(18, 5, 2, 5, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(19, 9, 2, 5, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(20, 1, 3, 6, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(21, 3, 3, 6, 250, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(22, 7, 3, 6, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Additional Products
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(16, 'Amortizer prednji', 'Prednji amortizer za putnička vozila', 'SHOCK-FRONT-UNI', 55.99, 3.5, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(17, 'Amortizer zadnji', 'Zadnji amortizer za putnička vozila', 'SHOCK-REAR-UNI', 48.99, 3.0, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(18, 'Opruga prednja', 'Prednja opruga za putnička vozila', 'SPRING-FRONT-UNI', 35.99, 2.5, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(19, 'Kočiona tečnost DOT4 1L', 'Kočiona tečnost DOT4 specifikacija', 'BRAKE-FLUID-DOT4', 9.99, 1.0, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(20, 'Ulje za menjač 75W90 1L', 'Sintetičko ulje za menjač 75W90 GL-4/GL-5', 'GEAR-OIL-75W90', 18.99, 1.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(21, 'Alternator 14V 90A', 'Alternator za putnička vozila 14V 90A', 'ALT-14V-90A', 125.99, 5.5, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(22, 'Starter 12V 1.4kW', 'Električni starter motor 12V 1.4kW', 'STARTER-12V-1.4KW', 145.99, 4.5, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(23, 'Pumpa za vodu', 'Pumpa rashladne tečnosti za motor', 'WATER-PUMP-UNI', 42.99, 1.2, 'Rashladni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(24, 'Termostat 87°C', 'Termostat rashladnog sistema 87°C', 'THERMOSTAT-87', 15.99, 0.2, 'Rashladni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(25, 'Kaiš zupčasti', 'Zupčasti kaiš za razvodni mehanizam', 'TIMING-BELT-UNI', 28.99, 0.3, 'Razvodni mehanizam', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(26, 'Set za kaiš', 'Komplet zupčasti kaiš + zatezač + rolne', 'TIMING-KIT-UNI', 85.99, 1.5, 'Razvodni mehanizam', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(27, 'Filter goriva diesel', 'Filter goriva za dizel motore', 'FILTER-FUEL-DSL', 22.99, 0.4, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(28, 'Filter kabine', 'Filter kabine sa aktivnim ugljem', 'FILTER-CABIN-AC', 18.99, 0.2, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(29, 'Sijalica H7 55W', 'Halogena sijalica H7 55W 12V', 'BULB-H7-55W', 4.99, 0.05, 'Osvetljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
+(30, 'Sijalica H4 60/55W', 'Halogena sijalica H4 60/55W 12V', 'BULB-H4-60-55W', 5.99, 0.05, 'Osvetljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Additional Inventory for new products
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(23, 16, 1, 3, 150, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(24, 17, 1, 3, 150, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(25, 18, 1, 3, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(26, 19, 1, 2, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(27, 20, 1, 2, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(28, 21, 1, 3, 50, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(29, 22, 1, 3, 40, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(30, 23, 1, 3, 100, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(31, 24, 1, 3, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(32, 25, 1, 3, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(33, 26, 1, 3, 80, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(34, 27, 1, 3, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(35, 28, 1, 3, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(36, 29, 1, 3, 1000, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(37, 30, 1, 3, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory in Novi Sad warehouse
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(38, 16, 2, 5, 60, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(39, 17, 2, 5, 60, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(40, 23, 2, 5, 50, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory in Zagreb warehouse
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(41, 5, 3, 6, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(42, 6, 3, 6, 100, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(43, 11, 3, 6, 80, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(44, 12, 3, 6, 60, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+
+-- Test approved companies for customers
+INSERT INTO registration_requests (id, name, country_id, city_id, street, street_number, latitude, longitude, status, rejection_reason, processed_at, owner_id, created_at) VALUES
+(1, 'Auto Delovi Miki d.o.o.', 1, 1, 'Bulevar Mihajla Pupina', '10', 44.8200, 20.4500, 'APPROVED', NULL, NOW(), 3, NOW()) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO registration_requests (id, name, country_id, city_id, street, street_number, latitude, longitude, status, rejection_reason, processed_at, owner_id, created_at) VALUES
+(2, 'Miki Transport d.o.o.', 1, 2, 'Futoška', '55', 45.2550, 19.8400, 'APPROVED', NULL, NOW(), 3, NOW()) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO registration_requests (id, name, country_id, city_id, street, street_number, latitude, longitude, status, rejection_reason, processed_at, owner_id, created_at) VALUES
+(3, 'Stefan Auto Servis', 1, 1, 'Kneza Miloša', '100', 44.8050, 20.4650, 'APPROVED', NULL, NOW(), 4, NOW()) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO registration_requests (id, name, country_id, city_id, street, street_number, latitude, longitude, status, rejection_reason, processed_at, owner_id, created_at) VALUES
+(4, 'Test Company Pending', 1, 3, 'Nemanjina', '20', 43.3200, 21.8960, 'PENDING', NULL, NULL, 5, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Sample Orders
+INSERT INTO orders (id, order_number, customer_id, company_id, total_amount, notes, invoice_path, created_at, processed_at) VALUES
+(1, 'ORD-20250115120000-A1B2', 3, 1,  275.94, 'Hitna dostava molim', NULL, '2025-01-15 12:00:00', '2025-01-15 12:00:00') ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO orders (id, order_number, customer_id, company_id, total_amount, notes, invoice_path, created_at, processed_at) VALUES
+(2, 'ORD-20250116093000-C3D4', 3, 2,  182.96, NULL, NULL, '2025-01-16 09:30:00', '2025-01-16 09:30:00') ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO orders (id, order_number, customer_id, company_id, total_amount, notes, invoice_path, created_at, processed_at) VALUES
+(3, 'ORD-20250117140000-E5F6', 4, 3,  457.93, 'Kontaktirati pre dostave', NULL, '2025-01-17 14:00:00', '2025-01-17 14:00:00') ON CONFLICT (id) DO NOTHING;
+
+-- Order Items for Order 1 (Customer 3 - Miki)
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(1, 1, 1, 4, 45.99, 183.96) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(2, 1, 9, 4, 8.99, 35.96) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(3, 1, 5, 2, 12.99, 25.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(4, 1, 15, 1, 6.99, 6.99) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(5, 1, 10, 1, 15.99, 15.99) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(6, 1, 28, 1, 18.99, 18.99) ON CONFLICT (id) DO NOTHING;
+
+-- Order Items for Order 2 (Customer 3 - Miki, second company)
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(7, 2, 7, 2, 28.99, 57.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(8, 2, 8, 2, 45.99, 91.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(9, 2, 19, 3, 9.99, 29.97) ON CONFLICT (id) DO NOTHING;
+
+-- Order Items for Order 3 (Customer 4 - Stefan)
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(10, 3, 11, 2, 85.99, 171.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(11, 3, 22, 1, 145.99, 145.99) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(12, 3, 23, 2, 42.99, 85.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(13, 3, 24, 2, 15.99, 31.98) ON CONFLICT (id) DO NOTHING;
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_price) VALUES
+(14, 3, 29, 4, 4.99, 19.96) ON CONFLICT (id) DO NOTHING;
+
+-- Reset all sequences to avoid duplicate key violations
+-- Note: Only reset sequences for tables that actually use SEQUENCE strategy
+-- Tables using TableGenerator (id_generator) are handled separately
+
+-- Update id_generator table for registration_requests
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM registration_requests)
+WHERE sequence_name = 'registration_requests';
+
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM orders)
+WHERE sequence_name = 'orders';
+
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
+WHERE sequence_name = 'order_items';

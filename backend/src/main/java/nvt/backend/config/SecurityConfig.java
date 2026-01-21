@@ -67,11 +67,15 @@ public class SecurityConfig {
                                 "/api/v1/vehicles/brands/*/models")
                         .hasAnyAuthority("MANAGER", "ADMIN")
 
+
                         .requestMatchers(HttpMethod.GET, "/api/v1/vehicles/{id}")
                         .hasAnyAuthority("MANAGER", "ADMIN")
 
                         .requestMatchers(HttpMethod.PUT, "/api/v1/registration-requests/*/process")
                         .hasAnyAuthority("MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/registration-requests/my-companies")
+                        .hasAnyAuthority("CUSTOMER")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/registration-requests/{id}")
                         .hasAnyAuthority("MANAGER", "ADMIN")
@@ -80,7 +84,7 @@ public class SecurityConfig {
                         .hasAnyAuthority("CUSTOMER", "MANAGER", "ADMIN")
 
                         .anyRequest()
-                        .authenticated()
+                        .permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

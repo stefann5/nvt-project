@@ -44,6 +44,29 @@ export class Dashboard {
         icon: 'pi pi-truck',
         routerLink: '/app/manager/vehicles'
       });
+      this.menuItems[0].items?.push({
+        label: 'All Orders',
+        icon: 'pi pi-shopping-cart',
+        routerLink: '/app/manager/orders'
+      });
+    }
+
+    if (this.authService.IsC()) {
+      this.menuItems[0].items?.push({
+        label: 'Product Catalog',
+        icon: 'pi pi-box',
+        routerLink: '/app/customer/products'
+      });
+      this.menuItems[0].items?.push({
+        label: 'Create Order',
+        icon: 'pi pi-shopping-cart',
+        routerLink: '/app/customer/create-order'
+      });
+      this.menuItems[0].items?.push({
+        label: 'My Orders',
+        icon: 'pi pi-list',
+        routerLink: '/app/customer/orders'
+      });
     }
   }
 

@@ -272,4 +272,11 @@ public class RegistrationRequestService {
                 request.getRejectionReason()
         );
     }
+
+    public List<RegistrationRequestListDTO> getApprovedCompaniesByOwner(Integer ownerId) {
+        return requestRepository.findByOwnerIdAndStatus(ownerId, RegistrationRequest.Status.APPROVED)
+                .stream()
+                .map(RegistrationRequestListDTO::fromEntity)
+                .toList();
+    }
 }

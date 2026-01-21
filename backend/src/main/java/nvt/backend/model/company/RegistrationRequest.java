@@ -23,7 +23,13 @@ import java.util.Set;
 public class RegistrationRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableGenerator(
+            name = "regrequest_gen",
+            table = "id_generator",
+            pkColumnName = "sequence_name",
+            valueColumnName = "next_val"
+    )
+    @GeneratedValue(strategy = GenerationType.TABLE,generator = "regrequest_gen")
     private Long id;
 
     private String name;

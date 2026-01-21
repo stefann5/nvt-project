@@ -106,4 +106,13 @@ public class RegistrationRequestController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/my-companies")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    public ResponseEntity<List<RegistrationRequestListDTO>> getMyApprovedCompanies(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User owner = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(service.getApprovedCompaniesByOwner(owner.getId()));
+    }
 }

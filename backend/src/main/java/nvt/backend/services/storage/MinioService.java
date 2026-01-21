@@ -125,4 +125,44 @@ public class MinioService {
         }
     }
 
+    public String uploadFileFromBytes(byte[] data, String bucketName, String folder, String fileName, String contentType) {
+        try {
+            createBucketIfNotExists(bucketName);
+
+            String objectName = folder + "/" + UUID.randomUUID() + "_" + fileName;
+
+            try (java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(data)) {
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(objectName)
+                                .stream(inputStream, data.length, -1)
+                                .contentType(contentType)
+                                .build()
+                );
+            }
+
+            log.info("File uploaded successfully from bytes: {}", objectName);
+            return objectName;
+
+        } catch (Exception e) {
+            log.error("Error uploading file from bytes to MinIO", e);
+            throw new RuntimeException("Failed to upload file from bytes", e);
+        }
+    }
+
+    public byte[] downloadFile(String bucketName, String objectName) {
+        try (InputStream inputStream = minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .build()
+        )) {
+            return inputStream.readAllBytes();
+        } catch (Exception e) {
+            log.error("Error downloading file: {}", objectName, e);
+            throw new RuntimeException("Failed to download file", e);
+        }
+    }
+
 }
