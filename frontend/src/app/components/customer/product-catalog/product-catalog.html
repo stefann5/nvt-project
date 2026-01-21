@@ -1,0 +1,159 @@
+<p-toast></p-toast>
+
+<div class="surface-ground p-4">
+  <!-- Filters Section -->
+  <p-card class="mb-4">
+    <div class="grid">
+      <div class="col-12 md:col-3">
+        <label class="block mb-2 font-semibold">Pretraga</label>
+        <p-iconfield class="w-full">
+          <p-inputicon styleClass="pi pi-search"></p-inputicon>
+          <input
+            pInputText
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Pretrazite proizvode..."
+            class="w-full" />
+        </p-iconfield>
+      </div>
+      <div class="col-12 md:col-2">
+        <label class="block mb-2 font-semibold">Kategorija</label>
+        <p-select
+          [(ngModel)]="selectedCategory"
+          [options]="categories"
+          placeholder="Sve kategorije"
+          [showClear]="true"
+          (onChange)="onFilterChange()"
+          class="w-full">
+        </p-select>
+      </div>
+      <div class="col-12 md:col-2">
+        <label class="block mb-2 font-semibold">Min cena (EUR)</label>
+        <p-inputNumber
+          [(ngModel)]="minPrice"
+          (onBlur)="onFilterChange()"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          placeholder="0.00"
+          class="w-full">
+        </p-inputNumber>
+      </div>
+      <div class="col-12 md:col-2">
+        <label class="block mb-2 font-semibold">Max cena (EUR)</label>
+        <p-inputNumber
+          [(ngModel)]="maxPrice"
+          (onBlur)="onFilterChange()"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          placeholder="999.99"
+          class="w-full">
+        </p-inputNumber>
+      </div>
+      <div class="col-12 md:col-2 flex align-items-end">
+        <div class="flex align-items-center gap-2 mb-2">
+          <p-checkbox
+            [(ngModel)]="inStockOnly"
+            [binary]="true"
+            (onChange)="onFilterChange()"
+            inputId="inStock">
+          </p-checkbox>
+          <label for="inStock">Samo na stanju</label>
+        </div>
+      </div>
+      <div class="col-12 md:col-1 flex align-items-end">
+        <p-button
+          icon="pi pi-filter-slash"
+          label="Resetuj"
+          [text]="true"
+          (onClick)="clearFilters()">
+        </p-button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Products Table -->
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-between align-items-center p-3">
+        <h2 class="m-0">Katalog proizvoda</h2>
+        <span class="text-500">Ukupno: {{ totalRecords }} proizvoda</span>
+      </div>
+    </ng-template>
+
+    <div class="flex justify-content-center p-4" *ngIf="loading">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+    </div>
+
+    <p-message severity="info" class="w-full" *ngIf="!loading && products.length === 0">
+      Nema pronadjenih proizvoda.
+    </p-message>
+
+    <p-table
+      [value]="products"
+      [tableStyle]="{'min-width': '60rem'}"
+      *ngIf="!loading && products.length > 0"
+      styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Sifra (SKU)</th>
+          <th>Naziv</th>
+          <th>Kategorija</th>
+          <th>Cena</th>
+          <th>Jedinica</th>
+          <th>Dostupnost</th>
+          <th style="width: 200px">Kolicina</th>
+          <th style="width: 100px">Akcija</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-product>
+        <tr>
+          <td class="font-mono text-sm">{{ product.sku }}</td>
+          <td class="font-semibold">{{ product.name }}</td>
+          <td>{{ product.category }}</td>
+          <td class="font-semibold text-primary">{{ formatPrice(product.price) }}</td>
+          <td>{{ product.unit }}</td>
+          <td>
+            <p-tag
+              [value]="getStockLabel(product.totalQuantity)"
+              [severity]="getStockSeverity(product.totalQuantity)">
+            </p-tag>
+            <span class="ml-2 text-500">({{ product.totalQuantity }})</span>
+          </td>
+          <td>
+            <p-inputNumber
+              [(ngModel)]="quantities[product.id]"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              [min]="1"
+              [max]="product.totalQuantity"
+              [disabled]="product.totalQuantity === 0"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [style]="{'width': '150px'}">
+            </p-inputNumber>
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-cart-plus"
+              [rounded]="true"
+              pTooltip="Dodaj u korpu"
+              [disabled]="product.totalQuantity === 0"
+              (onClick)="addProductToCart(product)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-paginator
+      *ngIf="!loading && totalRecords > 0"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [first]="currentPage * pageSize"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </p-card>
+</div>

@@ -101,4 +101,8 @@ export class CompanyRegistrationService {
       documents: { id: number; originalName: string; contentType: string; url: string }[];
     }>(`${this.baseUrl}files/request/${requestId}/files`);
   }
+
+  getMyApprovedCompanies(): Observable<RegistrationRequestListDTO[]> {
+    return this.http.get<RegistrationRequestListDTO[]>(`${this.baseUrl}registration-requests/my-companies`);
+  }
 }

@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.col-12 {
+  grid-column: span 12;
+}
+
+@media (min-width: 768px) {
+  .md\:col-3 {
+    grid-column: span 3;
+  }
+  .md\:col-2 {
+    grid-column: span 2;
+  }
+  .md\:col-1 {
+    grid-column: span 1;
+  }
+}

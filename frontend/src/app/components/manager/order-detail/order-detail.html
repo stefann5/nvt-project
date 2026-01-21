@@ -1,0 +1,72 @@
+<div class="order-detail">
+    <p-button
+        icon="pi pi-arrow-left"
+        label="Back to Orders"
+        [text]="true"
+        (onClick)="goBack()">
+    </p-button>
+
+    <div *ngIf="loading" class="loading">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </div>
+
+    <div *ngIf="order && !loading" class="order-content">
+        <p-card>
+            <ng-template pTemplate="header">
+                <div class="order-header">
+                    <h2>Order #{{ order.id }}</h2>
+                    <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+                </div>
+            </ng-template>
+
+            <div class="order-info-grid">
+                <div class="info-section">
+                    <h4>Customer Information</h4>
+                    <p><strong>Name:</strong> {{ order.customerName }}</p>
+                </div>
+
+                <div class="info-section">
+                    <h4>Company Information</h4>
+                    <p><strong>Company:</strong> {{ order.companyName }}</p>
+                    <p><strong>Address:</strong> {{ order.companyAddress }}</p>
+                </div>
+
+                <div class="info-section">
+                    <h4>Order Details</h4>
+                    <p><strong>Created:</strong> {{ order.createdAt | date:'medium' }}</p>
+                    <p><strong>Total:</strong> {{ order.totalAmount | currency:'EUR' }}</p>
+                </div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <h3>Order Items</h3>
+            <p-table [value]="order.items" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td>{{ item.productName }}</td>
+                        <td>{{ item.productSku }}</td>
+                        <td>{{ item.priceAtOrder | currency:'EUR' }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.priceAtOrder * item.quantity | currency:'EUR' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                        <td><strong>{{ order.totalAmount | currency:'EUR' }}</strong></td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>

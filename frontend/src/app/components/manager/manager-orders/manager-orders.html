@@ -1,0 +1,53 @@
+<p-card header="All Orders">
+    <p-table
+        [value]="orders"
+        [lazy]="true"
+        [paginator]="true"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [first]="first"
+        (onLazyLoad)="loadOrders($event)"
+        [rowsPerPageOptions]="[10, 20, 50]"
+        styleClass="p-datatable-sm">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Company</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-order>
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customerName }}</td>
+                <td>{{ order.companyName }}</td>
+                <td>{{ order.totalAmount | currency:'EUR' }}</td>
+                <td>
+                    <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+                </td>
+                <td>{{ order.createdAt | date:'short' }}</td>
+                <td>
+                    <p-button
+                        icon="pi pi-eye"
+                        [rounded]="true"
+                        [text]="true"
+                        (onClick)="viewOrder(order)">
+                    </p-button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center">No orders found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>

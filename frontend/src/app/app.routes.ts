@@ -6,11 +6,17 @@ import { AuthGuard } from './services/auth/auth-guard';
 import { MapComponent } from './components/map/map.component';
 import { RegisterRequestForm } from './components/register-request-form/register-request-form';
 import { ManagerGuard } from './services/auth/manager-guard';
+import { CGuard } from './services/auth/c-guard';
 import { RegistrationRequestsComponent } from './components/manager/registration-requests/registration-requests';
 import { RequestDetailComponent } from './components/manager/request-detail/request-detail';
 import { VehicleListComponent } from './components/manager/vehicle-list/vehicle-list';
 import { VehicleFormComponent } from './components/manager/vehicle-form/vehicle-form';
 import { VehicleDetailComponent } from './components/manager/vehicle-detail/vehicle-detail';
+import { CreateOrderComponent } from './components/customer/create-order/create-order';
+import { MyOrdersComponent } from './components/customer/my-orders/my-orders';
+import { ProductCatalogComponent } from './components/customer/product-catalog/product-catalog';
+import { ManagerOrdersComponent } from './components/manager/manager-orders/manager-orders';
+import { OrderDetailComponent } from './components/manager/order-detail/order-detail';
 
 export const routes: Routes = [
     { path: '', component: Login },
@@ -54,6 +60,31 @@ export const routes: Routes = [
                 path: 'manager/vehicles/:id/edit',
                 component: VehicleFormComponent,
                 canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/orders',
+                component: ManagerOrdersComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/orders/:id',
+                component: OrderDetailComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'customer/products',
+                component: ProductCatalogComponent,
+                canActivate: [CGuard]
+            },
+            {
+                path: 'customer/create-order',
+                component: CreateOrderComponent,
+                canActivate: [CGuard]
+            },
+            {
+                path: 'customer/orders',
+                component: MyOrdersComponent,
+                canActivate: [CGuard]
             }
         ]
     },
