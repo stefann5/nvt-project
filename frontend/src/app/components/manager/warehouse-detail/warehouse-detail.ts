@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { WarehouseService } from '../../../services/warehouse/warehouse.service';
 import { WarehouseResponseDTO, SectorDTO } from '../../../dto/warehouse/WarehouseResponseDTO';
 import { TemperatureStatisticsDTO } from '../../../dto/warehouse/TemperatureStatisticsDTO';
+import { WarehouseAvailabilityStatisticsDTO } from '../../../dto/warehouse/WarehouseAvailabilityStatisticsDTO';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -16,6 +17,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { TabsModule } from 'primeng/tabs';
 import { MessageService } from 'primeng/api';
 import * as L from 'leaflet';
 
@@ -41,7 +44,9 @@ interface PeriodOption {
     DatePickerModule,
     ToastModule,
     ChartModule,
-    TableModule
+    TableModule,
+    TooltipModule,
+    TabsModule
   ],
   providers: [MessageService],
   templateUrl: './warehouse-detail.html',
@@ -55,9 +60,11 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
   imageUrls: { id: number; originalName: string; url: string }[] = [];
   selectedSector: SectorDTO | null = null;
   temperatureStats: TemperatureStatisticsDTO | null = null;
+  availabilityStats: WarehouseAvailabilityStatisticsDTO | null = null;
 
   loading = false;
   statsLoading = false;
+  availabilityLoading = false;
 
   periodOptions: PeriodOption[] = [
     { label: 'Last Week', value: 'week' },
@@ -74,8 +81,25 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
   maxDate = new Date();
   minStartDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
 
+  availabilityPeriodOptions: PeriodOption[] = [
+    { label: 'Last Hour', value: '1h' },
+    { label: 'Last 12 Hours', value: '12h' },
+    { label: 'Last 24 Hours', value: '24h' },
+    { label: 'Last 7 Days', value: '7d' },
+    { label: 'Last 30 Days', value: '30d' },
+    { label: 'Last 3 Months', value: '3months' },
+    { label: 'Last Year', value: 'year' },
+    { label: 'Custom Range', value: 'custom' }
+  ];
+
+  selectedAvailabilityPeriod: PeriodOption = this.availabilityPeriodOptions[2];
+  availabilityCustomStartDate: Date | null = null;
+  availabilityCustomEndDate: Date | null = null;
+
   chartData: any;
   chartOptions: any;
+  availabilityChartData: any;
+  availabilityChartOptions: any;
 
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
@@ -92,8 +116,10 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
     if (id) {
       this.warehouseId = +id;
       this.loadWarehouse();
+      this.loadAvailabilityStats();
     }
     this.initChartOptions();
+    this.initAvailabilityChartOptions();
   }
 
   ngAfterViewInit(): void {
@@ -342,5 +368,138 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
 
   editWarehouse(): void {
     this.router.navigate(['/app/manager/warehouses', this.warehouseId, 'edit']);
+  }
+
+  private initAvailabilityChartOptions(): void {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color') || '#ffffff';
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color') || '#374151';
+
+    this.availabilityChartOptions = {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: textColor }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: textColor },
+          grid: { color: surfaceBorder }
+        },
+        y: {
+          stacked: true,
+          min: 0,
+          max: 100,
+          ticks: {
+            color: textColor,
+            callback: (value: number) => value + '%'
+          },
+          grid: { color: surfaceBorder },
+          title: {
+            display: true,
+            text: 'Availability (%)',
+            color: textColor
+          }
+        }
+      }
+    };
+  }
+
+  loadAvailabilityStats(): void {
+    this.availabilityLoading = true;
+
+    let request$;
+    if (this.selectedAvailabilityPeriod.value === 'custom' && this.availabilityCustomStartDate && this.availabilityCustomEndDate) {
+      const startStr = this.availabilityCustomStartDate.toISOString();
+      const endStr = this.availabilityCustomEndDate.toISOString();
+      request$ = this.warehouseService.getAvailabilityStatsByDateRange(this.warehouseId, startStr, endStr);
+    } else if (this.selectedAvailabilityPeriod.value !== 'custom') {
+      request$ = this.warehouseService.getAvailabilityStatsByPeriod(this.warehouseId, this.selectedAvailabilityPeriod.value);
+    } else {
+      this.availabilityLoading = false;
+      return;
+    }
+
+    request$.subscribe({
+      next: (data) => {
+        this.availabilityStats = data;
+        this.updateAvailabilityChart();
+        this.availabilityLoading = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load availability statistics' });
+        this.availabilityLoading = false;
+        console.error(err);
+      }
+    });
+  }
+
+  private updateAvailabilityChart(): void {
+    if (!this.availabilityStats) return;
+
+    const labels = this.availabilityStats.dataPoints.map(dp => dp.label);
+    const onlineData = this.availabilityStats.dataPoints.map(dp => dp.onlinePercentage);
+    const offlineData = this.availabilityStats.dataPoints.map(dp => dp.offlinePercentage);
+
+    this.availabilityChartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Online',
+          data: onlineData,
+          backgroundColor: 'rgba(34, 197, 94, 0.7)',
+          borderColor: 'rgb(34, 197, 94)',
+          borderWidth: 1
+        },
+        {
+          label: 'Offline',
+          data: offlineData,
+          backgroundColor: 'rgba(239, 68, 68, 0.7)',
+          borderColor: 'rgb(239, 68, 68)',
+          borderWidth: 1
+        }
+      ]
+    };
+  }
+
+  onAvailabilityPeriodChange(): void {
+    if (this.selectedAvailabilityPeriod.value !== 'custom') {
+      this.loadAvailabilityStats();
+    }
+  }
+
+  applyAvailabilityCustomRange(): void {
+    if (!this.availabilityCustomStartDate || !this.availabilityCustomEndDate) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select both start and end dates' });
+      return;
+    }
+
+    if (this.availabilityCustomEndDate < this.availabilityCustomStartDate) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'End date must be after start date' });
+      return;
+    }
+
+    const daysDiff = Math.floor((this.availabilityCustomEndDate.getTime() - this.availabilityCustomStartDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 365) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Date range cannot exceed one year' });
+      return;
+    }
+
+    this.loadAvailabilityStats();
+  }
+
+  formatDuration(seconds: number): string {
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours < 24) return `${hours}h ${minutes}m`;
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    return `${days}d ${remainingHours}h`;
   }
 }

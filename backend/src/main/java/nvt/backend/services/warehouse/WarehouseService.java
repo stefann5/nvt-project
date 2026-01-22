@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -342,5 +343,12 @@ public class WarehouseService {
                 .lastTemperatureUpdate(sector.getLastTemperatureUpdate())
                 .capacity(sector.getCapacity())
                 .build();
+    }
+
+    public WarehouseAvailabilityStatisticsDTO getAvailabilityStatistics(Long warehouseId, Instant startTime, Instant endTime) {
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+
+        return telemetryService.getAggregatedAvailability(warehouseId, warehouse.getName(), startTime, endTime);
     }
 }

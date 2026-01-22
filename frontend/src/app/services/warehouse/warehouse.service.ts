@@ -7,6 +7,7 @@ import { WarehouseListDTO } from '../../dto/warehouse/WarehouseListDTO';
 import { CreateWarehouseDTO } from '../../dto/warehouse/CreateWarehouseDTO';
 import { UpdateWarehouseDTO } from '../../dto/warehouse/UpdateWarehouseDTO';
 import { TemperatureStatisticsDTO } from '../../dto/warehouse/TemperatureStatisticsDTO';
+import { WarehouseAvailabilityStatisticsDTO } from '../../dto/warehouse/WarehouseAvailabilityStatisticsDTO';
 import { PageResponseDTO } from '../../dto/common/PageResponseDTO';
 import { CountryDTO } from '../../dto/company/CountryDTO';
 import { CityDTO } from '../../dto/company/CityDTO';
@@ -108,6 +109,24 @@ export class WarehouseService {
       .set('endDate', endDate);
     return this.http.get<TemperatureStatisticsDTO>(
       `${this.baseUrl}warehouses/${warehouseId}/sectors/${sectorId}/temperature/stats`,
+      { params }
+    );
+  }
+
+  getAvailabilityStatsByPeriod(warehouseId: number, period: string): Observable<WarehouseAvailabilityStatisticsDTO> {
+    const params = new HttpParams().set('period', period);
+    return this.http.get<WarehouseAvailabilityStatisticsDTO>(
+      `${this.baseUrl}warehouses/${warehouseId}/availability/stats`,
+      { params }
+    );
+  }
+
+  getAvailabilityStatsByDateRange(warehouseId: number, startTime: string, endTime: string): Observable<WarehouseAvailabilityStatisticsDTO> {
+    const params = new HttpParams()
+      .set('startTime', startTime)
+      .set('endTime', endTime);
+    return this.http.get<WarehouseAvailabilityStatisticsDTO>(
+      `${this.baseUrl}warehouses/${warehouseId}/availability/stats`,
       { params }
     );
   }

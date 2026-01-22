@@ -201,6 +201,93 @@
         </div>
       </p-card>
 
+      <!-- Availability Statistics Card -->
+      <p-card class="mb-4">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3 flex-wrap gap-2">
+            <h3 class="m-0">Availability Statistics</h3>
+            <div class="flex align-items-center gap-2 flex-wrap">
+              <p-select
+                [options]="availabilityPeriodOptions"
+                [(ngModel)]="selectedAvailabilityPeriod"
+                optionLabel="label"
+                (onChange)="onAvailabilityPeriodChange()"
+                styleClass="w-auto">
+              </p-select>
+            </div>
+          </div>
+        </ng-template>
+
+        <div *ngIf="selectedAvailabilityPeriod.value === 'custom'" class="mb-4 flex gap-3 align-items-end flex-wrap">
+          <div class="flex flex-column gap-2">
+            <label class="font-medium">Start Date</label>
+            <p-datepicker
+              [(ngModel)]="availabilityCustomStartDate"
+              [maxDate]="maxDate"
+              [minDate]="minStartDate"
+              [showTime]="true"
+              [showIcon]="true">
+            </p-datepicker>
+          </div>
+          <div class="flex flex-column gap-2">
+            <label class="font-medium">End Date</label>
+            <p-datepicker
+              [(ngModel)]="availabilityCustomEndDate"
+              [maxDate]="maxDate"
+              [minDate]="availabilityCustomStartDate || minStartDate"
+              [showTime]="true"
+              [showIcon]="true">
+            </p-datepicker>
+          </div>
+          <p-button
+            label="Apply"
+            icon="pi pi-check"
+            (onClick)="applyAvailabilityCustomRange()">
+          </p-button>
+        </div>
+
+        <div class="flex justify-content-center p-4" *ngIf="availabilityLoading">
+          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        </div>
+
+        <div *ngIf="!availabilityLoading && availabilityStats">
+          <div class="grid mb-4">
+            <div class="col-12 md:col-3">
+              <div class="surface-100 p-3 border-round text-center">
+                <div class="text-500 font-medium mb-2">Online Percentage</div>
+                <div class="text-2xl font-bold text-green-500">{{ availabilityStats.onlinePercentage }}%</div>
+              </div>
+            </div>
+            <div class="col-12 md:col-3">
+              <div class="surface-100 p-3 border-round text-center">
+                <div class="text-500 font-medium mb-2">Offline Percentage</div>
+                <div class="text-2xl font-bold text-red-500">{{ availabilityStats.offlinePercentage }}%</div>
+              </div>
+            </div>
+            <div class="col-12 md:col-3">
+              <div class="surface-100 p-3 border-round text-center">
+                <div class="text-500 font-medium mb-2">Total Online Time</div>
+                <div class="text-2xl font-bold text-green-500">{{ formatDuration(availabilityStats.totalOnlineSeconds) }}</div>
+              </div>
+            </div>
+            <div class="col-12 md:col-3">
+              <div class="surface-100 p-3 border-round text-center">
+                <div class="text-500 font-medium mb-2">Total Offline Time</div>
+                <div class="text-2xl font-bold text-red-500">{{ formatDuration(availabilityStats.totalOfflineSeconds) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="availabilityChartData" style="height: 350px;">
+            <p-chart type="bar" [data]="availabilityChartData" [options]="availabilityChartOptions" height="100%"></p-chart>
+          </div>
+
+          <p-message severity="info" *ngIf="!availabilityChartData || availabilityStats.dataPoints.length === 0" class="w-full mt-3">
+            No availability data available for the selected period.
+          </p-message>
+        </div>
+      </p-card>
+
       <p-message severity="info" *ngIf="!warehouse.sectors || warehouse.sectors.length === 0" class="w-full">
         No sectors configured for this warehouse. Edit the warehouse to add sectors.
       </p-message>

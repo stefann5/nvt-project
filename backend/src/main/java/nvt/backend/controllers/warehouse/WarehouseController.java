@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -167,6 +169,51 @@ public class WarehouseController {
             }
 
             TemperatureStatisticsDTO stats = warehouseService.getTemperatureStatistics(warehouseId, sectorId, start, end);
+            return ResponseEntity.ok(stats);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{warehouseId}/availability/stats")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
+    public ResponseEntity<?> getAvailabilityStatistics(
+            @PathVariable Long warehouseId,
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime) {
+        try {
+            Instant start;
+            Instant end = Instant.now();
+
+            if (period != null) {
+                start = switch (period.toLowerCase()) {
+                    case "1h" -> end.minus(1, ChronoUnit.HOURS);
+                    case "12h" -> end.minus(12, ChronoUnit.HOURS);
+                    case "24h" -> end.minus(24, ChronoUnit.HOURS);
+                    case "7d", "week" -> end.minus(7, ChronoUnit.DAYS);
+                    case "30d", "month" -> end.minus(30, ChronoUnit.DAYS);
+                    case "3months" -> end.minus(90, ChronoUnit.DAYS);
+                    case "year" -> end.minus(365, ChronoUnit.DAYS);
+                    default -> throw new IllegalArgumentException("Invalid period. Use: 1h, 12h, 24h, 7d, 30d, 3months, year");
+                };
+            } else if (startTime != null && endTime != null) {
+                if (endTime.isBefore(startTime)) {
+                    return ResponseEntity.badRequest().body("End time must be after start time");
+                }
+                long daysBetween = Duration.between(startTime, endTime).toDays();
+                if (daysBetween > 365) {
+                    return ResponseEntity.badRequest().body("Date range cannot exceed one year");
+                }
+                start = startTime;
+                end = endTime;
+            } else {
+                start = end.minus(24, ChronoUnit.HOURS);
+            }
+
+            WarehouseAvailabilityStatisticsDTO stats = warehouseService.getAvailabilityStatistics(warehouseId, start, end);
             return ResponseEntity.ok(stats);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
