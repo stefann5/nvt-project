@@ -33,6 +33,8 @@ INSERT INTO id_generator (sequence_name, next_val) VALUES ('user', 300) ON CONFL
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('registration_requests', 300) ON CONFLICT (sequence_name) DO NOTHING;
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('orders', 300) ON CONFLICT (sequence_name) DO NOTHING;
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('order_items', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('warehouses', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('warehouse_sectors', 300) ON CONFLICT (sequence_name) DO NOTHING;
 
 -- 1. ADMIN
 INSERT INTO "user"
@@ -220,26 +222,76 @@ INSERT INTO products (id, name, description, sku, price, weight, category, unit,
 (15, 'Tečnost za stakla 5L', 'Zimska tečnost za pranje stakala -20°C', 'WASHER-WIN-5L', 6.99, 5.0, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
 
 -- Warehouses
-INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
-(1, 'Glavni magacin Beograd', 1, 1, 'Industrijska', '25', 44.8176, 20.4633, 10000.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
-(2, 'Magacin Novi Sad', 1, 2, 'Temerinska', '100', 45.2671, 19.8335, 5000.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, created_at) VALUES
-(3, 'Magacin Zagreb', 2, 6, 'Industrijska zona', '15', 45.8150, 15.9819, 7500.0, true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(1, 'Glavni magacin Beograd', 1, 1, 'Industrijska', '25', 44.8176, 20.4633, 10000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(2, 'Magacin Novi Sad', 1, 2, 'Temerinska', '100', 45.2671, 19.8335, 5000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(3, 'Magacin Zagreb', 2, 6, 'Industrijska zona', '15', 45.8150, 15.9819, 7500.0, true, false, NULL, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(4, 'Berlin Distribution Center', 3, 9, 'Industriestrasse', '50', 52.5200, 13.4050, 15000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(5, 'Munich Logistics Hub', 3, 10, 'Logistikweg', '12', 48.1351, 11.5820, 12000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(6, 'Vienna Central Warehouse', 4, 12, 'Lagerstrasse', '8', 48.2082, 16.3738, 8000.0, true, false, NULL, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(7, 'Budapest Storage Facility', 5, 14, 'Raktar utca', '22', 47.4979, 19.0402, 6000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
+(8, 'Nis Regional Warehouse', 1, 3, 'Vojvode Misica', '45', 43.3209, 21.8954, 4000.0, true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
 
--- Warehouse Sectors
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(1, 'Sektor A - Gume', 10.0, 25.0, 18.0, 3000.0, 1) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(2, 'Sektor B - Ulja i hemija', 5.0, 20.0, 15.0, 2000.0, 1) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(3, 'Sektor C - Delovi', 10.0, 30.0, 20.0, 5000.0, 1) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(4, 'Sektor A - Gume', 10.0, 25.0, 17.0, 2000.0, 2) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(5, 'Sektor B - Ostalo', 5.0, 25.0, 18.0, 3000.0, 2) ON CONFLICT (id) DO NOTHING;
-INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, capacity, warehouse_id) VALUES
-(6, 'Glavni sektor', 5.0, 25.0, 19.0, 7500.0, 3) ON CONFLICT (id) DO NOTHING;
+-- Warehouse Sectors (Belgrade - Warehouse 1)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(1, 'Sektor A - Gume', 10.0, 25.0, 18.5, NOW(), 3000.0, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(2, 'Sektor B - Ulja i hemija', 5.0, 20.0, 14.2, NOW(), 2000.0, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(3, 'Sektor C - Delovi', 10.0, 30.0, 21.3, NOW(), 5000.0, 1) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Novi Sad - Warehouse 2)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(4, 'Sektor A - Gume', 10.0, 25.0, 17.8, NOW(), 2000.0, 2) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(5, 'Sektor B - Ostalo', 5.0, 25.0, 19.1, NOW(), 3000.0, 2) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Zagreb - Warehouse 3 - Offline)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(6, 'Glavni sektor', 5.0, 25.0, NULL, NULL, 7500.0, 3) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Berlin - Warehouse 4)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(7, 'Zone A - Tires & Wheels', 8.0, 22.0, 16.5, NOW(), 5000.0, 4) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(8, 'Zone B - Lubricants', 5.0, 18.0, 12.3, NOW(), 3000.0, 4) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(9, 'Zone C - Electronics', 15.0, 25.0, 20.0, NOW(), 4000.0, 4) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(10, 'Zone D - General Parts', 10.0, 30.0, 22.1, NOW(), 3000.0, 4) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Munich - Warehouse 5)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(11, 'Halle 1 - Reifen', 10.0, 24.0, 17.2, NOW(), 4000.0, 5) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(12, 'Halle 2 - Chemie', 5.0, 18.0, 13.8, NOW(), 3000.0, 5) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(13, 'Halle 3 - Ersatzteile', 10.0, 28.0, 19.5, NOW(), 5000.0, 5) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Vienna - Warehouse 6 - Offline)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(14, 'Bereich A', 8.0, 22.0, NULL, NULL, 4000.0, 6) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(15, 'Bereich B', 5.0, 20.0, NULL, NULL, 4000.0, 6) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Budapest - Warehouse 7)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(16, 'A Zona - Gumiabroncsok', 10.0, 25.0, 18.9, NOW(), 2500.0, 7) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(17, 'B Zona - Alkatreszek', 10.0, 28.0, 21.4, NOW(), 3500.0, 7) ON CONFLICT (id) DO NOTHING;
+
+-- Warehouse Sectors (Nis - Warehouse 8)
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(18, 'Sektor 1 - Gume', 10.0, 25.0, 19.2, NOW(), 1500.0, 8) ON CONFLICT (id) DO NOTHING;
+INSERT INTO warehouse_sectors (id, name, min_temperature, max_temperature, current_temperature, last_temperature_update, capacity, warehouse_id) VALUES
+(19, 'Sektor 2 - Delovi', 10.0, 30.0, 22.8, NOW(), 2500.0, 8) ON CONFLICT (id) DO NOTHING;
 
 -- Inventory (stock levels)
 INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
@@ -369,6 +421,64 @@ INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserv
 INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
 (44, 12, 3, 6, 60, 0, NOW()) ON CONFLICT (id) DO NOTHING;
 
+-- Inventory in Berlin Distribution Center (warehouse 4)
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(45, 1, 4, 7, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(46, 2, 4, 7, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(47, 3, 4, 7, 700, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(48, 5, 4, 8, 1500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(49, 6, 4, 8, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(50, 11, 4, 9, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(51, 12, 4, 9, 250, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(52, 13, 4, 9, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(53, 7, 4, 10, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(54, 8, 4, 10, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory in Munich Logistics Hub (warehouse 5)
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(55, 1, 5, 11, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(56, 4, 5, 11, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(57, 5, 5, 12, 1200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(58, 14, 5, 12, 500, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(59, 9, 5, 13, 1000, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(60, 10, 5, 13, 800, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory in Budapest Storage Facility (warehouse 7)
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(61, 1, 7, 16, 350, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(62, 2, 7, 16, 250, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(63, 7, 7, 17, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(64, 9, 7, 17, 600, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
+-- Inventory in Nis Regional Warehouse (warehouse 8)
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(65, 1, 8, 18, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(66, 3, 8, 18, 150, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(67, 7, 8, 19, 200, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(68, 9, 8, 19, 400, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
+(69, 11, 8, 19, 100, 0, NOW()) ON CONFLICT (id) DO NOTHING;
+
 
 -- Test approved companies for customers
 INSERT INTO registration_requests (id, name, country_id, city_id, street, street_number, latitude, longitude, status, rejection_reason, processed_at, owner_id, created_at) VALUES
@@ -440,3 +550,13 @@ WHERE sequence_name = 'orders';
 
 UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
 WHERE sequence_name = 'order_items';
+
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
+WHERE sequence_name = 'warehouses';
+
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
+WHERE sequence_name = 'warehouse_sectors';
+
+UPDATE warehouses SET version = 0 WHERE version IS NULL;
+UPDATE orders SET version = 0 WHERE version IS NULL;
+UPDATE inventory SET version = 0 WHERE version IS NULL;

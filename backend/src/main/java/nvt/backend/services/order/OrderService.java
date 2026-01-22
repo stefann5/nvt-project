@@ -1,12 +1,15 @@
 package nvt.backend.services.order;
 
 import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.order.CreateOrderDTO;
 import nvt.backend.dto.order.OrderListDTO;
 import nvt.backend.dto.order.OrderResponseDTO;
+import nvt.backend.exceptions.ConcurrencyException;
+import nvt.backend.exceptions.InsufficientStockException;
 import nvt.backend.model.company.RegistrationRequest;
 import nvt.backend.model.order.Order;
 import nvt.backend.model.order.OrderItem;
@@ -23,11 +26,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +65,14 @@ public class OrderService {
         @CacheEvict(value = "ordersPage", allEntries = true),
         @CacheEvict(value = "customerOrders", allEntries = true)
     })
+    @Retryable(
+        retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 100, multiplier = 2)
+    )
     public OrderResponseDTO createOrder(CreateOrderDTO dto, Integer customerId) {
+        log.debug("Creating order for customer {}", customerId);
+
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
@@ -80,11 +93,11 @@ public class OrderService {
 
         for (CreateOrderDTO.OrderItemDTO itemDto : dto.getItems()) {
             Integer availableQuantity = inventoryRepository.getTotalAvailableQuantityByProductId(itemDto.getProductId());
-            if (availableQuantity < itemDto.getQuantity()) {
+            if (availableQuantity == null || availableQuantity < itemDto.getQuantity()) {
                 Product product = productRepository.findById(itemDto.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found: " + itemDto.getProductId()));
-                throw new RuntimeException("Insufficient stock for product: " + product.getName() +
-                        ". Available: " + availableQuantity + ", Requested: " + itemDto.getQuantity());
+                throw new InsufficientStockException("Insufficient stock for product: " + product.getName() +
+                        ". Available: " + (availableQuantity != null ? availableQuantity : 0) + ", Requested: " + itemDto.getQuantity());
             }
         }
 
@@ -100,7 +113,12 @@ public class OrderService {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found: " + itemDto.getProductId()));
 
-            decreaseInventory(product.getId(), itemDto.getQuantity());
+            try {
+                decreaseInventory(product.getId(), itemDto.getQuantity());
+            } catch (OptimisticLockException | OptimisticLockingFailureException e) {
+                log.warn("Concurrency conflict while decreasing inventory for product {}, retrying...", product.getId());
+                throw e;
+            }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
@@ -116,6 +134,7 @@ public class OrderService {
         order.setProcessedAt(LocalDateTime.now());
 
         order = orderRepository.save(order);
+        log.info("Order {} created successfully", order.getOrderNumber());
 
         try {
             String invoicePath = invoiceService.generateAndUploadInvoice(order);
@@ -133,6 +152,10 @@ public class OrderService {
     private void decreaseInventory(Long productId, Integer quantity) {
         List<Inventory> inventories = inventoryRepository.findAvailableInventoryForProduct(productId);
 
+        if (inventories.isEmpty()) {
+            throw new InsufficientStockException("No inventory available for product ID: " + productId);
+        }
+
         int remainingToDecrease = quantity;
 
         for (Inventory inventory : inventories) {
@@ -148,7 +171,7 @@ public class OrderService {
         }
 
         if (remainingToDecrease > 0) {
-            throw new RuntimeException("Failed to decrease inventory - insufficient stock");
+            throw new InsufficientStockException("Failed to decrease inventory - insufficient stock. Remaining: " + remainingToDecrease);
         }
     }
 
