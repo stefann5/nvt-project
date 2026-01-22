@@ -37,6 +37,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.TABLE,generator = "order_gen")
     private Long id;
 
+    @Version
+    private Long version = 0L;
+
     @Column(unique = true, nullable = false)
     private String orderNumber;
 

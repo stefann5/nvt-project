@@ -556,3 +556,7 @@ WHERE sequence_name = 'warehouses';
 
 UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
 WHERE sequence_name = 'warehouse_sectors';
+
+UPDATE warehouses SET version = 0 WHERE version IS NULL;
+UPDATE orders SET version = 0 WHERE version IS NULL;
+UPDATE inventory SET version = 0 WHERE version IS NULL;

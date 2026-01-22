@@ -37,6 +37,9 @@ public class Warehouse {
     @GeneratedValue(strategy = GenerationType.TABLE,generator = "warehouse_gen")
     private Long id;
 
+    @Version
+    private Long version = 0L;
+
     @Column(nullable = false)
     private String name;
 

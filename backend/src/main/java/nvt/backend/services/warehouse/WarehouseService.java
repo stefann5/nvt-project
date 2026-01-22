@@ -1,8 +1,11 @@
 package nvt.backend.services.warehouse;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nvt.backend.dto.common.PageResponseDTO;
 import nvt.backend.dto.warehouse.*;
+import nvt.backend.exceptions.ConcurrencyException;
 import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
 import nvt.backend.model.warehouse.Warehouse;
@@ -17,10 +20,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +43,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
@@ -53,7 +61,14 @@ public class WarehouseService {
         @CacheEvict(value = "warehousesPage", allEntries = true),
         @CacheEvict(value = "warehouseSearch", allEntries = true)
     })
+    @Retryable(
+        retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 100, multiplier = 2)
+    )
     public WarehouseResponseDTO create(CreateWarehouseDTO dto, List<MultipartFile> images) throws IOException {
+        log.debug("Creating warehouse: {}", dto.getName());
+
         if (warehouseRepository.existsByName(dto.getName())) {
             throw new RuntimeException("Warehouse with this name already exists");
         }
@@ -180,7 +195,14 @@ public class WarehouseService {
         @CacheEvict(value = "warehousesPage", allEntries = true),
         @CacheEvict(value = "warehouseSearch", allEntries = true)
     })
+    @Retryable(
+        retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 100, multiplier = 2)
+    )
     public WarehouseResponseDTO update(Long id, UpdateWarehouseDTO dto, List<MultipartFile> newImages) throws IOException {
+        log.debug("Updating warehouse with ID: {}", id);
+
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
 
@@ -290,7 +312,14 @@ public class WarehouseService {
         @CacheEvict(value = "warehousesPage", allEntries = true),
         @CacheEvict(value = "warehouseSearch", allEntries = true)
     })
+    @Retryable(
+        retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 100, multiplier = 2)
+    )
     public void delete(Long id) {
+        log.debug("Deleting warehouse with ID: {}", id);
+
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
 
@@ -299,6 +328,25 @@ public class WarehouseService {
         }
 
         warehouseRepository.delete(warehouse);
+        log.info("Warehouse {} deleted successfully", id);
+    }
+
+    @Recover
+    public WarehouseResponseDTO recoverCreate(OptimisticLockingFailureException e, CreateWarehouseDTO dto, List<MultipartFile> images) {
+        log.error("Failed to create warehouse after retries due to concurrent modification: {}", e.getMessage());
+        throw new ConcurrencyException("Failed to create warehouse due to concurrent modification. Please try again.", e);
+    }
+
+    @Recover
+    public WarehouseResponseDTO recoverUpdate(OptimisticLockingFailureException e, Long id, UpdateWarehouseDTO dto, List<MultipartFile> newImages) {
+        log.error("Failed to update warehouse {} after retries due to concurrent modification: {}", id, e.getMessage());
+        throw new ConcurrencyException("Failed to update warehouse due to concurrent modification. Please refresh and try again.", e);
+    }
+
+    @Recover
+    public void recoverDelete(OptimisticLockingFailureException e, Long id) {
+        log.error("Failed to delete warehouse {} after retries due to concurrent modification: {}", id, e.getMessage());
+        throw new ConcurrencyException("Failed to delete warehouse due to concurrent modification. Please refresh and try again.", e);
     }
 
     @Cacheable(value = "countries")
