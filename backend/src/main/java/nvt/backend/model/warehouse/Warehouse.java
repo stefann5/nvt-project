@@ -38,6 +38,7 @@ public class Warehouse {
     private Long id;
 
     @Version
+    @Column(columnDefinition = "bigint default 0")
     private Long version = 0L;
 
     @Column(nullable = false)

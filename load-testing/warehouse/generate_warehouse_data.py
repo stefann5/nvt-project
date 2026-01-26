@@ -500,6 +500,10 @@ def generate_warehouses(conn, count, batch_size=5000):
         longitude = 19.8 + random.uniform(-3, 3)
         total_capacity = random.uniform(1000, 20000)
         
+        # Determine online status first, then set heartbeat accordingly
+        is_online = random.random() > 0.1  # 90% online
+        last_heartbeat = datetime.now() if is_online else None  # Only online warehouses have heartbeat
+        
         warehouse_batch.append((
             next_warehouse_id,
             warehouse_name,
@@ -511,8 +515,8 @@ def generate_warehouses(conn, count, batch_size=5000):
             longitude,
             total_capacity,
             True,  # active
-            random.random() > 0.1,  # 90% online
-            datetime.now() if random.random() > 0.1 else None,  # last_heartbeat
+            is_online,
+            last_heartbeat,
             datetime.now() - timedelta(days=random.randint(0, 730))
         ))
         

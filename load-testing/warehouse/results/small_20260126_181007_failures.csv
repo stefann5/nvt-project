@@ -1,2 +1,0 @@
-Method,Name,Error,Occurrences
-GET,[Setup] Fetch Companies,HTTPError('404 Client Error:  for url: [Setup] Fetch Companies'),1
