@@ -1,0 +1,97 @@
+[2026-01-26 22:30:43,329] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 22:30:43,344] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 22:30:52,570] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 22:30:52,572] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 22:30:53,945] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 22:30:54,444] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 22:30:54,758] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 22:30:55,018] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 22:30:55,599] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 22:30:55,599] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 22:31:01,659] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 22:36:07,348] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 1000 users at a rate of 100.00 per second
+[2026-01-26 22:36:16,641] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
+[2026-01-26 22:41:27,954] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 1000 users at a rate of 100.00 per second
+[2026-01-26 22:41:37,106] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
+[2026-01-26 22:59:21,124] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-26 22:59:21,127] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 1)
+[2026-01-26 22:59:24,554] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 22:59:24,571] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 22:59:36,700] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 22:59:36,702] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 22:59:38,601] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 22:59:39,123] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 22:59:39,944] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 22:59:40,201] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 22:59:40,667] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 22:59:40,667] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 22:59:45,823] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 23:09:15,752] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-26 23:09:15,755] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-01-26 23:30:31,969] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 23:30:31,976] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 23:30:40,227] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 23:30:40,229] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 23:30:42,355] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 23:30:42,905] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 23:30:43,640] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 23:30:43,909] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 23:30:44,437] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 23:30:44,437] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 23:30:49,320] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 23:42:49,333] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-26 23:42:49,369] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-01-26 23:48:14,513] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 23:48:14,514] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 23:48:30,832] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 23:48:30,834] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 23:48:32,567] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 23:48:33,074] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 23:48:33,777] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 23:48:34,031] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 23:48:34,554] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 23:48:34,554] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 23:48:39,924] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 23:52:20,989] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-26 23:52:20,994] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-01-26 23:54:13,821] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 23:54:13,822] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 23:54:18,162] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 23:54:18,163] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 23:54:19,132] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 23:54:19,660] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 23:54:20,462] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 23:54:20,741] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 23:54:21,298] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 23:54:21,298] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 23:54:27,272] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 23:58:05,207] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-26 23:58:05,214] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-01-26 23:59:13,509] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 23:59:13,510] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-26 23:59:18,415] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 23:59:18,416] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 23:59:19,479] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-26 23:59:19,991] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-26 23:59:20,718] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-26 23:59:20,969] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-26 23:59:21,440] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-26 23:59:21,440] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-26 23:59:27,492] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-27 00:02:50,566] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-27 00:02:50,570] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-01-27 00:09:51,187] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-27 00:09:51,192] DESKTOP-HJJNH7D/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-01-27 00:09:54,565] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-27 00:09:54,567] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-27 00:09:55,035] DESKTOP-HJJNH7D/INFO/locustfile: Manager login successful
+[2026-01-27 00:09:55,117] DESKTOP-HJJNH7D/INFO/locustfile: Customer login successful
+[2026-01-27 00:09:55,600] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 100 warehouses
+[2026-01-27 00:09:55,633] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 30 products
+[2026-01-27 00:09:55,668] DESKTOP-HJJNH7D/INFO/locustfile: Fetched 104 companies
+[2026-01-27 00:09:55,668] DESKTOP-HJJNH7D/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 104 companies
+[2026-01-27 00:10:03,643] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-27 00:13:03,454] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 1000 users at a rate of 100.00 per second
+[2026-01-27 00:13:12,699] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
+[2026-01-27 00:17:13,589] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-01-27 00:17:13,592] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)

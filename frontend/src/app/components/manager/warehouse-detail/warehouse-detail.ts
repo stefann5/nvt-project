@@ -124,6 +124,7 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
       this.warehouseId = +id;
       this.loadWarehouse();
       this.loadAvailabilityStats();
+      this.connectWebSocket(); // Connect WebSocket to receive real-time status updates
     }
     this.initChartOptions();
     this.initAvailabilityChartOptions();
@@ -166,6 +167,37 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
             this.availabilityStats = stats;
             this.updateAvailabilityChart();
             console.log('Received real-time warehouse availability update');
+          });
+        }
+      );
+
+      // Subscribe to heartbeat updates for online status
+      this.stompClient?.subscribe(
+        `/topic/warehouse/${this.warehouseId}/heartbeat`,
+        (message: IMessage) => {
+          this.ngZone.run(() => {
+            const heartbeat = JSON.parse(message.body);
+            if (this.warehouse && heartbeat.status === 'ONLINE') {
+              this.warehouse.online = true;
+              this.warehouse.lastHeartbeat = heartbeat.timestamp;
+              this.updateMapMarker();
+              console.log('Warehouse status updated to ONLINE via heartbeat');
+            }
+          });
+        }
+      );
+
+      // Subscribe to status changes (for offline notifications)
+      this.stompClient?.subscribe(
+        `/topic/warehouse/${this.warehouseId}/status`,
+        (message: IMessage) => {
+          this.ngZone.run(() => {
+            const status = JSON.parse(message.body);
+            if (this.warehouse) {
+              this.warehouse.online = status.online;
+              this.updateMapMarker();
+              console.log(`Warehouse status updated to ${status.online ? 'ONLINE' : 'OFFLINE'}`);
+            }
           });
         }
       );

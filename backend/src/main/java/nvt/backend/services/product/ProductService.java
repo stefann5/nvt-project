@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "productById", key = "#id")
     public ProductResponseDTO getById(Long id) {
         Product product = productRepository.findByIdWithDetails(id)
@@ -35,26 +38,39 @@ public class ProductService {
         return ProductResponseDTO.fromEntityWithQuantity(product, totalQuantity);
     }
 
+    /**
+     * Get total active product count with caching - expensive COUNT query cached separately
+     */
+    @Cacheable(value = "productCount")
+    public long getTotalActiveProductCount() {
+        return productRepository.countActiveProducts();
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(value = "productsPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
     public PageResponseDTO<ProductListDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        // Use cached total count to avoid expensive COUNT query on every request
+        long totalElements = getTotalActiveProductCount();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        
+        // Fetch only IDs for the current page (fast query)
+        long offset = (long) page * size;
+        List<Long> ids = productRepository.findActiveIdsByPage(offset, size, sortBy, sortDir.equalsIgnoreCase("desc"));
 
-        Page<Long> idPage = productRepository.findAllActiveIds(pageable);
-        if (idPage.getContent().isEmpty()) {
+        if (ids.isEmpty()) {
             return PageResponseDTO.<ProductListDTO>builder()
                     .content(List.of())
                     .page(page)
                     .size(size)
-                    .totalElements(0)
-                    .totalPages(0)
-                    .first(true)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .first(page == 0)
                     .last(true)
                     .build();
         }
 
-        List<Product> products = productRepository.findAllByIds(idPage.getContent());
-        Map<Long, Integer> quantities = getQuantitiesForProducts(idPage.getContent());
+        List<Product> products = productRepository.findAllByIds(ids);
+        Map<Long, Integer> quantities = getQuantitiesForProductsBatch(ids);
 
         List<ProductListDTO> content = products.stream()
                 .map(p -> ProductListDTO.fromEntity(p, quantities.getOrDefault(p.getId(), 0)))
@@ -62,15 +78,16 @@ public class ProductService {
 
         return PageResponseDTO.<ProductListDTO>builder()
                 .content(content)
-                .page(idPage.getNumber())
-                .size(idPage.getSize())
-                .totalElements(idPage.getTotalElements())
-                .totalPages(idPage.getTotalPages())
-                .first(idPage.isFirst())
-                .last(idPage.isLast())
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .first(page == 0)
+                .last(page >= totalPages - 1)
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "productSearch", key = "#dto.toString()")
     public PageResponseDTO<ProductListDTO> search(ProductSearchDTO dto) {
         String sortBy = dto.getSortBy() != null ? dto.getSortBy() : "name";
@@ -106,7 +123,7 @@ public class ProductService {
         }
 
         List<Product> products = productRepository.findAllByIds(idPage.getContent());
-        Map<Long, Integer> quantities = getQuantitiesForProducts(idPage.getContent());
+        Map<Long, Integer> quantities = getQuantitiesForProductsBatch(idPage.getContent());
 
         List<ProductListDTO> content;
         if (Boolean.TRUE.equals(dto.getInStock())) {
@@ -131,6 +148,7 @@ public class ProductService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "productCategories")
     public List<String> getAllCategories() {
         return productRepository.findAllCategories();
@@ -140,11 +158,20 @@ public class ProductService {
         return inventoryRepository.getTotalAvailableQuantityByProductId(productId);
     }
 
-    private Map<Long, Integer> getQuantitiesForProducts(List<Long> productIds) {
-        return productIds.stream()
+    /**
+     * Batch load quantities for multiple products in a single query.
+     * This replaces N+1 queries with a single query for much better performance.
+     */
+    private Map<Long, Integer> getQuantitiesForProductsBatch(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        
+        List<Object[]> results = inventoryRepository.getTotalAvailableQuantitiesByProductIds(productIds);
+        return results.stream()
                 .collect(Collectors.toMap(
-                        id -> id,
-                        id -> inventoryRepository.getTotalAvailableQuantityByProductId(id)
+                        row -> (Long) row[0],
+                        row -> ((Number) row[1]).intValue()
                 ));
     }
 }
