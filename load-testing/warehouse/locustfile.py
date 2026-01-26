@@ -183,10 +183,10 @@ class SharedState:
     
     @classmethod
     def _fetch_companies(cls, client, headers):
-        """Fetch company IDs for the customer"""
+        """Fetch company IDs for the customer (approved registration requests)"""
         try:
             response = client.get(
-                "/api/v1/customer/companies",
+                "/api/v1/registration-requests/my-companies",
                 headers=headers,
                 name="[Setup] Fetch Companies",
                 timeout=10
@@ -647,7 +647,8 @@ class CustomerLoadTest(HttpUser):
         
         order_data = {
             "companyId": random.choice(self.company_ids),
-            "items": items
+            "items": items,
+            "notes": f"Load test order {random.randint(1000, 9999)}"
         }
         
         with self.client.post(
