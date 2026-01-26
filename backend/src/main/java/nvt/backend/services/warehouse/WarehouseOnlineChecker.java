@@ -44,7 +44,7 @@ public class WarehouseOnlineChecker {
         List<Warehouse> staleWarehouses = warehouseRepository.findOnlineWarehousesWithOldHeartbeat(threshold);
 
         for (Warehouse warehouse : staleWarehouses) {
-            log.info("Warehouse {} marked as offline due to heartbeat timeout", warehouse.getId());
+            log.debug("Warehouse {} marked as offline due to heartbeat timeout", warehouse.getId());
 
             warehouse.setOnline(false);
             warehouseRepository.save(warehouse);

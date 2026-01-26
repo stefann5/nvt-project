@@ -68,10 +68,10 @@
             </div>
           </div>
 
-          <!-- Username Field -->
+          <!-- Phone Number Field -->
           <div class="field mb-4">
             <label for="phoneNumber" class="block font-semibold mb-2">
-              <i class="pi pi-at mr-2"></i>Phone Number *
+              <i class="pi pi-phone mr-2"></i>Phone Number *
             </label>
             <span class="p-input-icon-left w-full">
               <input
@@ -80,15 +80,15 @@
                 formControlName="phoneNumber"
                 placeholder="Enter your phone number"
                 class="w-full"
-                [class.p-invalid]="isOrganizationInvalid"
+                [class.p-invalid]="isPhoneNumberInvalid"
                 [disabled]="isLoading"
               />
             </span>
-            <small class="p-error block mt-1" *ngIf="isOrganizationInvalid">
-              {{ organizationErrorMessage }}
+            <small class="p-error block mt-1" *ngIf="isPhoneNumberInvalid">
+              {{ phoneNumberErrorMessage }}
             </small>
             <small class="text-color-secondary text-sm mt-1 block">
-              Phone number numbers and plus
+              6-15 digits, optionally starting with +
             </small>
           </div>
           <!-- Email Field -->

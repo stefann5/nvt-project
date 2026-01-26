@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS id_generator (
     );
 
 -- Initialize sequences
-INSERT INTO id_generator (sequence_name, next_val) VALUES ('user', 300) ON CONFLICT (sequence_name) DO NOTHING;
+INSERT INTO id_generator (sequence_name, next_val) VALUES ('users', 300) ON CONFLICT (sequence_name) DO NOTHING;
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('registration_requests', 300) ON CONFLICT (sequence_name) DO NOTHING;
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('orders', 300) ON CONFLICT (sequence_name) DO NOTHING;
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('order_items', 300) ON CONFLICT (sequence_name) DO NOTHING;
@@ -37,53 +37,15 @@ INSERT INTO id_generator (sequence_name, next_val) VALUES ('warehouses', 300) ON
 INSERT INTO id_generator (sequence_name, next_val) VALUES ('warehouse_sectors', 300) ON CONFLICT (sequence_name) DO NOTHING;
 
 -- 1. ADMIN
-INSERT INTO "user"
-(id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type)
-VALUES
-    (1, 'Admin', 'Admin', 'admin',
-     '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     2, 'ADMIN', true, NULL, NULL, 'Manager')
-    ON CONFLICT (id) DO NOTHING;
-
-
+INSERT INTO users (id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type) VALUES (1, 'Admin', 'Admin', 'admin','$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',2, 'ADMIN', true, NULL, NULL, 'Manager') ON CONFLICT (id) DO NOTHING;
 -- 2. CA korisnik 1
-INSERT INTO "user"
-(id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type)
-VALUES
-    (2, 'Goran', 'Bijelic', 'tetak',
-     '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     1, 'MANAGER', true, NULL, NULL, 'Manager')
-    ON CONFLICT (id) DO NOTHING;
-
-
+INSERT INTO users (id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type) VALUES (2, 'Goran', 'Bijelic', 'tetak','$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',1, 'MANAGER', true, NULL, NULL, 'Manager')ON CONFLICT (id) DO NOTHING;
 -- 3. CA korisnik 2
-INSERT INTO "user"
-(id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type)
-VALUES
-    (3, 'Miki', 'Bijelic', 'miki',
-     '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
-    ON CONFLICT (id) DO NOTHING;
-
-
+INSERT INTO users (id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type) VALUES (3, 'Miki', 'Bijelic', 'miki','$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',0, 'CUSTOMER', true, NULL, NULL, 'Customer')ON CONFLICT (id) DO NOTHING;
 -- 4. Običan korisnik
-INSERT INTO "user"
-(id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type)
-VALUES
-    (4, 'Stefan', 'Nikolić', 'user@company.com',
-     '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
-    ON CONFLICT (id) DO NOTHING;
-
-
+INSERT INTO users (id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type) VALUES (4, 'Stefan', 'Nikolić', 'user@company.com','$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',0, 'CUSTOMER', true, NULL, NULL, 'Customer')ON CONFLICT (id) DO NOTHING;
 -- 5. Test korisnik
-INSERT INTO "user"
-(id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type)
-VALUES
-    (5, 'Test', 'Testović', 'test@test.com',
-     '$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',
-     0, 'CUSTOMER', true, NULL, NULL, 'Customer')
-    ON CONFLICT (id) DO NOTHING;
+INSERT INTO users (id, name, surname, username, password, role, authorities, active, activation_token, token_expiration, user_type) VALUES (5, 'Test', 'Testović', 'test@test.com','$2a$10$vYTIHEUfK0xyiSp1q8EMwuELaXDFp0VnHdkHUqzg5AvSTkz6VPZku',0, 'CUSTOMER', true, NULL, NULL, 'Customer')ON CONFLICT (id) DO NOTHING;
 
 -- Countries
 INSERT INTO countries (id, name) VALUES (1, 'Serbia');
@@ -542,6 +504,9 @@ INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, total_p
 -- Tables using TableGenerator (id_generator) are handled separately
 
 -- Update id_generator table for registration_requests
+UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM users)
+WHERE sequence_name = 'users';
+
 UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM registration_requests)
 WHERE sequence_name = 'registration_requests';
 

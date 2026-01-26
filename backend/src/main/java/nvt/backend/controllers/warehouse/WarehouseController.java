@@ -191,13 +191,14 @@ public class WarehouseController {
             if (period != null) {
                 start = switch (period.toLowerCase()) {
                     case "1h" -> end.minus(1, ChronoUnit.HOURS);
+                    case "3h" -> end.minus(3, ChronoUnit.HOURS);
                     case "12h" -> end.minus(12, ChronoUnit.HOURS);
                     case "24h" -> end.minus(24, ChronoUnit.HOURS);
                     case "7d", "week" -> end.minus(7, ChronoUnit.DAYS);
                     case "30d", "month" -> end.minus(30, ChronoUnit.DAYS);
                     case "3months" -> end.minus(90, ChronoUnit.DAYS);
                     case "year" -> end.minus(365, ChronoUnit.DAYS);
-                    default -> throw new IllegalArgumentException("Invalid period. Use: 1h, 12h, 24h, 7d, 30d, 3months, year");
+                    default -> throw new IllegalArgumentException("Invalid period. Use: 1h, 3h, 12h, 24h, 7d, 30d, 3months, year");
                 };
             } else if (startTime != null && endTime != null) {
                 if (endTime.isBefore(startTime)) {
