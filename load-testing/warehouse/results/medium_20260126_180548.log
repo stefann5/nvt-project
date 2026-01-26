@@ -1,0 +1,73 @@
+[2026-01-26 18:05:49,374] DESKTOP-HJJNH7D/INFO/locust.main: Starting Locust 2.43.1
+[2026-01-26 18:05:49,375] DESKTOP-HJJNH7D/INFO/locust.main: Run time limit set to 300 seconds
+[2026-01-26 18:05:49,378] DESKTOP-HJJNH7D/INFO/locust.runners: Ramping to 100 users at a rate of 10.00 per second
+[2026-01-26 18:05:49,379] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:05:53,471] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:05:58,073] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:05:58,447] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 40, "ManagerLoadTest": 60} (100 total users)
+[2026-01-26 18:06:02,681] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:07,306] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:11,915] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:16,526] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:17,040] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:06:17,041] DESKTOP-HJJNH7D/WARNING/locustfile: No customer token available - using manager token
+[2026-01-26 18:06:17,042] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:06:21,139] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:25,758] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:30,365] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:34,965] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:39,566] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:44,164] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:06:44,677] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:06:44,677] DESKTOP-HJJNH7D/WARNING/locustfile: No customer token available - using manager token
+[2026-01-26 18:06:44,678] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:06:48,772] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:53,371] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:06:57,984] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:02,595] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:07,202] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:11,806] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:12,320] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:07:12,321] DESKTOP-HJJNH7D/WARNING/locustfile: No customer token available - using manager token
+[2026-01-26 18:07:12,321] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:07:16,424] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:21,026] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:25,635] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:30,234] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:34,844] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:39,464] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:07:39,965] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:07:39,965] DESKTOP-HJJNH7D/WARNING/locustfile: No customer token available - using manager token
+[2026-01-26 18:07:39,965] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:07:44,061] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:48,669] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:53,272] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:07:57,885] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:02,478] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:07,066] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:07,577] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:08:07,578] DESKTOP-HJJNH7D/WARNING/locustfile: No manager token available
+[2026-01-26 18:08:07,578] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:08:11,671] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:16,278] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:20,882] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:25,492] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:30,098] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:34,699] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:35,210] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:08:35,211] DESKTOP-HJJNH7D/WARNING/locustfile: No manager token available
+[2026-01-26 18:08:35,211] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:08:39,298] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:43,913] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:48,509] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:08:53,112] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:08:57,723] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:09:02,341] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:09:02,853] DESKTOP-HJJNH7D/ERROR/locustfile: Failed to obtain manager token
+[2026-01-26 18:09:02,853] DESKTOP-HJJNH7D/WARNING/locustfile: No manager token available
+[2026-01-26 18:09:02,853] DESKTOP-HJJNH7D/INFO/locustfile: Initializing shared state...
+[2026-01-26 18:09:06,951] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:09:11,552] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:09:16,163] DESKTOP-HJJNH7D/WARNING/locustfile: Manager login failed with status 0
+[2026-01-26 18:09:20,757] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
+[2026-01-26 18:09:25,353] DESKTOP-HJJNH7D/WARNING/locustfile: Customer login failed with status 0
