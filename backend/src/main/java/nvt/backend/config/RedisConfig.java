@@ -57,17 +57,44 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         
+        // Vehicle caches
         cacheConfigurations.put("vehicleBrands", defaultConfig.entryTtl(Duration.ofHours(24)));
         cacheConfigurations.put("vehicleModels", defaultConfig.entryTtl(Duration.ofHours(24)));
         cacheConfigurations.put("vehicleById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
         cacheConfigurations.put("vehiclesPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         cacheConfigurations.put("vehicleSearch", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        
+        // Registration request caches
         cacheConfigurations.put("pendingRequestsCount", defaultConfig.entryTtl(Duration.ofMinutes(1)));
         cacheConfigurations.put("requestsPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         cacheConfigurations.put("requestById", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        
+        // Telemetry caches
         cacheConfigurations.put("distanceStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
         cacheConfigurations.put("availabilityStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
         cacheConfigurations.put("vehicleLocation", defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        
+        // Warehouse caches - IMPORTANT FOR PERFORMANCE
+        cacheConfigurations.put("warehousesPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("warehouseSearch", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("warehouseById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigurations.put("warehouseCount", defaultConfig.entryTtl(Duration.ofMinutes(10))); // COUNT cache - longer TTL
+        cacheConfigurations.put("temperatureStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("warehouseAvailability", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("countries", defaultConfig.entryTtl(Duration.ofHours(24)));
+        
+        // Product caches - IMPORTANT FOR PERFORMANCE
+        cacheConfigurations.put("productsPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("productSearch", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("productById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigurations.put("productCount", defaultConfig.entryTtl(Duration.ofMinutes(10))); // COUNT cache - longer TTL
+        cacheConfigurations.put("productCategories", defaultConfig.entryTtl(Duration.ofHours(24)));
+        
+        // Order caches
+        cacheConfigurations.put("ordersPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("customerOrders", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("orderById", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("orderCount", defaultConfig.entryTtl(Duration.ofMinutes(10))); // COUNT cache - longer TTL
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

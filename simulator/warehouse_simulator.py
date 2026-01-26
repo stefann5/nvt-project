@@ -283,7 +283,7 @@ def load_config(args):
         'sectors': sectors,
         'heartbeat_interval': args.heartbeat_interval or int(os.getenv('HEARTBEAT_INTERVAL', 15)),
         'temperature_interval': args.temperature_interval or int(os.getenv('TEMPERATURE_INTERVAL', 60)),
-        'offline_probability': float(os.getenv('OFFLINE_PROBABILITY', 0.7)),  # 5% chance per heartbeat
+        'offline_probability': float(os.getenv('OFFLINE_PROBABILITY', 0.02)),  # 5% chance per heartbeat
         'min_offline_duration': int(os.getenv('MIN_OFFLINE_DURATION', 90)),  # 90 seconds min (> 60s backend timeout)
         'max_offline_duration': int(os.getenv('MAX_OFFLINE_DURATION', 300)),  # 5 minutes max
         'rabbitmq': {

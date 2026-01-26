@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,11 +75,13 @@ public class Warehouse {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<WarehouseSector> sectors = new HashSet<>();
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<WarehouseImage> images = new ArrayList<>();
