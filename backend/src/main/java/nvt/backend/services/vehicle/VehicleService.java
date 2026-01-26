@@ -96,11 +96,6 @@ public class VehicleService {
         return VehicleResponseDTO.fromEntity(vehicle);
     }
 
-    public List<VehicleListDTO> getAll() {
-        return vehicleRepository.findAllWithDetails().stream()
-                .map(VehicleListDTO::fromEntity)
-                .toList();
-    }
 
     @Cacheable(value = "vehiclesPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
     public PageResponseDTO<VehicleListDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
@@ -130,11 +125,6 @@ public class VehicleService {
         return VehicleResponseDTO.fromEntity(vehicle);
     }
 
-    public List<VehicleListDTO> search(String query) {
-        return vehicleRepository.searchVehicles(query).stream()
-                .map(VehicleListDTO::fromEntity)
-                .toList();
-    }
 
     @Cacheable(value = "vehicleSearch", key = "#query + '-' + #page + '-' + #size")
     public PageResponseDTO<VehicleListDTO> searchPaged(String query, int page, int size) {
@@ -252,9 +242,6 @@ public class VehicleService {
 
     @Cacheable(value = "vehicleLocation", key = "#vehicleId")
     public VehicleLocationDTO getLastLocation(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
         return locationRepository.findByVehicleId(vehicleId)
                 .map(VehicleLocationDTO::fromEntity)
                 .orElse(null);

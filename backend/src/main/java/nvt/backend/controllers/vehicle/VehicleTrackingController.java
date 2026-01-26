@@ -80,24 +80,17 @@ public class VehicleTrackingController {
         return ResponseEntity.ok(telemetryService.getDistanceHistory(vehicleId, range));
     }
 
-    @GetMapping("/{vehicleId}/states")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<Map<String, Object>>> getStateHistory(
-            @PathVariable Long vehicleId,
-            @RequestParam(defaultValue = "-24h") String range) {
-        return ResponseEntity.ok(telemetryService.getStateHistory(vehicleId, range));
-    }
 
     private VehicleStatusDTO buildStatusDTO(Vehicle vehicle) {
         VehicleLocation location = locationRepository.findByVehicleId(vehicle.getId())
                 .orElse(null);
-        
+
         VehicleStatusDTO.VehicleStatusDTOBuilder builder = VehicleStatusDTO.builder()
                 .vehicleId(vehicle.getId())
                 .licensePlate(vehicle.getLicensePlate())
                 .brandName(vehicle.getBrand() != null ? vehicle.getBrand().getName() : null)
                 .modelName(vehicle.getModel() != null ? vehicle.getModel().getName() : null);
-        
+
         if (location != null) {
             builder.online(location.isOnline())
                     .latitude(location.getLatitude())
@@ -109,7 +102,7 @@ public class VehicleTrackingController {
         } else {
             builder.online(false);
         }
-        
+
         return builder.build();
     }
 }

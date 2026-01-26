@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,69 +49,81 @@ public class VehicleTelemetryService {
         this.bucket = bucket;
     }
 
+    private static final String MEASUREMENT = "vehicle_telemetry";
+
+    /**
+     * Records a complete telemetry point with all available data.
+     * This is the primary method for recording vehicle telemetry.
+     */
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
+    public void recordTelemetry(Long vehicleId, String licensePlate, boolean online,
+                                 Double distance, Double latitude, Double longitude, String state) {
+        try {
+            WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
+            Point point = Point.measurement(MEASUREMENT)
+                    .addTag("vehicleId", String.valueOf(vehicleId))
+                    .addTag("licensePlate", licensePlate)
+                    .addField("online", online ? 1 : 0);
+            
+            if (distance != null) {
+                point.addField("distance", distance);
+            }
+            if (latitude != null && longitude != null) {
+                point.addField("latitude", latitude);
+                point.addField("longitude", longitude);
+            }
+            if (state != null) {
+                point.addField("state", state);
+            }
+            
+            point.time(Instant.now(), WritePrecision.MS);
+            writeApi.writePoint(point);
+            log.debug("Recorded telemetry for vehicle {}: online={}, distance={}, lat={}, lon={}, state={}",
+                    vehicleId, online, distance, latitude, longitude, state);
+        } catch (Exception e) {
+            log.error("Failed to record telemetry for vehicle {}", vehicleId, e);
+        }
+    }
+
+    /**
+     * Records a heartbeat (online status only).
+     */
     @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordHeartbeat(Long vehicleId, String licensePlate, boolean online) {
-        try {
-            WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
-            Point point = Point.measurement("vehicle_availability")
-                    .addTag("vehicleId", String.valueOf(vehicleId))
-                    .addTag("licensePlate", licensePlate)
-                    .addField("online", online ? 1 : 0)
-                    .time(Instant.now(), WritePrecision.MS);
-            writeApi.writePoint(point);
-            log.debug("Recorded heartbeat for vehicle {}: online={}", vehicleId, online);
-        } catch (Exception e) {
-            log.error("Failed to record heartbeat for vehicle {}", vehicleId, e);
-        }
+        recordTelemetry(vehicleId, licensePlate, online, null, null, null, null);
     }
 
+    /**
+     * Records a state change.
+     */
     @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordStateChange(Long vehicleId, String licensePlate, String state) {
-        try {
-            WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
-            Point point = Point.measurement("vehicle_state")
-                    .addTag("vehicleId", String.valueOf(vehicleId))
-                    .addTag("licensePlate", licensePlate)
-                    .addField("state", state)
-                    .time(Instant.now(), WritePrecision.MS);
-            writeApi.writePoint(point);
-            log.debug("Recorded state change for vehicle {}: state={}", vehicleId, state);
-        } catch (Exception e) {
-            log.error("Failed to record state change for vehicle {}", vehicleId, e);
-        }
+        recordTelemetry(vehicleId, licensePlate, true, null, null, null, state);
     }
 
+    /**
+     * Records distance traveled.
+     */
     @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordDistance(Long vehicleId, String licensePlate, Double distance) {
-        try {
-            WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
-            Point point = Point.measurement("vehicle_distance")
-                    .addTag("vehicleId", String.valueOf(vehicleId))
-                    .addTag("licensePlate", licensePlate)
-                    .addField("distance", distance)
-                    .time(Instant.now(), WritePrecision.MS);
-            writeApi.writePoint(point);
-            log.debug("Recorded distance for vehicle {}: distance={}", vehicleId, distance);
-        } catch (Exception e) {
-            log.error("Failed to record distance for vehicle {}", vehicleId, e);
-        }
+        recordTelemetry(vehicleId, licensePlate, true, distance, null, null, null);
     }
 
+    /**
+     * Records location update.
+     */
     @org.springframework.scheduling.annotation.Async("telemetryExecutor")
     public void recordLocation(Long vehicleId, String licensePlate, Double latitude, Double longitude) {
-        try {
-            WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
-            Point point = Point.measurement("vehicle_location")
-                    .addTag("vehicleId", String.valueOf(vehicleId))
-                    .addTag("licensePlate", licensePlate)
-                    .addField("latitude", latitude)
-                    .addField("longitude", longitude)
-                    .time(Instant.now(), WritePrecision.MS);
-            writeApi.writePoint(point);
-            log.debug("Recorded location for vehicle {}: lat={}, lon={}", vehicleId, latitude, longitude);
-        } catch (Exception e) {
-            log.error("Failed to record location for vehicle {}", vehicleId, e);
-        }
+        recordTelemetry(vehicleId, licensePlate, true, null, latitude, longitude, null);
+    }
+
+    /**
+     * Records full telemetry update (distance + location) - used by VehicleMessageListener.
+     */
+    @org.springframework.scheduling.annotation.Async("telemetryExecutor")
+    public void recordFullTelemetry(Long vehicleId, String licensePlate, Double distance,
+                                     Double latitude, Double longitude) {
+        recordTelemetry(vehicleId, licensePlate, true, distance, latitude, longitude, null);
     }
 
     public List<Map<String, Object>> getAvailabilityHistory(Long vehicleId, String range) {
@@ -119,12 +132,15 @@ public class VehicleTelemetryService {
             String flux = String.format(
                     "from(bucket: \"%s\") " +
                             "|> range(start: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_availability\") " +
+                            "|> filter(fn: (r) => r._measurement == \"%s\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
+                            "|> filter(fn: (r) => r._field == \"online\") " +
+                            "|> aggregateWindow(every: 10m, fn: mean, createEmpty: true) " +
+                            "|> fill(value: 0.0) " +
                             "|> aggregateWindow(every: 1h, fn: mean, createEmpty: false) " +
                             "|> sort(columns: [\"_time\"], desc: true) " +
                             "|> limit(n: %d)",
-                    bucket, range, vehicleId, MAX_DATA_POINTS
+                    bucket, range, MEASUREMENT, vehicleId, MAX_DATA_POINTS
             );
 
             List<FluxTable> tables = queryApi.query(flux, org);
@@ -149,12 +165,13 @@ public class VehicleTelemetryService {
             String flux = String.format(
                     "from(bucket: \"%s\") " +
                             "|> range(start: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_distance\") " +
+                            "|> filter(fn: (r) => r._measurement == \"%s\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
+                            "|> filter(fn: (r) => r._field == \"distance\") " +
                             "|> aggregateWindow(every: 1h, fn: sum, createEmpty: false) " +
                             "|> sort(columns: [\"_time\"], desc: true) " +
                             "|> limit(n: %d)",
-                    bucket, range, vehicleId, MAX_DATA_POINTS
+                    bucket, range, MEASUREMENT, vehicleId, MAX_DATA_POINTS
             );
 
             List<FluxTable> tables = queryApi.query(flux, org);
@@ -173,34 +190,6 @@ public class VehicleTelemetryService {
         return results;
     }
 
-    public List<Map<String, Object>> getStateHistory(Long vehicleId, String range) {
-        List<Map<String, Object>> results = new ArrayList<>();
-        try {
-            String flux = String.format(
-                    "from(bucket: \"%s\") " +
-                            "|> range(start: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_state\") " +
-                            "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
-                            "|> sort(columns: [\"_time\"], desc: true) " +
-                            "|> limit(n: %d)",
-                    bucket, range, vehicleId, MAX_DATA_POINTS
-            );
-
-            List<FluxTable> tables = queryApi.query(flux, org);
-
-            for (FluxTable table : tables) {
-                for (FluxRecord record : table.getRecords()) {
-                    Map<String, Object> entry = new HashMap<>();
-                    entry.put("time", record.getTime());
-                    entry.put("state", record.getValue());
-                    results.add(entry);
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to query state history for vehicle {}", vehicleId, e);
-        }
-        return results;
-    }
 
     @Cacheable(value = "distanceStats", key = "#vehicleId + '-' + #startDate + '-' + #endDate")
     public DistanceStatisticsDTO getAggregatedDistance(Long vehicleId, String licensePlate, 
@@ -231,13 +220,13 @@ public class VehicleTelemetryService {
             String flux = String.format(
                     "from(bucket: \"%s\") " +
                             "|> range(start: %s, stop: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_distance\") " +
+                            "|> filter(fn: (r) => r._measurement == \"%s\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
                             "|> filter(fn: (r) => r._field == \"distance\") " +
                             "|> aggregateWindow(every: %s, fn: sum, createEmpty: false) " +
                             "|> sort(columns: [\"_time\"], desc: false) " +
                             "|> limit(n: %d)",
-                    bucket, startTimeStr, endTimeStr, vehicleId, windowPeriod, MAX_DATA_POINTS
+                    bucket, startTimeStr, endTimeStr, MEASUREMENT, vehicleId, windowPeriod, MAX_DATA_POINTS
             );
 
             List<FluxTable> tables = queryApi.query(flux, org);
@@ -290,36 +279,6 @@ public class VehicleTelemetryService {
                 .build();
     }
 
-    public Double getTotalDistanceInRange(Long vehicleId, LocalDate startDate, LocalDate endDate) {
-        try {
-            String startTimeStr = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toString();
-            String endTimeStr = endDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toString();
-
-            String flux = String.format(
-                    "from(bucket: \"%s\") " +
-                            "|> range(start: %s, stop: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_distance\") " +
-                            "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
-                            "|> filter(fn: (r) => r._field == \"distance\") " +
-                            "|> sum()",
-                    bucket, startTimeStr, endTimeStr, vehicleId
-            );
-
-            QueryApi queryApi = influxDBClient.getQueryApi();
-            List<FluxTable> tables = queryApi.query(flux, org);
-
-            for (FluxTable table : tables) {
-                for (FluxRecord record : table.getRecords()) {
-                    if (record.getValue() != null) {
-                        return ((Number) record.getValue()).doubleValue();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to query total distance for vehicle {}", vehicleId, e);
-        }
-        return 0.0;
-    }
 
     @Cacheable(value = "availabilityStats", key = "#vehicleId + '-' + #startTime.toEpochMilli() + '-' + #endTime.toEpochMilli()")
     public AvailabilityStatisticsDTO getAggregatedAvailability(Long vehicleId, String licensePlate,
@@ -341,9 +300,24 @@ public class VehicleTelemetryService {
             windowDuration = Duration.ofDays(7);
         }
 
-        List<AvailabilityStatisticsDTO.AvailabilityDataPoint> dataPoints = new ArrayList<>();
-        long totalOnlineSeconds = 0;
-        long totalOfflineSeconds = 0;
+        Map<Instant, Double> windowData = new LinkedHashMap<>();
+        Instant alignedStart = switch (aggregationType) {
+            case "hourly" -> startTime.truncatedTo(ChronoUnit.HOURS);
+            case "daily" -> startTime.truncatedTo(ChronoUnit.DAYS);
+            default -> startTime.truncatedTo(ChronoUnit.DAYS);
+        };
+
+        Instant alignedEnd = switch (aggregationType) {
+            case "hourly" -> endTime.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1));
+            case "daily" -> endTime.truncatedTo(ChronoUnit.DAYS).plus(Duration.ofDays(1));
+            default -> endTime.truncatedTo(ChronoUnit.DAYS).plus(Duration.ofDays(7));
+        };
+
+        Instant windowStart = alignedStart;
+        while (windowStart.isBefore(alignedEnd)) {
+            windowData.put(windowStart, 0.0);
+            windowStart = windowStart.plus(windowDuration);
+        }
 
         try {
             String windowPeriod = aggregationType.equals("hourly") ? "1h" :
@@ -352,66 +326,100 @@ public class VehicleTelemetryService {
             String flux = String.format(
                     "from(bucket: \"%s\") " +
                             "|> range(start: %s, stop: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_availability\") " +
+                            "|> filter(fn: (r) => r._measurement == \"%s\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
                             "|> filter(fn: (r) => r._field == \"online\") " +
+                            "|> aggregateWindow(every: 10m, fn: mean, createEmpty: true) " +
+                            "|> fill(value: 0.0) " +
                             "|> aggregateWindow(every: %s, fn: mean, createEmpty: false) " +
                             "|> sort(columns: [\"_time\"], desc: false) " +
                             "|> limit(n: %d)",
-                    bucket, startTime.toString(), endTime.toString(), vehicleId, windowPeriod, MAX_DATA_POINTS
+                    bucket, alignedStart.toString(), alignedEnd.toString(), MEASUREMENT, vehicleId, windowPeriod, MAX_DATA_POINTS
             );
 
+            log.info("Flux query: {}", flux);
             List<FluxTable> tables = queryApi.query(flux, org);
-
-            DateTimeFormatter labelFormatter = switch (aggregationType) {
-                case "hourly" -> DateTimeFormatter.ofPattern("MMM dd HH:mm").withZone(ZoneId.systemDefault());
-                case "daily" -> DateTimeFormatter.ofPattern("MMM dd").withZone(ZoneId.systemDefault());
-                default -> DateTimeFormatter.ofPattern("MMM dd").withZone(ZoneId.systemDefault());
-            };
+            log.info("InfluxDB returned {} tables", tables.size());
 
             for (FluxTable table : tables) {
                 for (FluxRecord record : table.getRecords()) {
-                    if (record.getTime() != null) {
+                    if (record.getTime() != null && record.getValue() != null) {
                         Instant pointTime = record.getTime();
-                        Instant pointEndTime = pointTime.plus(windowDuration);
-                        if (pointEndTime.isAfter(endTime)) {
-                            pointEndTime = endTime;
+                        double onlineRatio = ((Number) record.getValue()).doubleValue();
+                        log.info("InfluxDB point: time={}, value={}", pointTime, onlineRatio);
+
+                        boolean matched = false;
+                        for (Instant bucket : windowData.keySet()) {
+                            Instant bucketEnd = bucket.plus(windowDuration);
+                            // Match point to bucket:
+                            // - If pointTime is within [bucket, bucketEnd] (inclusive on both ends)
+                            // Use truncatedTo for comparison to avoid nanosecond precision issues
+                            Instant pointTruncated = pointTime.truncatedTo(ChronoUnit.SECONDS);
+                            Instant bucketTruncated = bucket.truncatedTo(ChronoUnit.SECONDS);
+                            Instant bucketEndTruncated = bucketEnd.truncatedTo(ChronoUnit.SECONDS);
+                            
+                            if (!pointTruncated.isBefore(bucketTruncated) && !pointTruncated.isAfter(bucketEndTruncated)) {
+                                windowData.put(bucket, onlineRatio);
+                                log.info("Matched to bucket: {} (pointTruncated={}, bucketEnd={})", bucket, pointTruncated, bucketEndTruncated);
+                                matched = true;
+                                break;
+                            }
                         }
-
-                        long windowSeconds = Duration.between(pointTime, pointEndTime).getSeconds();
-                        double onlineRatio = 0.0;
-                        if (record.getValue() != null) {
-                            onlineRatio = ((Number) record.getValue()).doubleValue();
+                        if (!matched) {
+                            log.warn("No bucket match for pointTime={}", pointTime);
                         }
-
-                        long onlineSeconds = (long) (windowSeconds * onlineRatio);
-                        long offlineSeconds = windowSeconds - onlineSeconds;
-
-                        totalOnlineSeconds += onlineSeconds;
-                        totalOfflineSeconds += offlineSeconds;
-
-                        double onlinePct = windowSeconds > 0 ? (onlineSeconds * 100.0 / windowSeconds) : 0;
-                        double offlinePct = windowSeconds > 0 ? (offlineSeconds * 100.0 / windowSeconds) : 0;
-
-                        String label = switch (aggregationType) {
-                            case "weekly" -> labelFormatter.format(pointTime) + " - " + labelFormatter.format(pointEndTime);
-                            default -> labelFormatter.format(pointTime);
-                        };
-
-                        dataPoints.add(AvailabilityStatisticsDTO.AvailabilityDataPoint.builder()
-                                .label(label)
-                                .startTime(pointTime)
-                                .endTime(pointEndTime)
-                                .onlineSeconds(onlineSeconds)
-                                .offlineSeconds(offlineSeconds)
-                                .onlinePercentage(Math.round(onlinePct * 100.0) / 100.0)
-                                .offlinePercentage(Math.round(offlinePct * 100.0) / 100.0)
-                                .build());
                     }
                 }
             }
+            log.info("Window data after matching: {}", windowData);
         } catch (Exception e) {
             log.error("Failed to query aggregated availability for vehicle {}", vehicleId, e);
+        }
+
+        List<AvailabilityStatisticsDTO.AvailabilityDataPoint> dataPoints = new ArrayList<>();
+        long totalOnlineSeconds = 0;
+        long totalOfflineSeconds = 0;
+
+        DateTimeFormatter labelFormatter = switch (aggregationType) {
+            case "hourly" -> DateTimeFormatter.ofPattern("MMM dd HH:mm").withZone(ZoneId.systemDefault());
+            case "daily" -> DateTimeFormatter.ofPattern("MMM dd").withZone(ZoneId.systemDefault());
+            default -> DateTimeFormatter.ofPattern("MMM dd").withZone(ZoneId.systemDefault());
+        };
+
+        for (Map.Entry<Instant, Double> entry : windowData.entrySet()) {
+            Instant pointTime = entry.getKey();
+            double onlineRatio = entry.getValue();
+            Instant pointEndTime = pointTime.plus(windowDuration);
+
+            if (pointEndTime.isAfter(endTime)) {
+                pointEndTime = endTime;
+            }
+
+            // Use actual window duration (handles partial windows at the end)
+            long windowSeconds = Duration.between(pointTime, pointEndTime).getSeconds();
+            long onlineSeconds = (long) (windowSeconds * onlineRatio);
+            long offlineSeconds = windowSeconds - onlineSeconds;
+
+            totalOnlineSeconds += onlineSeconds;
+            totalOfflineSeconds += offlineSeconds;
+
+            double onlinePct = onlineSeconds * 100.0 / windowSeconds;
+            double offlinePct = offlineSeconds * 100.0 / windowSeconds;
+
+            String label = switch (aggregationType) {
+                case "weekly" -> labelFormatter.format(pointTime) + " - " + labelFormatter.format(pointEndTime);
+                default -> labelFormatter.format(pointTime);
+            };
+
+            dataPoints.add(AvailabilityStatisticsDTO.AvailabilityDataPoint.builder()
+                    .label(label)
+                    .startTime(pointTime)
+                    .endTime(pointEndTime)
+                    .onlineSeconds(onlineSeconds)
+                    .offlineSeconds(offlineSeconds)
+                    .onlinePercentage(Math.round(onlinePct * 100.0) / 100.0)
+                    .offlinePercentage(Math.round(offlinePct * 100.0) / 100.0)
+                    .build());
         }
 
         long totalSeconds = totalOnlineSeconds + totalOfflineSeconds;
@@ -438,11 +446,11 @@ public class VehicleTelemetryService {
             String flux = String.format(
                     "from(bucket: \"%s\") " +
                             "|> range(start: %s, stop: %s) " +
-                            "|> filter(fn: (r) => r._measurement == \"vehicle_availability\") " +
+                            "|> filter(fn: (r) => r._measurement == \"%s\") " +
                             "|> filter(fn: (r) => r.vehicleId == \"%d\") " +
                             "|> filter(fn: (r) => r._field == \"online\") " +
                             "|> sort(columns: [\"_time\"], desc: false)",
-                    bucket, startTime.toString(), endTime.toString(), vehicleId
+                    bucket, startTime.toString(), endTime.toString(), MEASUREMENT, vehicleId
             );
 
             QueryApi queryApi = influxDBClient.getQueryApi();

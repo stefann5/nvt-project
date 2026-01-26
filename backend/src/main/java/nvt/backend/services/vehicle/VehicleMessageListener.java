@@ -79,15 +79,11 @@ public class VehicleMessageListener {
 
             locationRepository.save(location);
 
-            telemetryService.recordDistance(
+            // Record combined telemetry (distance + location) as a single point
+            telemetryService.recordFullTelemetry(
                     telemetry.getVehicleId(),
                     telemetry.getLicensePlate(),
-                    telemetry.getDistanceTraveled()
-            );
-
-            telemetryService.recordLocation(
-                    telemetry.getVehicleId(),
-                    telemetry.getLicensePlate(),
+                    telemetry.getDistanceTraveled(),
                     telemetry.getLatitude(),
                     telemetry.getLongitude()
             );

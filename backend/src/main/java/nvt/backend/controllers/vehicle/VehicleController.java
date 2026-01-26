@@ -45,12 +45,6 @@ public class VehicleController {
         }
     }
 
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<VehicleListDTO>> getAll() {
-        return ResponseEntity.ok(vehicleService.getAll());
-    }
-
     @GetMapping("/paged")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<PageResponseDTO<VehicleListDTO>> getAllPaged(
@@ -69,12 +63,6 @@ public class VehicleController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
-
-    @GetMapping("/search")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<VehicleListDTO>> search(@RequestParam String query) {
-        return ResponseEntity.ok(vehicleService.search(query));
     }
 
     @GetMapping("/search/paged")

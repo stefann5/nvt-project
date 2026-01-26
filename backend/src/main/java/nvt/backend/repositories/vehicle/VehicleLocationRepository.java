@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface VehicleLocationRepository extends JpaRepository<VehicleLocation, Long> {
 
-    Optional<VehicleLocation> findByVehicleId(Long vehicleId);
+    @Query("SELECT vl FROM VehicleLocation vl JOIN FETCH vl.vehicle WHERE vl.vehicle.id = :vehicleId")
+    Optional<VehicleLocation> findByVehicleId(@Param("vehicleId") Long vehicleId);
 
     @Query("SELECT vl FROM VehicleLocation vl WHERE vl.online = true")
     List<VehicleLocation> findAllOnline();
