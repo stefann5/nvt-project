@@ -214,6 +214,7 @@
                 (onChange)="onAvailabilityPeriodChange()"
                 styleClass="w-auto">
               </p-select>
+              <p-tag *ngIf="isRealTimeMode" value="Real-time" severity="success"></p-tag>
             </div>
           </div>
         </ng-template>

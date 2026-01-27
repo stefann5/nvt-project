@@ -31,6 +31,16 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("SELECT COALESCE(SUM(i.quantity), 0) FROM Inventory i WHERE i.product.id = :productId")
     Integer getTotalQuantityByProductId(@Param("productId") Long productId);
 
+    /**
+     * Batch query to get available quantities for multiple products in a single query.
+     * Returns Object[] with [productId, availableQuantity]
+     * This avoids N+1 queries when loading product lists.
+     */
+    @Query("SELECT i.product.id, COALESCE(SUM(i.quantity - i.reservedQuantity), 0) " +
+            "FROM Inventory i WHERE i.product.id IN :productIds " +
+            "GROUP BY i.product.id")
+    List<Object[]> getTotalAvailableQuantitiesByProductIds(@Param("productIds") List<Long> productIds);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM Inventory i WHERE i.product.id = :productId AND i.warehouse.id = :warehouseId")
     Optional<Inventory> findByProductIdAndWarehouseIdForUpdate(

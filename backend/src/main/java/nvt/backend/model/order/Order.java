@@ -8,6 +8,7 @@ import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
 import nvt.backend.model.company.RegistrationRequest;
 import nvt.backend.model.user.User;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -66,6 +67,7 @@ public class Order {
     private LocalDateTime processedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private List<OrderItem> items = new ArrayList<>();
 
     @PreUpdate

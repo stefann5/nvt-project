@@ -121,12 +121,11 @@ export class Register implements OnInit, OnDestroy {
             Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/),
           ],
         ],
-        organization: [
+        phoneNumber: [
           '',
           [
             Validators.required,
-            Validators.minLength(3),
-            Validators.pattern(/^[a-zA-Z0-9_-]+$/),
+            Validators.pattern(/^\+?[0-9]{6,15}$/),
           ],
         ],
         username: ['', [Validators.required, Validators.email]],
@@ -298,7 +297,7 @@ export class Register implements OnInit, OnDestroy {
       confirmPassword: 'Confirm Password',
       name: 'Name',
       surname: 'Surname',
-      organization: 'Organization',
+      phoneNumber: 'Phone Number',
     };
     return displayNames[fieldName] || fieldName;
   }
@@ -351,8 +350,8 @@ export class Register implements OnInit, OnDestroy {
   get surnameControl() {
     return this.registerForm.get('surname');
   }
-  get organizationControl() {
-    return this.registerForm.get('organization');
+  get phoneNumberControl() {
+    return this.registerForm.get('phoneNumber');
   }
 
   // Validation state getters
@@ -366,8 +365,8 @@ export class Register implements OnInit, OnDestroy {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  get isOrganizationInvalid(): boolean {
-    const control = this.organizationControl;
+  get isPhoneNumberInvalid(): boolean {
+    const control = this.phoneNumberControl;
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
@@ -420,11 +419,11 @@ export class Register implements OnInit, OnDestroy {
     return '';
   }
 
-  get organizationErrorMessage(): string {
-    const control = this.userNameControl;
-    if (control?.errors?.['required']) return 'Username is required';
+  get phoneNumberErrorMessage(): string {
+    const control = this.phoneNumberControl;
+    if (control?.errors?.['required']) return 'Phone number is required';
     if (control?.errors?.['pattern'])
-      return 'Username can only contain letters, numbers, hyphens, and underscores';
+      return 'Phone number must be 6-15 digits, optionally starting with +';
     return '';
   }
 

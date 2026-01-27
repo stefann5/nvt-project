@@ -154,6 +154,10 @@ export class CreateOrderComponent implements OnInit {
     return this.cart.length > 0 && this.selectedCompanyId !== null;
   }
 
+  navigateToRegisterCompany(): void {
+    this.router.navigate(['/app/home']);
+  }
+
   nextStep(): void {
     if (this.currentStep === 0 && !this.canProceedToStep2()) {
       this.messageService.add({

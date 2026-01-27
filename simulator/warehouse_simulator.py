@@ -18,6 +18,13 @@ class WarehouseSimulator:
         self.heartbeat_interval = config['heartbeat_interval']
         self.temperature_interval = config['temperature_interval']
         self.rabbitmq_config = config['rabbitmq']
+        
+        # Offline simulation settings
+        self.offline_probability = config.get('offline_probability', 0.02)  # 2% chance to go offline
+        self.min_offline_duration = config.get('min_offline_duration', 30)  # minimum 30 seconds offline
+        self.max_offline_duration = config.get('max_offline_duration', 180)  # maximum 3 minutes offline
+        self.is_simulating_offline = False
+        self.offline_until = 0
 
         self.running = False
         self.connection = None
@@ -160,6 +167,30 @@ class WarehouseSimulator:
 
     def _heartbeat_loop(self):
         while self.running:
+            current_time = time.time()
+            
+            # Check if we're in simulated offline mode
+            if self.is_simulating_offline:
+                if current_time >= self.offline_until:
+                    # Come back online
+                    self.is_simulating_offline = False
+                    print(f"[{self._timestamp()}] Warehouse {self.warehouse_id} coming back ONLINE")
+                else:
+                    # Still offline, skip heartbeat
+                    remaining = int(self.offline_until - current_time)
+                    print(f"[{self._timestamp()}] Warehouse {self.warehouse_id} simulating OFFLINE ({remaining}s remaining)")
+                    time.sleep(self.heartbeat_interval)
+                    continue
+            else:
+                # Randomly decide to go offline
+                if random.random() < self.offline_probability:
+                    offline_duration = random.randint(self.min_offline_duration, self.max_offline_duration)
+                    self.is_simulating_offline = True
+                    self.offline_until = current_time + offline_duration
+                    print(f"[{self._timestamp()}] Warehouse {self.warehouse_id} simulating OFFLINE for {offline_duration}s")
+                    time.sleep(self.heartbeat_interval)
+                    continue
+            
             self.send_heartbeat()
             time.sleep(self.heartbeat_interval)
 
@@ -251,7 +282,10 @@ def load_config(args):
         'warehouse_name': args.warehouse_name or os.getenv('WAREHOUSE_NAME', 'Main Warehouse'),
         'sectors': sectors,
         'heartbeat_interval': args.heartbeat_interval or int(os.getenv('HEARTBEAT_INTERVAL', 15)),
-        'temperature_interval': args.temperature_interval or int(os.getenv('TEMPERATURE_INTERVAL', 600)),
+        'temperature_interval': args.temperature_interval or int(os.getenv('TEMPERATURE_INTERVAL', 60)),
+        'offline_probability': float(os.getenv('OFFLINE_PROBABILITY', 0.02)),  # 5% chance per heartbeat
+        'min_offline_duration': int(os.getenv('MIN_OFFLINE_DURATION', 90)),  # 90 seconds min (> 60s backend timeout)
+        'max_offline_duration': int(os.getenv('MAX_OFFLINE_DURATION', 300)),  # 5 minutes max
         'rabbitmq': {
             'host': args.rabbitmq_host or os.getenv('RABBITMQ_HOST', 'localhost'),
             'port': args.rabbitmq_port or int(os.getenv('RABBITMQ_PORT', 5672)),
