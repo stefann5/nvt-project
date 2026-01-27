@@ -1,0 +1,188 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="flex justify-content-center p-4">
+  <div class="w-full" style="max-width: 1200px;">
+    <div class="flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <p-button
+        label="Back to Products"
+        icon="pi pi-arrow-left"
+        [outlined]="true"
+        (onClick)="goBack()">
+      </p-button>
+      <div class="flex gap-2" *ngIf="product">
+        <p-button
+          label="Edit"
+          icon="pi pi-pencil"
+          (onClick)="editProduct()">
+        </p-button>
+        <p-button
+          label="Delete"
+          icon="pi pi-trash"
+          severity="danger"
+          [outlined]="true"
+          (onClick)="confirmDelete()">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="flex justify-content-center p-4" *ngIf="loading">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+    </div>
+
+    <div *ngIf="!loading && product">
+      <!-- Product Info Card -->
+      <p-card class="mb-4">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3 flex-wrap gap-2">
+            <h2 class="m-0">{{ product.name }}</h2>
+            <div class="flex gap-2">
+              <p-tag
+                [severity]="getForSaleSeverity(product.forSale)"
+                [value]="getForSaleLabel(product.forSale)"
+                class="cursor-pointer"
+                pTooltip="Click to toggle"
+                (click)="toggleForSale()">
+              </p-tag>
+              <p-tag
+                [severity]="getActiveSeverity(product.active)"
+                [value]="getActiveLabel(product.active)"
+                class="cursor-pointer"
+                pTooltip="Click to toggle"
+                (click)="toggleActive()">
+              </p-tag>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <h4 class="mt-0 mb-3">Details</h4>
+            <div class="mb-2">
+              <span class="text-500 font-medium">Price:</span>
+              <span class="ml-2 text-xl font-bold text-primary">{{ formatCurrency(product.price) }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-500 font-medium">Weight:</span>
+              <span class="ml-2">{{ formatWeight(product.weight) }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-500 font-medium">Category:</span>
+              <span class="ml-2">{{ product.category || 'Uncategorized' }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-500 font-medium">Created:</span>
+              <span class="ml-2">{{ formatDateTime(product.createdAt) }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-500 font-medium">Last Updated:</span>
+              <span class="ml-2">{{ formatDateTime(product.updatedAt) }}</span>
+            </div>
+          </div>
+          
+          <div class="col-12 md:col-6">
+            <h4 class="mt-0 mb-3">Description</h4>
+            <p class="m-0 text-500 line-height-3">
+              {{ product.description || 'No description available.' }}
+            </p>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Images Gallery Card -->
+      <p-card class="mb-4">
+        <ng-template pTemplate="header">
+          <div class="p-3">
+            <h3 class="m-0">Images</h3>
+          </div>
+        </ng-template>
+
+        <div class="flex justify-content-center p-4" *ngIf="imagesLoading">
+          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        </div>
+
+        <div *ngIf="!imagesLoading">
+          <div *ngIf="imageUrls.length === 0" class="text-center text-500 p-4">
+            <i class="pi pi-image text-4xl mb-2"></i>
+            <p class="m-0">No images available for this product.</p>
+          </div>
+          
+          <div *ngIf="imageUrls.length > 0" class="grid">
+            <div class="col-6 md:col-4 lg:col-3" *ngFor="let image of imageUrls; let i = index">
+              <div class="image-card border-round overflow-hidden cursor-pointer" (click)="openGalleria(i)">
+                <img [src]="image.url" [alt]="image.originalName"
+                     class="w-full" style="height: 150px; object-fit: cover;">
+                <div class="image-overlay">
+                  <i class="pi pi-search-plus text-white text-2xl"></i>
+                </div>
+              </div>
+              <p class="text-sm text-500 mt-1 text-center text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                {{ image.originalName }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Factories Card -->
+      <p-card *ngIf="product.factories && product.factories.length > 0">
+        <ng-template pTemplate="header">
+          <div class="p-3">
+            <h3 class="m-0">Manufacturing Factories</h3>
+          </div>
+        </ng-template>
+
+        <p-table [value]="product.factories" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-striped">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Factory Name</th>
+              <th>Location</th>
+              <th>Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-factory>
+            <tr>
+              <td class="font-semibold">{{ factory.name }}</td>
+              <td>{{ factory.city }}, {{ factory.country }}</td>
+              <td>
+                <p-tag 
+                  [severity]="factory.online ? 'success' : 'danger'" 
+                  [value]="factory.online ? 'Online' : 'Offline'">
+                </p-tag>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="3" class="text-center text-500">No factories assigned to this product.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <p-message *ngIf="!loading && !product" severity="error" text="Product not found"></p-message>
+  </div>
+</div>
+
+<!-- Full Screen Image Galleria -->
+<p-galleria
+  [value]="imageUrls"
+  [(visible)]="displayGalleria"
+  [(activeIndex)]="activeIndex"
+  [responsiveOptions]="responsiveOptions"
+  [containerStyle]="{ 'max-width': '80%' }"
+  [numVisible]="5"
+  [circular]="true"
+  [fullScreen]="true"
+  [showItemNavigators]="false"
+  [showThumbnails]="imageUrls.length > 1"
+  [showIndicators]="false"
+  [showIndicatorsOnItem]="false">
+  <ng-template pTemplate="item" let-item>
+    <img [src]="item.url" style="width: 100%; max-height: 70vh; object-fit: contain;" [alt]="item.originalName" />
+  </ng-template>
+  <ng-template pTemplate="thumbnail" let-item>
+    <img [src]="item.url" style="width: 100%; height: 80px; object-fit: cover;" [alt]="item.originalName" />
+  </ng-template>
+</p-galleria>
