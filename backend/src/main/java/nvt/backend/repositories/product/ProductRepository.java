@@ -15,18 +15,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.images " +
+            "LEFT JOIN FETCH p.factories " +
             "WHERE p.id = :id")
     Optional<Product> findByIdWithDetails(@Param("id") Long id);
 
     @Query("SELECT DISTINCT p FROM Product p " +
-            "LEFT JOIN FETCH p.images")
+            "LEFT JOIN FETCH p.images ")
     List<Product> findAllWithDetails();
 
     @Query("SELECT p.id FROM Product p WHERE p.active = true")
     Page<Long> findAllActiveIds(Pageable pageable);
 
+    @Query("SELECT p.id FROM Product p")
+    Page<Long> findAllIds(Pageable pageable);
+
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.images " +
+            "LEFT JOIN FETCH p.factories " +
             "WHERE p.id IN :ids")
     List<Product> findAllByIds(@Param("ids") List<Long> ids);
 
@@ -38,22 +43,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<String> findAllCategories();
 
     @Query(value = "SELECT p.id FROM products p " +
-            "WHERE p.active = true " +
+            "WHERE (:active IS NULL OR p.active = :active) " +
             "AND (:search IS NULL OR p.name ILIKE CONCAT('%', :search, '%') OR p.sku ILIKE CONCAT('%', :search, '%') OR p.description ILIKE CONCAT('%', :search, '%')) " +
             "AND (:category IS NULL OR p.category = :category) " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+            "AND (:forSale IS NULL OR p.for_sale = :forSale)",
             countQuery = "SELECT COUNT(p.id) FROM products p " +
-                    "WHERE p.active = true " +
+                    "WHERE (:active IS NULL OR p.active = :active) " +
                     "AND (:search IS NULL OR p.name ILIKE CONCAT('%', :search, '%') OR p.sku ILIKE CONCAT('%', :search, '%') OR p.description ILIKE CONCAT('%', :search, '%')) " +
                     "AND (:category IS NULL OR p.category = :category) " +
                     "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+                    "AND (:forSale IS NULL OR p.for_sale = :forSale)",
             nativeQuery = true)
     Page<Long> searchProductIds(
             @Param("search") String search,
             @Param("category") String category,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
+            @Param("forSale") Boolean forSale,
+            @Param("active") Boolean active,
             Pageable pageable);
 }

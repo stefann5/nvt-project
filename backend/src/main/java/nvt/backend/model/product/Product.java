@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nvt.backend.model.factory.Factory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +16,10 @@ import java.util.Set;
     @Index(name = "idx_product_sku", columnList = "sku"),
     @Index(name = "idx_product_name", columnList = "name"),
     @Index(name = "idx_product_category", columnList = "category"),
-    @Index(name = "idx_product_created_at", columnList = "createdAt")
+    @Index(name = "idx_product_created_at", columnList = "createdAt"),
+    @Index(name = "idx_product_for_sale", columnList = "forSale"),
+    @Index(name = "idx_product_active", columnList = "active"),
+    @Index(name = "idx_product_updated_at", columnList = "updatedAt")
 })
 @Data
 @NoArgsConstructor
@@ -45,6 +49,8 @@ public class Product {
 
     private String unit = "kom";
 
+    private boolean forSale = true;
+
     private boolean active = true;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -53,6 +59,19 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductImage> images = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "product_factories",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "factory_id")
+    )
+    private Set<Factory> factories = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
     @PreUpdate
     protected void onUpdate() {

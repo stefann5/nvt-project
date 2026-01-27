@@ -190,36 +190,36 @@ INSERT INTO vehicle_models (id, name, brand_id) VALUES (39, 'Proace', 10) ON CON
 INSERT INTO vehicle_models (id, name, brand_id) VALUES (40, 'Proace City', 10) ON CONFLICT (id) DO NOTHING;
 
 -- Products
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(1, 'Guma 195/55 R15 H', 'Letnja guma za putnička vozila, dimenzije 195/55 R15, indeks brzine H (210 km/h)', 'TIRE-195-55-R15-H', 45.99, 8.5, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(2, 'Guma 225/65 R17 W', 'Letnja guma za SUV vozila, dimenzije 225/65 R17, indeks brzine W (270 km/h)', 'TIRE-225-65-R17-W', 89.99, 12.0, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(3, 'Guma 205/60 R16 Y', 'Letnja guma za putnička vozila, dimenzije 205/60 R16, indeks brzine Y (300 km/h)', 'TIRE-205-60-R16-Y', 65.99, 9.5, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(4, 'Zimska guma 195/65 R15', 'Zimska guma za putnička vozila sa M+S oznakama', 'TIRE-WIN-195-65-R15', 55.99, 9.0, 'Gume', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(5, 'Ulje 5W30 1L', 'Sintetičko motorno ulje 5W30, API SN/CF', 'OIL-5W30-1L', 12.99, 1.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(6, 'Ulje 10W40 5L', 'Polusintetičko motorno ulje 10W40, ACEA A3/B4', 'OIL-10W40-5L', 35.99, 5.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(7, 'Kočione pločice prednje', 'Kočione pločice za prednje kočnice, univerzalne dimenzije', 'BRAKE-PAD-FRONT', 28.99, 0.8, 'Kočioni sistem', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(8, 'Kočioni disk 280mm', 'Ventilirani kočioni disk prečnika 280mm', 'BRAKE-DISC-280', 45.99, 6.5, 'Kočioni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(9, 'Filter ulja', 'Univerzalni filter ulja za putnička vozila', 'FILTER-OIL-UNI', 8.99, 0.3, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(10, 'Filter vazduha', 'Filter vazduha za putnička vozila', 'FILTER-AIR-UNI', 15.99, 0.2, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(11, 'Akumulator 60Ah', 'Startni akumulator 12V 60Ah 540A', 'BATTERY-60AH', 85.99, 15.0, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(12, 'Akumulator 74Ah', 'Startni akumulator 12V 74Ah 680A', 'BATTERY-74AH', 99.99, 18.0, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(13, 'Svećice za paljenje', 'Set od 4 svećice za paljenje, iridijum', 'SPARK-PLUG-4SET', 32.99, 0.2, 'Električni delovi', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(14, 'Antifriz 5L', 'Koncentrat antifriza G12+ crveni', 'COOLANT-G12-5L', 24.99, 5.5, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(15, 'Tečnost za stakla 5L', 'Zimska tečnost za pranje stakala -20°C', 'WASHER-WIN-5L', 6.99, 5.0, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(1, 'Guma 195/55 R15 H', 'Letnja guma za putnička vozila, dimenzije 195/55 R15, indeks brzine H (210 km/h)', 'TIRE-195-55-R15-H', 45.99, 8.5, 'Gume', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(2, 'Guma 225/65 R17 W', 'Letnja guma za SUV vozila, dimenzije 225/65 R17, indeks brzine W (270 km/h)', 'TIRE-225-65-R17-W', 89.99, 12.0, 'Gume', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(3, 'Guma 205/60 R16 Y', 'Letnja guma za putnička vozila, dimenzije 205/60 R16, indeks brzine Y (300 km/h)', 'TIRE-205-60-R16-Y', 65.99, 9.5, 'Gume', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(4, 'Zimska guma 195/65 R15', 'Zimska guma za putnička vozila sa M+S oznakama', 'TIRE-WIN-195-65-R15', 55.99, 9.0, 'Gume', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(5, 'Ulje 5W30 1L', 'Sintetičko motorno ulje 5W30, API SN/CF', 'OIL-5W30-1L', 12.99, 1.0, 'Ulja i maziva', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(6, 'Ulje 10W40 5L', 'Polusintetičko motorno ulje 10W40, ACEA A3/B4', 'OIL-10W40-5L', 35.99, 5.0, 'Ulja i maziva', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(7, 'Kočione pločice prednje', 'Kočione pločice za prednje kočnice, univerzalne dimenzije', 'BRAKE-PAD-FRONT', 28.99, 0.8, 'Kočioni sistem', 'set', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(8, 'Kočioni disk 280mm', 'Ventilirani kočioni disk prečnika 280mm', 'BRAKE-DISC-280', 45.99, 6.5, 'Kočioni sistem', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(9, 'Filter ulja', 'Univerzalni filter ulja za putnička vozila', 'FILTER-OIL-UNI', 8.99, 0.3, 'Filteri', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(10, 'Filter vazduha', 'Filter vazduha za putnička vozila', 'FILTER-AIR-UNI', 15.99, 0.2, 'Filteri', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(11, 'Akumulator 60Ah', 'Startni akumulator 12V 60Ah 540A', 'BATTERY-60AH', 85.99, 15.0, 'Električni delovi', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(12, 'Akumulator 74Ah', 'Startni akumulator 12V 74Ah 680A', 'BATTERY-74AH', 99.99, 18.0, 'Električni delovi', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(13, 'Svećice za paljenje', 'Set od 4 svećice za paljenje, iridijum', 'SPARK-PLUG-4SET', 32.99, 0.2, 'Električni delovi', 'set', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(14, 'Antifriz 5L', 'Koncentrat antifriza G12+ crveni', 'COOLANT-G12-5L', 24.99, 5.5, 'Hemija', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(15, 'Tečnost za stakla 5L', 'Zimska tečnost za pranje stakala -20°C', 'WASHER-WIN-5L', 6.99, 5.0, 'Hemija', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
 
 -- Warehouses
 INSERT INTO warehouses (id, name, country_id, city_id, street, street_number, latitude, longitude, total_capacity, active, online, last_heartbeat, created_at) VALUES
@@ -340,36 +340,36 @@ INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserv
 (22, 7, 3, 6, 300, 0, NOW()) ON CONFLICT (id) DO NOTHING;
 
 -- Additional Products
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(16, 'Amortizer prednji', 'Prednji amortizer za putnička vozila', 'SHOCK-FRONT-UNI', 55.99, 3.5, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(17, 'Amortizer zadnji', 'Zadnji amortizer za putnička vozila', 'SHOCK-REAR-UNI', 48.99, 3.0, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(18, 'Opruga prednja', 'Prednja opruga za putnička vozila', 'SPRING-FRONT-UNI', 35.99, 2.5, 'Ogibljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(19, 'Kočiona tečnost DOT4 1L', 'Kočiona tečnost DOT4 specifikacija', 'BRAKE-FLUID-DOT4', 9.99, 1.0, 'Hemija', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(20, 'Ulje za menjač 75W90 1L', 'Sintetičko ulje za menjač 75W90 GL-4/GL-5', 'GEAR-OIL-75W90', 18.99, 1.0, 'Ulja i maziva', 'L', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(21, 'Alternator 14V 90A', 'Alternator za putnička vozila 14V 90A', 'ALT-14V-90A', 125.99, 5.5, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(22, 'Starter 12V 1.4kW', 'Električni starter motor 12V 1.4kW', 'STARTER-12V-1.4KW', 145.99, 4.5, 'Električni delovi', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(23, 'Pumpa za vodu', 'Pumpa rashladne tečnosti za motor', 'WATER-PUMP-UNI', 42.99, 1.2, 'Rashladni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(24, 'Termostat 87°C', 'Termostat rashladnog sistema 87°C', 'THERMOSTAT-87', 15.99, 0.2, 'Rashladni sistem', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(25, 'Kaiš zupčasti', 'Zupčasti kaiš za razvodni mehanizam', 'TIMING-BELT-UNI', 28.99, 0.3, 'Razvodni mehanizam', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(26, 'Set za kaiš', 'Komplet zupčasti kaiš + zatezač + rolne', 'TIMING-KIT-UNI', 85.99, 1.5, 'Razvodni mehanizam', 'set', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(27, 'Filter goriva diesel', 'Filter goriva za dizel motore', 'FILTER-FUEL-DSL', 22.99, 0.4, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(28, 'Filter kabine', 'Filter kabine sa aktivnim ugljem', 'FILTER-CABIN-AC', 18.99, 0.2, 'Filteri', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(29, 'Sijalica H7 55W', 'Halogena sijalica H7 55W 12V', 'BULB-H7-55W', 4.99, 0.05, 'Osvetljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
-INSERT INTO products (id, name, description, sku, price, weight, category, unit, active, created_at) VALUES
-(30, 'Sijalica H4 60/55W', 'Halogena sijalica H4 60/55W 12V', 'BULB-H4-60-55W', 5.99, 0.05, 'Osvetljenje', 'kom', true, NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(16, 'Amortizer prednji', 'Prednji amortizer za putnička vozila', 'SHOCK-FRONT-UNI', 55.99, 3.5, 'Ogibljenje', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(17, 'Amortizer zadnji', 'Zadnji amortizer za putnička vozila', 'SHOCK-REAR-UNI', 48.99, 3.0, 'Ogibljenje', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(18, 'Opruga prednja', 'Prednja opruga za putnička vozila', 'SPRING-FRONT-UNI', 35.99, 2.5, 'Ogibljenje', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(19, 'Kočiona tečnost DOT4 1L', 'Kočiona tečnost DOT4 specifikacija', 'BRAKE-FLUID-DOT4', 9.99, 1.0, 'Hemija', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(20, 'Ulje za menjač 75W90 1L', 'Sintetičko ulje za menjač 75W90 GL-4/GL-5', 'GEAR-OIL-75W90', 18.99, 1.0, 'Ulja i maziva', 'L', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(21, 'Alternator 14V 90A', 'Alternator za putnička vozila 14V 90A', 'ALT-14V-90A', 125.99, 5.5, 'Električni delovi', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(22, 'Starter 12V 1.4kW', 'Električni starter motor 12V 1.4kW', 'STARTER-12V-1.4KW', 145.99, 4.5, 'Električni delovi', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(23, 'Pumpa za vodu', 'Pumpa rashladne tečnosti za motor', 'WATER-PUMP-UNI', 42.99, 1.2, 'Rashladni sistem', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(24, 'Termostat 87°C', 'Termostat rashladnog sistema 87°C', 'THERMOSTAT-87', 15.99, 0.2, 'Rashladni sistem', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(25, 'Kaiš zupčasti', 'Zupčasti kaiš za razvodni mehanizam', 'TIMING-BELT-UNI', 28.99, 0.3, 'Razvodni mehanizam', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(26, 'Set za kaiš', 'Komplet zupčasti kaiš + zatezač + rolne', 'TIMING-KIT-UNI', 85.99, 1.5, 'Razvodni mehanizam', 'set', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(27, 'Filter goriva diesel', 'Filter goriva za dizel motore', 'FILTER-FUEL-DSL', 22.99, 0.4, 'Filteri', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(28, 'Filter kabine', 'Filter kabine sa aktivnim ugljem', 'FILTER-CABIN-AC', 18.99, 0.2, 'Filteri', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(29, 'Sijalica H7 55W', 'Halogena sijalica H7 55W 12V', 'BULB-H7-55W', 4.99, 0.05, 'Osvetljenje', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
+INSERT INTO products (id, name, description, sku, price, weight, category, unit, for_sale, active, created_at, updated_at) VALUES
+(30, 'Sijalica H4 60/55W', 'Halogena sijalica H4 60/55W 12V', 'BULB-H4-60-55W', 5.99, 0.05, 'Osvetljenje', 'kom', true, true, NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
 
 -- Additional Inventory for new products
 INSERT INTO inventory (id, product_id, warehouse_id, sector_id, quantity, reserved_quantity, updated_at) VALUES
@@ -556,6 +556,8 @@ WHERE sequence_name = 'warehouses';
 
 UPDATE id_generator SET next_val = (SELECT COALESCE(MAX(id), 0) + 1 FROM order_items)
 WHERE sequence_name = 'warehouse_sectors';
+
+SELECT setval(pg_get_serial_sequence('products', 'id'), COALESCE((SELECT MAX(id) FROM products), 0) + 1, false);
 
 UPDATE warehouses SET version = 0 WHERE version IS NULL;
 UPDATE orders SET version = 0 WHERE version IS NULL;
