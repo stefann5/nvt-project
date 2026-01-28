@@ -97,6 +97,7 @@ public class VehicleService {
     }
 
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehiclesPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
     public PageResponseDTO<VehicleListDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
@@ -118,6 +119,7 @@ public class VehicleService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehicleById", key = "#id")
     public VehicleResponseDTO getById(Long id) {
         Vehicle vehicle = vehicleRepository.findByIdWithDetails(id)
@@ -126,6 +128,7 @@ public class VehicleService {
     }
 
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehicleSearch", key = "#query + '-' + #page + '-' + #size")
     public PageResponseDTO<VehicleListDTO> searchPaged(String query, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -230,16 +233,19 @@ public class VehicleService {
         vehicleRepository.delete(vehicle);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehicleBrands")
     public List<VehicleBrand> getAllBrands() {
         return brandRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehicleModels", key = "#brandId")
     public List<VehicleModel> getModelsByBrand(Long brandId) {
         return modelRepository.findByBrandId(brandId);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "vehicleLocation", key = "#vehicleId")
     public VehicleLocationDTO getLastLocation(Long vehicleId) {
         return locationRepository.findByVehicleId(vehicleId)
@@ -247,6 +253,7 @@ public class VehicleService {
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "distanceStats", key = "#vehicleId + '-' + #startDate + '-' + #endDate")
     public DistanceStatisticsDTO getDistanceStatistics(Long vehicleId, LocalDate startDate, LocalDate endDate) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
@@ -255,6 +262,7 @@ public class VehicleService {
         return telemetryService.getAggregatedDistance(vehicleId, vehicle.getLicensePlate(), startDate, endDate);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "availabilityStats", key = "#vehicleId + '-' + #startTime.toEpochMilli() + '-' + #endTime.toEpochMilli()")
     public AvailabilityStatisticsDTO getAvailabilityStatistics(Long vehicleId, Instant startTime, Instant endTime) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)

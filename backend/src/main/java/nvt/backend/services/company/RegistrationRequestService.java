@@ -164,6 +164,7 @@ public class RegistrationRequestService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "pendingRequestsCount")
     public long getPendingRequestsCount() {
         return requestRepository.countByStatus(RegistrationRequest.Status.PENDING);
@@ -273,6 +274,7 @@ public class RegistrationRequestService {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<RegistrationRequestListDTO> getApprovedCompaniesByOwner(Integer ownerId) {
         return requestRepository.findByOwnerIdAndStatus(ownerId, RegistrationRequest.Status.APPROVED)
                 .stream()

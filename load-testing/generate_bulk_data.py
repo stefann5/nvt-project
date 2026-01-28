@@ -240,11 +240,11 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
     batch_data = []
     
     # Get existing usernames to avoid duplicates
-    cur.execute("SELECT username FROM \"user\"")
+    cur.execute("SELECT username FROM \"users\"")
     used_usernames = set(row[0] for row in cur.fetchall())
     
     # Get the current max ID and update the id_generator
-    cur.execute("SELECT COALESCE(MAX(id), 0) FROM \"user\"")
+    cur.execute("SELECT COALESCE(MAX(id), 0) FROM \"users\"")
     current_max_id = cur.fetchone()[0]
     
     # Update the id_generator table
@@ -282,7 +282,7 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
         if len(batch_data) >= batch_size:
             execute_values(
                 cur,
-                """INSERT INTO "user" (id, name, surname, username, password, role, authorities, active, user_type) 
+                """INSERT INTO "users" (id, name, surname, username, password, role, authorities, active, user_type)
                    VALUES %s""",
                 batch_data
             )
@@ -292,12 +292,12 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
             rate = total_inserted / elapsed if elapsed > 0 else 0
             print(f"  {user_type}s: {total_inserted:,}/{count:,} ({rate:.0f}/sec)")
             batch_data = []
-    
+
     # Insert remaining
     if batch_data:
         execute_values(
             cur,
-            """INSERT INTO "user" (id, name, surname, username, password, role, authorities, active, user_type) 
+            """INSERT INTO "users" (id, name, surname, username, password, role, authorities, active, user_type)
                VALUES %s""",
             batch_data
         )
@@ -334,7 +334,7 @@ def generate_registration_requests(conn, count, batch_size=10000):
         country_ids = [1]  # Default
     
     # Get user IDs for owners
-    cur.execute("SELECT id FROM \"user\" WHERE user_type = 'Customer' LIMIT 1000")
+    cur.execute("SELECT id FROM \"users\" WHERE user_type = 'Customer' LIMIT 1000")
     owner_ids = [row[0] for row in cur.fetchall()]
     if not owner_ids:
         owner_ids = [1]  # Default to admin

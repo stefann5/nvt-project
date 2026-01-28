@@ -1,0 +1,18 @@
+[2026-01-27 23:55:42,950] DESKTOP-6H0UPP1/INFO/locust.main: Starting Locust 2.43.0
+[2026-01-27 23:55:42,951] DESKTOP-6H0UPP1/INFO/locust.main: Run time limit set to 120 seconds
+[2026-01-27 23:55:42,954] DESKTOP-6H0UPP1/INFO/locust.runners: Ramping to 10 users at a rate of 2.00 per second
+[2026-01-27 23:55:42,954] DESKTOP-6H0UPP1/INFO/locustfile: Initializing shared state...
+[2026-01-27 23:55:43,788] DESKTOP-6H0UPP1/INFO/locustfile: Manager login successful
+[2026-01-27 23:55:44,245] DESKTOP-6H0UPP1/INFO/locustfile: Customer login successful
+[2026-01-27 23:55:44,295] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 5 countries
+[2026-01-27 23:55:45,039] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 100 registration requests
+[2026-01-27 23:55:45,264] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 50 pending requests
+[2026-01-27 23:55:45,546] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 100 vehicles
+[2026-01-27 23:55:46,988] DESKTOP-6H0UPP1/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 4, "ManagerLoadTest": 6} (10 total users)
+[2026-01-27 23:55:48,076] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 11 vehicle brands
+[2026-01-27 23:55:48,351] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 8 warehouses
+[2026-01-27 23:55:48,764] DESKTOP-6H0UPP1/INFO/locustfile: Fetched 2 companies
+[2026-01-27 23:55:48,765] DESKTOP-6H0UPP1/INFO/locustfile: SharedState initialized: 100 vehicles, 100 requests, 5 countries, 2 companies
+[2026-01-28 07:05:03,578] DESKTOP-6H0UPP1/INFO/locust.main: --run-time limit reached, shutting down
+[2026-01-28 07:05:03,896] DESKTOP-6H0UPP1/INFO/locust.main: writing html report to file: C:\homework\semstar7\nvt\nvt-project\load-testing\fleet\results\fleet_small_20260127_235541_report.html
+[2026-01-28 07:05:03,908] DESKTOP-6H0UPP1/INFO/locust.main: Shutting down (exit code 1)

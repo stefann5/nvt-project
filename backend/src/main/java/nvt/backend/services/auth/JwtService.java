@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @Service
@@ -36,6 +38,11 @@ public class JwtService {
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
 
+    // In-memory cache for token validation - TTL managed by token expiration
+    private final Map<String, Boolean> tokenValidityCache = new ConcurrentHashMap<>();
+    private final Map<String, Long> tokenCacheTimestamp = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MS = 60000; // 1 minute cache
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,12 +52,40 @@ public class JwtService {
     public boolean isValid(String token, UserDetails user) {
         String username = extractUsername(token);
 
-        boolean validToken = tokenRepository
-                .findByAccessToken(token)
-                .map(t -> !t.isLoggedOut())
-                .orElse(false);
+        // Check cache first
+        Boolean cached = getCachedTokenValidity(token);
+        boolean validToken;
+        if (cached != null) {
+            validToken = cached;
+        } else {
+            validToken = tokenRepository
+                    .findByAccessToken(token)
+                    .map(t -> !t.isLoggedOut())
+                    .orElse(false);
+            cacheTokenValidity(token, validToken);
+        }
 
         return (username.equals(user.getUsername())) && !isTokenExpired(token) && validToken;
+    }
+    
+    private Boolean getCachedTokenValidity(String token) {
+        Long timestamp = tokenCacheTimestamp.get(token);
+        if (timestamp == null || System.currentTimeMillis() - timestamp > CACHE_TTL_MS) {
+            tokenValidityCache.remove(token);
+            tokenCacheTimestamp.remove(token);
+            return null;
+        }
+        return tokenValidityCache.get(token);
+    }
+    
+    private void cacheTokenValidity(String token, boolean valid) {
+        tokenValidityCache.put(token, valid);
+        tokenCacheTimestamp.put(token, System.currentTimeMillis());
+    }
+    
+    public void invalidateTokenCache(String token) {
+        tokenValidityCache.remove(token);
+        tokenCacheTimestamp.remove(token);
     }
 
     public boolean isValidRefreshToken(String token, User user) {

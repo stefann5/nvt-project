@@ -15,11 +15,32 @@ public interface VehicleLocationRepository extends JpaRepository<VehicleLocation
     @Query("SELECT vl FROM VehicleLocation vl JOIN FETCH vl.vehicle WHERE vl.vehicle.id = :vehicleId")
     Optional<VehicleLocation> findByVehicleId(@Param("vehicleId") Long vehicleId);
 
-    @Query("SELECT vl FROM VehicleLocation vl WHERE vl.online = true")
+    @Query("SELECT vl FROM VehicleLocation vl " +
+            "JOIN FETCH vl.vehicle v " +
+            "LEFT JOIN FETCH v.brand " +
+            "LEFT JOIN FETCH v.model " +
+            "WHERE vl.online = true")
     List<VehicleLocation> findAllOnline();
 
-    @Query("SELECT vl FROM VehicleLocation vl WHERE vl.online = true AND vl.lastHeartbeat < :threshold")
+    @Query("SELECT vl FROM VehicleLocation vl " +
+            "JOIN FETCH vl.vehicle v " +
+            "LEFT JOIN FETCH v.brand " +
+            "LEFT JOIN FETCH v.model " +
+            "WHERE vl.online = true AND vl.lastHeartbeat < :threshold")
     List<VehicleLocation> findStaleOnlineVehicles(@Param("threshold") LocalDateTime threshold);
+
+    @Query("SELECT vl FROM VehicleLocation vl " +
+            "JOIN FETCH vl.vehicle v " +
+            "LEFT JOIN FETCH v.brand " +
+            "LEFT JOIN FETCH v.model")
+    List<VehicleLocation> findAllWithVehicleDetails();
+
+    @Query("SELECT vl FROM VehicleLocation vl " +
+            "JOIN FETCH vl.vehicle v " +
+            "LEFT JOIN FETCH v.brand " +
+            "LEFT JOIN FETCH v.model " +
+            "WHERE v.id IN :vehicleIds")
+    List<VehicleLocation> findByVehicleIds(@Param("vehicleIds") List<Long> vehicleIds);
 
     @Modifying
     @Query("UPDATE VehicleLocation vl SET vl.online = false WHERE vl.online = true AND vl.lastHeartbeat < :threshold")

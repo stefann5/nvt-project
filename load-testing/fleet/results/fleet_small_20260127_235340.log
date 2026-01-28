@@ -1,0 +1,8 @@
+[2026-01-27 23:53:41,844] DESKTOP-6H0UPP1/INFO/locust.main: Starting Locust 2.43.0
+[2026-01-27 23:53:41,845] DESKTOP-6H0UPP1/INFO/locust.main: Run time limit set to 120 seconds
+[2026-01-27 23:53:41,853] DESKTOP-6H0UPP1/WARNING/root: Exception in keyboard input poller: cannot access free variable 'url' where it is not associated with a value in enclosing scope
+[2026-01-27 23:53:41,853] DESKTOP-6H0UPP1/INFO/locust.runners: Ramping to 0 users at a rate of 100.00 per second
+[2026-01-27 23:53:41,853] DESKTOP-6H0UPP1/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 0, "ManagerLoadTest": 0} (0 total users)
+[2026-01-27 23:55:41,365] DESKTOP-6H0UPP1/INFO/locust.main: --run-time limit reached, shutting down
+[2026-01-27 23:55:41,465] DESKTOP-6H0UPP1/INFO/locust.main: writing html report to file: C:\homework\semstar7\nvt\nvt-project\load-testing\fleet\results\fleet_small_20260127_235340_report.html
+[2026-01-27 23:55:41,467] DESKTOP-6H0UPP1/INFO/locust.main: Shutting down (exit code 0)

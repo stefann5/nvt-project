@@ -1,67 +1,47 @@
 package nvt.backend.controllers.vehicle;
 
 import nvt.backend.dto.vehicle.VehicleStatusDTO;
-import nvt.backend.model.vehicle.Vehicle;
-import nvt.backend.model.vehicle.VehicleLocation;
-import nvt.backend.repositories.vehicle.VehicleLocationRepository;
-import nvt.backend.repositories.vehicle.VehicleRepository;
 import nvt.backend.services.vehicle.VehicleTelemetryService;
+import nvt.backend.services.vehicle.VehicleTrackingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/vehicles/tracking")
 public class VehicleTrackingController {
 
-    private final VehicleRepository vehicleRepository;
-    private final VehicleLocationRepository locationRepository;
+    private final VehicleTrackingService trackingService;
     private final VehicleTelemetryService telemetryService;
 
     public VehicleTrackingController(
-            VehicleRepository vehicleRepository,
-            VehicleLocationRepository locationRepository,
+            VehicleTrackingService trackingService,
             VehicleTelemetryService telemetryService) {
-        this.vehicleRepository = vehicleRepository;
-        this.locationRepository = locationRepository;
+        this.trackingService = trackingService;
         this.telemetryService = telemetryService;
     }
 
     @GetMapping("/status")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<List<VehicleStatusDTO>> getAllVehicleStatus() {
-        List<Vehicle> vehicles = vehicleRepository.findAllWithDetails();
-        
-        List<VehicleStatusDTO> statuses = vehicles.stream()
-                .map(this::buildStatusDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(statuses);
+        // Caching is handled in the service layer (caches List<DTO> not ResponseEntity)
+        return ResponseEntity.ok(trackingService.getAllVehicleStatus());
     }
 
     @GetMapping("/status/{vehicleId}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<VehicleStatusDTO> getVehicleStatus(@PathVariable Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findByIdWithDetails(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-        
-        return ResponseEntity.ok(buildStatusDTO(vehicle));
+        return ResponseEntity.ok(trackingService.getVehicleStatus(vehicleId));
     }
 
     @GetMapping("/online")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<List<VehicleStatusDTO>> getOnlineVehicles() {
-        List<VehicleLocation> onlineLocations = locationRepository.findAllOnline();
-        
-        List<VehicleStatusDTO> statuses = onlineLocations.stream()
-                .map(location -> buildStatusDTO(location.getVehicle()))
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(statuses);
+        // Caching is handled in the service layer (caches List<DTO> not ResponseEntity)
+        return ResponseEntity.ok(trackingService.getOnlineVehicles());
     }
 
     @GetMapping("/{vehicleId}/availability")
@@ -78,31 +58,5 @@ public class VehicleTrackingController {
             @PathVariable Long vehicleId,
             @RequestParam(defaultValue = "-24h") String range) {
         return ResponseEntity.ok(telemetryService.getDistanceHistory(vehicleId, range));
-    }
-
-
-    private VehicleStatusDTO buildStatusDTO(Vehicle vehicle) {
-        VehicleLocation location = locationRepository.findByVehicleId(vehicle.getId())
-                .orElse(null);
-
-        VehicleStatusDTO.VehicleStatusDTOBuilder builder = VehicleStatusDTO.builder()
-                .vehicleId(vehicle.getId())
-                .licensePlate(vehicle.getLicensePlate())
-                .brandName(vehicle.getBrand() != null ? vehicle.getBrand().getName() : null)
-                .modelName(vehicle.getModel() != null ? vehicle.getModel().getName() : null);
-
-        if (location != null) {
-            builder.online(location.isOnline())
-                    .latitude(location.getLatitude())
-                    .longitude(location.getLongitude())
-                    .totalDistance(location.getTotalDistance())
-                    .lastHeartbeat(location.getLastHeartbeat())
-                    .lastTelemetry(location.getLastTelemetryUpdate())
-                    .currentState(location.getCurrentState());
-        } else {
-            builder.online(false);
-        }
-
-        return builder.build();
     }
 }

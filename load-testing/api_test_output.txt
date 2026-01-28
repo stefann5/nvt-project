@@ -1,0 +1,8 @@
+============================================================
+API ENDPOINT VERIFICATION TEST
+============================================================
+
+[Step 1] Logging in...
+ERROR: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/v1/auth/login (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+
+Login failed - cannot continue
