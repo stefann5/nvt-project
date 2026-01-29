@@ -30,9 +30,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.customer " +
-            "LEFT JOIN FETCH o.company " +
-            "LEFT JOIN FETCH o.items " +
-            "WHERE o.id IN :ids")
+            "LEFT JOIN FETCH o.company c " +
+            "LEFT JOIN FETCH c.country " +
+            "LEFT JOIN FETCH c.city " +
+            "LEFT JOIN FETCH o.items i " +
+            "LEFT JOIN FETCH i.product " +
+            "WHERE o.id IN :ids " +
+            "ORDER BY o.createdAt DESC")
     List<Order> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId ORDER BY o.createdAt DESC")

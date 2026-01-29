@@ -282,6 +282,7 @@ public class OrderService {
         );
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "orderById", key = "#id")
     public OrderResponseDTO getById(Long id) {
         Order order = orderRepository.findByIdWithDetails(id)
@@ -300,6 +301,7 @@ public class OrderService {
         return OrderResponseDTO.fromEntity(order);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "customerOrders", key = "#customerId + '-' + #page + '-' + #size")
     public PageResponseDTO<OrderListDTO> getOrdersByCustomer(Integer customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -330,6 +332,7 @@ public class OrderService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "ordersPage", key = "#page + '-' + #size")
     public PageResponseDTO<OrderListDTO> getAllOrdersPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -20,6 +20,9 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { TabsModule } from 'primeng/tabs';
 import { MessageService } from 'primeng/api';
+import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { environment } from '../../../../environments/environment';
 import * as L from 'leaflet';
 
 interface PeriodOption {
@@ -83,6 +86,7 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
 
   availabilityPeriodOptions: PeriodOption[] = [
     { label: 'Last Hour', value: '1h' },
+    { label: 'Last 3 Hours (Real-time)', value: '3h' },
     { label: 'Last 12 Hours', value: '12h' },
     { label: 'Last 24 Hours', value: '24h' },
     { label: 'Last 7 Days', value: '7d' },
@@ -103,12 +107,15 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
 
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
+  private stompClient: Client | null = null;
+  isRealTimeMode = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private warehouseService: WarehouseService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -117,6 +124,7 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
       this.warehouseId = +id;
       this.loadWarehouse();
       this.loadAvailabilityStats();
+      this.connectWebSocket(); // Connect WebSocket to receive real-time status updates
     }
     this.initChartOptions();
     this.initAvailabilityChartOptions();
@@ -130,6 +138,91 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
     if (this.map) {
       this.map.remove();
     }
+    this.disconnectWebSocket();
+  }
+
+  private connectWebSocket(): void {
+    if (this.stompClient?.connected) return;
+
+    const wsUrl = environment.apiUrl.replace('/api/v1/', '/ws');
+
+    this.stompClient = new Client({
+      webSocketFactory: () => new SockJS(wsUrl),
+      reconnectDelay: 5000,
+      debug: (str) => console.log('STOMP:', str)
+    });
+
+    this.stompClient.onConnect = () => {
+      console.log('WebSocket connected for warehouse availability');
+
+      this.stompClient?.publish({
+        destination: `/app/warehouse/${this.warehouseId}/availability/subscribe`
+      });
+
+      this.stompClient?.subscribe(
+        `/topic/warehouse/${this.warehouseId}/availability`,
+        (message: IMessage) => {
+          this.ngZone.run(() => {
+            const stats = JSON.parse(message.body) as WarehouseAvailabilityStatisticsDTO;
+            this.availabilityStats = stats;
+            this.updateAvailabilityChart();
+            console.log('Received real-time warehouse availability update');
+          });
+        }
+      );
+
+      // Subscribe to heartbeat updates for online status
+      this.stompClient?.subscribe(
+        `/topic/warehouse/${this.warehouseId}/heartbeat`,
+        (message: IMessage) => {
+          this.ngZone.run(() => {
+            const heartbeat = JSON.parse(message.body);
+            if (this.warehouse && heartbeat.status === 'ONLINE') {
+              this.warehouse.online = true;
+              this.warehouse.lastHeartbeat = heartbeat.timestamp;
+              this.updateMapMarker();
+              console.log('Warehouse status updated to ONLINE via heartbeat');
+            }
+          });
+        }
+      );
+
+      // Subscribe to status changes (for offline notifications)
+      this.stompClient?.subscribe(
+        `/topic/warehouse/${this.warehouseId}/status`,
+        (message: IMessage) => {
+          this.ngZone.run(() => {
+            const status = JSON.parse(message.body);
+            if (this.warehouse) {
+              this.warehouse.online = status.online;
+              this.updateMapMarker();
+              console.log(`Warehouse status updated to ${status.online ? 'ONLINE' : 'OFFLINE'}`);
+            }
+          });
+        }
+      );
+    };
+
+    this.stompClient.onStompError = (frame) => {
+      console.error('STOMP error:', frame.headers['message'], frame.body);
+    };
+
+    this.stompClient.onWebSocketError = (event) => {
+      console.error('WebSocket error:', event);
+    };
+
+    this.stompClient.activate();
+    this.isRealTimeMode = true;
+  }
+
+  private disconnectWebSocket(): void {
+    if (this.stompClient?.connected) {
+      this.stompClient.publish({
+        destination: `/app/warehouse/${this.warehouseId}/availability/unsubscribe`
+      });
+      this.stompClient.deactivate();
+    }
+    this.isRealTimeMode = false;
   }
 
   private initMap(): void {
@@ -467,6 +560,12 @@ export class WarehouseDetailComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   onAvailabilityPeriodChange(): void {
+    if (this.selectedAvailabilityPeriod.value === '3h') {
+      this.connectWebSocket();
+    } else {
+      this.disconnectWebSocket();
+    }
+
     if (this.selectedAvailabilityPeriod.value !== 'custom') {
       this.loadAvailabilityStats();
     }

@@ -59,7 +59,8 @@ public class WarehouseService {
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "warehousesPage", allEntries = true),
-        @CacheEvict(value = "warehouseSearch", allEntries = true)
+        @CacheEvict(value = "warehouseSearch", allEntries = true),
+        @CacheEvict(value = "warehouseCount", allEntries = true)
     })
     @Retryable(
         retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
@@ -135,27 +136,43 @@ public class WarehouseService {
                 .toList();
     }
 
+    /**
+     * Get total warehouse count with caching - expensive COUNT query cached separately
+     */
+    @Cacheable(value = "warehouseCount")
+    public long getTotalWarehouseCount() {
+        return warehouseRepository.count();
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(value = "warehousesPage", key = "#page + '-' + #size + '-' + #sortBy + '-' + #sortDir")
     public PageResponseDTO<WarehouseListDTO> getAllPaged(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Long> idPage = warehouseRepository.findAllIds(pageable);
-        List<Warehouse> warehouses = idPage.getContent().isEmpty()
+        // Use cached total count to avoid expensive COUNT query on every request
+        long totalElements = getTotalWarehouseCount();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        
+        // Fetch only IDs for the current page (fast query)
+        List<Long> ids = warehouseRepository.findIdsByPage(pageable.getOffset(), pageable.getPageSize(), sortBy, sortDir.equalsIgnoreCase("desc"));
+        
+        List<Warehouse> warehouses = ids.isEmpty()
                 ? List.of()
-                : warehouseRepository.findAllByIds(idPage.getContent());
+                : warehouseRepository.findAllByIds(ids);
 
         return PageResponseDTO.<WarehouseListDTO>builder()
                 .content(warehouses.stream().map(WarehouseListDTO::fromEntity).toList())
-                .page(idPage.getNumber())
-                .size(idPage.getSize())
-                .totalElements(idPage.getTotalElements())
-                .totalPages(idPage.getTotalPages())
-                .first(idPage.isFirst())
-                .last(idPage.isLast())
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .first(page == 0)
+                .last(page >= totalPages - 1)
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "warehouseById", key = "#id")
     public WarehouseResponseDTO getById(Long id) {
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
@@ -169,6 +186,7 @@ public class WarehouseService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "warehouseSearch", key = "#query + '-' + #page + '-' + #size")
     public PageResponseDTO<WarehouseListDTO> searchPaged(String query, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

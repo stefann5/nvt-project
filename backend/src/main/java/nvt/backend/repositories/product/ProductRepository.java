@@ -26,6 +26,41 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p.id FROM Product p WHERE p.active = true")
     Page<Long> findAllActiveIds(Pageable pageable);
 
+    /**
+     * Count active products - cached separately for performance
+     */
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true")
+    long countActiveProducts();
+
+    /**
+     * Fast pagination queries by different sort columns - uses indexes
+     */
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.id ASC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPageIdAsc(@Param("offset") long offset, @Param("limit") int limit);
+
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.id DESC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPageIdDesc(@Param("offset") long offset, @Param("limit") int limit);
+
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.name ASC, p.id ASC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPageNameAsc(@Param("offset") long offset, @Param("limit") int limit);
+
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.name DESC, p.id DESC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPageNameDesc(@Param("offset") long offset, @Param("limit") int limit);
+
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.price ASC, p.id ASC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPagePriceAsc(@Param("offset") long offset, @Param("limit") int limit);
+
+    @Query(value = "SELECT p.id FROM products p WHERE p.active = true ORDER BY p.price DESC, p.id DESC LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<Long> findActiveIdsByPagePriceDesc(@Param("offset") long offset, @Param("limit") int limit);
+
+    default List<Long> findActiveIdsByPage(long offset, int limit, String sortBy, boolean descending) {
+        return switch (sortBy.toLowerCase()) {
+            case "name" -> descending ? findActiveIdsByPageNameDesc(offset, limit) : findActiveIdsByPageNameAsc(offset, limit);
+            case "price" -> descending ? findActiveIdsByPagePriceDesc(offset, limit) : findActiveIdsByPagePriceAsc(offset, limit);
+            default -> descending ? findActiveIdsByPageIdDesc(offset, limit) : findActiveIdsByPageIdAsc(offset, limit);
+        };
+    }
+
     @Query("SELECT p.id FROM Product p")
     Page<Long> findAllIds(Pageable pageable);
 
@@ -43,15 +78,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<String> findAllCategories();
 
     @Query(value = "SELECT p.id FROM products p " +
-            "WHERE (:active IS NULL OR p.active = :active) " +
-            "AND (:search IS NULL OR p.name ILIKE CONCAT('%', :search, '%') OR p.sku ILIKE CONCAT('%', :search, '%') OR p.description ILIKE CONCAT('%', :search, '%')) " +
+            "WHERE p.active = true " +
+            "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND (:category IS NULL OR p.category = :category) " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
             "AND (:forSale IS NULL OR p.for_sale = :forSale)",
             countQuery = "SELECT COUNT(p.id) FROM products p " +
-                    "WHERE (:active IS NULL OR p.active = :active) " +
-                    "AND (:search IS NULL OR p.name ILIKE CONCAT('%', :search, '%') OR p.sku ILIKE CONCAT('%', :search, '%') OR p.description ILIKE CONCAT('%', :search, '%')) " +
+                    "WHERE p.active = true " +
+                    "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
                     "AND (:category IS NULL OR p.category = :category) " +
                     "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
                     "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
