@@ -18,11 +18,14 @@ public class ProductListDTO implements Serializable {
     private String name;
     private String sku;
     private BigDecimal price;
+    private BigDecimal weight;
     private String category;
     private String unit;
+    private boolean forSale;
     private boolean active;
     private Integer totalQuantity;
     private String imageUrl;
+    private int factoryCount;
 
     public static ProductListDTO fromEntity(Product product, Integer totalQuantity) {
         String imageUrl = null;
@@ -35,11 +38,14 @@ public class ProductListDTO implements Serializable {
                 .name(product.getName())
                 .sku(product.getSku())
                 .price(product.getPrice())
+                .weight(product.getWeight())
                 .category(product.getCategory())
                 .unit(product.getUnit())
+                .forSale(product.isForSale())
                 .active(product.isActive())
                 .totalQuantity(totalQuantity)
                 .imageUrl(imageUrl)
+                .factoryCount(product.getFactories() != null ? product.getFactories().size() : 0)
                 .build();
     }
 }

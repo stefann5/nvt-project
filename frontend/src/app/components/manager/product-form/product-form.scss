@@ -1,0 +1,252 @@
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--surface-border);
+
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-color);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+}
+
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.form-section {
+  flex: 1;
+  min-width: 300px;
+
+  &.full-width {
+    flex-basis: 100%;
+  }
+
+  h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 0.5rem;
+  }
+
+  h4 {
+    margin: 1rem 0 0.75rem 0;
+    font-size: 0.95rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.form-field {
+  margin-bottom: 1.25rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  input, textarea, p-select, p-multiSelect, p-inputNumber {
+    width: 100%;
+  }
+
+  .p-error {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--red-500);
+    font-size: 0.875rem;
+  }
+
+  .p-help {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+
+  &.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    label {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+
+  .form-field {
+    flex: 1;
+  }
+}
+
+.existing-images {
+  margin-bottom: 1.5rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.image-item {
+  position: relative;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+
+  &.marked-for-deletion {
+    opacity: 0.5;
+    border-color: var(--red-500);
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface-100);
+    border-radius: 4px;
+    color: var(--text-color-secondary);
+
+    i {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    span {
+      font-size: 0.75rem;
+      text-align: center;
+      word-break: break-all;
+      padding: 0 0.25rem;
+    }
+  }
+
+  .deletion-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    pointer-events: none;
+
+    i {
+      font-size: 2rem;
+      color: var(--red-500);
+    }
+
+    span {
+      font-size: 0.75rem;
+      color: var(--red-500);
+      font-weight: 500;
+    }
+  }
+}
+
+.new-images-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.new-image-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--surface-50);
+  border-radius: 4px;
+
+  i {
+    color: var(--primary-color);
+  }
+
+  span {
+    flex: 1;
+    font-size: 0.875rem;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+:host ::ng-deep {
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 1.5rem;
+  }
+
+  .p-fileupload {
+    .p-fileupload-buttonbar {
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .p-fileupload-content {
+      padding: 0;
+      border: none;
+    }
+  }
+
+  .p-inputnumber {
+    width: 100%;
+
+    .p-inputtext {
+      width: 100%;
+    }
+  }
+
+  .p-multiselect {
+    width: 100%;
+  }
+
+  .p-select {
+    width: 100%;
+  }
+}

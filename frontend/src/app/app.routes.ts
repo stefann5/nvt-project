@@ -20,6 +20,9 @@ import { MyOrdersComponent } from './components/customer/my-orders/my-orders';
 import { ProductCatalogComponent } from './components/customer/product-catalog/product-catalog';
 import { ManagerOrdersComponent } from './components/manager/manager-orders/manager-orders';
 import { OrderDetailComponent } from './components/manager/order-detail/order-detail';
+import { ProductListComponent } from './components/manager/product-list/product-list';
+import { ProductFormComponent } from './components/manager/product-form/product-form';
+import { ProductDetailComponent } from './components/manager/product-detail/product-detail';
 
 export const routes: Routes = [
     { path: '', component: Login },
@@ -92,6 +95,26 @@ export const routes: Routes = [
             {
                 path: 'manager/orders/:id',
                 component: OrderDetailComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/products',
+                component: ProductListComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/products/new',
+                component: ProductFormComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/products/:id',
+                component: ProductDetailComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/products/:id/edit',
+                component: ProductFormComponent,
                 canActivate: [ManagerGuard]
             },
             {
