@@ -153,16 +153,24 @@ class ManagerLoadTest(HttpUser):
         )
 
     # =========================================================================
-    # ENDPOINT 2: Search vehicles (paginated)
+    # ENDPOINT 2: Search vehicles (paginated) - using varied queries
     # =========================================================================
     @task(5)
     def search_vehicles_paged(self):
         if not self.token:
             return
-        # Use limited set for better cache hit rate
-        queries = ["NS", "BG", "SU"]
-        query = random.choice(queries)
-        page = random.choice([0, 1])
+        # Use varied queries like in generate_bulk_data.py - all cities + partial plates
+        cities = ["NS", "BG", "SU", "NI", "KG", "PA", "ZR", "SO", "VR", "SM", "KI", "JA", "ČA", "VA", "PO"]
+        brands = ["Mercedes", "Volkswagen", "Ford", "Iveco", "MAN", "Renault", "Fiat", "Peugeot", "Citroen", "Toyota"]
+        # Mix of city codes, partial plates, and brand names
+        query_type = random.choice(["city", "partial_plate", "brand"])
+        if query_type == "city":
+            query = random.choice(cities)
+        elif query_type == "partial_plate":
+            query = f"{random.choice(cities)}-{random.randint(100, 999)}"
+        else:
+            query = random.choice(brands)
+        page = random.choice([0, 1, 2])
         self.client.get(
             f"/api/v1/vehicles/search/paged?query={query}&page={page}&size=20",
             headers=self._headers(),
