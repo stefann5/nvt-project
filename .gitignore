@@ -1,0 +1,11 @@
+# Ignore Python cache directories
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+load-testing/results/
+load-testing/fleet/results/
+load-testing/warehouse/results/
+
