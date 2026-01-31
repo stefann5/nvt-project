@@ -1,2 +1,0 @@
-Method,Name,Error,Occurrences
-GET,GET /vehicles/tracking/status,HTTPError('500 Server Error:  for url: GET /vehicles/tracking/status'),4

@@ -1,2 +1,0 @@
-Method,Name,Error,Occurrences
-POST,POST /vehicles,HTTPError('400 Client Error:  for url: POST /vehicles'),24

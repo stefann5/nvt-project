@@ -447,16 +447,16 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
         conn.close()
         
         if not vehicles:
-            print("  ✗ No vehicles found in database. Generate vehicles first with --vehicles")
+            print("No vehicles found in database. Generate vehicles first with --vehicles")
             return 0
         
         if len(vehicles) < num_vehicles:
-            print(f"  ⚠ Only {len(vehicles)} vehicles exist in database (requested {num_vehicles})")
+            print(f"Only {len(vehicles)} vehicles exist in database (requested {num_vehicles})")
         
-        print(f"  Found {len(vehicles)} existing vehicles in PostgreSQL")
+        print(f"Found {len(vehicles)} existing vehicles in PostgreSQL")
         
     except Exception as e:
-        print(f"  ✗ Failed to fetch vehicles from PostgreSQL: {e}")
+        print(f"Failed to fetch vehicles from PostgreSQL: {e}")
         return 0
     
     client = get_influx_client()
@@ -605,7 +605,7 @@ Examples:
     # Check if anything was requested
     if not any([args.vehicles, args.managers, args.customers, args.requests, args.influx_vehicles]):
         parser.print_help()
-        print("\n⚠️  No data generation requested. Use --help for options.")
+        print("\nNo data generation requested. Use --help for options.")
         return
     
     print("=" * 70)
@@ -616,7 +616,7 @@ Examples:
     
     # PostgreSQL data generation
     if not args.influx_only and any([args.vehicles, args.managers, args.customers, args.requests]):
-        print("\n📊 PostgreSQL Data Generation")
+        print("\nPostgreSQL Data Generation")
         print("-" * 40)
         
         try:
@@ -639,16 +639,16 @@ Examples:
                 generate_registration_requests(conn, args.requests, args.batch_size)
             
             conn.close()
-            print("✓ PostgreSQL data generation complete")
+            print("PostgreSQL data generation complete")
             
         except Exception as e:
-            print(f"✗ PostgreSQL error: {e}")
+            print(f"PostgreSQL error: {e}")
             import traceback
             traceback.print_exc()
     
     # InfluxDB data generation
     if args.influx_vehicles > 0:
-        print("\n📈 InfluxDB Data Generation")
+        print("\nInfluxDB Data Generation")
         print("-" * 40)
         
         try:
