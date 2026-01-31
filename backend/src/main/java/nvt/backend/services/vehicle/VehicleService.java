@@ -131,21 +131,24 @@ public class VehicleService {
     @Transactional(readOnly = true)
     @Cacheable(value = "vehicleSearch", key = "#query + '-' + #page + '-' + #size")
     public PageResponseDTO<VehicleListDTO> searchPaged(String query, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        // Use optimized UNION-based search that leverages GIN trigram indexes
+        int offset = page * size;
+        List<Long> ids = vehicleRepository.searchVehicleIdsFast(query, size, offset);
+        long totalElements = vehicleRepository.countSearchResults(query);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
         
-        Page<Long> idPage = vehicleRepository.searchVehicleIds(query, pageable);
-        List<Vehicle> vehicles = idPage.getContent().isEmpty() 
+        List<Vehicle> vehicles = ids.isEmpty() 
                 ? List.of() 
-                : vehicleRepository.findAllByIds(idPage.getContent());
+                : vehicleRepository.findAllByIds(ids);
         
         return PageResponseDTO.<VehicleListDTO>builder()
                 .content(vehicles.stream().map(VehicleListDTO::fromEntity).toList())
-                .page(idPage.getNumber())
-                .size(idPage.getSize())
-                .totalElements(idPage.getTotalElements())
-                .totalPages(idPage.getTotalPages())
-                .first(idPage.isFirst())
-                .last(idPage.isLast())
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .first(page == 0)
+                .last(page >= totalPages - 1)
                 .build();
     }
 
