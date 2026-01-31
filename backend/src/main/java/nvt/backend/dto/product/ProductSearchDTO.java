@@ -17,6 +17,8 @@ public class ProductSearchDTO {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private Boolean inStock;
+    private Boolean forSale;
+    private Boolean active;
     private Integer page = 0;
     private Integer size = 20;
     private String sortBy = "name";

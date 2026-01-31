@@ -50,6 +50,11 @@ export class Dashboard {
         routerLink: '/app/manager/warehouses'
       });
       this.menuItems[0].items?.push({
+        label: 'Products',
+        icon: 'pi pi-box',
+        routerLink: '/app/manager/products'
+      });
+      this.menuItems[0].items?.push({
         label: 'All Orders',
         icon: 'pi pi-shopping-cart',
         routerLink: '/app/manager/orders'

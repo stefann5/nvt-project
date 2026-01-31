@@ -1,0 +1,183 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-card>
+  <ng-template pTemplate="header">
+    <div class="card-header">
+      <h2><i class="pi pi-box"></i> Product Management</h2>
+      <button pButton label="Add Product" icon="pi pi-plus" routerLink="/app/manager/products/new"></button>
+    </div>
+  </ng-template>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="search-row">
+      <p-iconfield iconPosition="left" class="search-field">
+        <p-inputicon styleClass="pi pi-search"></p-inputicon>
+        <input 
+          pInputText 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="onSearch()" 
+          placeholder="Search by name, SKU or description..." 
+          class="search-input" />
+      </p-iconfield>
+      
+      <button pButton 
+              icon="pi pi-filter-slash" 
+              label="Clear Filters" 
+              class="p-button-outlined"
+              (click)="clearFilters()"
+              [disabled]="!searchQuery && !selectedCategory && minPrice === null && maxPrice === null && forSaleFilter === null && activeFilter === null">
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <div class="filter-item">
+        <label>Category</label>
+        <p-select 
+          [options]="categories" 
+          [(ngModel)]="selectedCategory" 
+          placeholder="All Categories"
+          [showClear]="true"
+          (onChange)="onFilterChange()">
+        </p-select>
+      </div>
+
+      <div class="filter-item">
+        <label>Min Price</label>
+        <p-inputNumber 
+          [(ngModel)]="minPrice" 
+          mode="currency" 
+          currency="EUR"
+          [showButtons]="false"
+          (onBlur)="onFilterChange()">
+        </p-inputNumber>
+      </div>
+
+      <div class="filter-item">
+        <label>Max Price</label>
+        <p-inputNumber 
+          [(ngModel)]="maxPrice" 
+          mode="currency" 
+          currency="EUR"
+          [showButtons]="false"
+          (onBlur)="onFilterChange()">
+        </p-inputNumber>
+      </div>
+
+      <div class="filter-item">
+        <label>For Sale</label>
+        <p-select 
+          [options]="forSaleOptions" 
+          [(ngModel)]="forSaleFilter" 
+          (onChange)="onFilterChange()">
+        </p-select>
+      </div>
+
+      <div class="filter-item">
+        <label>Status</label>
+        <p-select 
+          [options]="activeOptions" 
+          [(ngModel)]="activeFilter" 
+          (onChange)="onFilterChange()">
+        </p-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  @if (loading) {
+    <div class="loading-container">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  } @else if (products.length === 0) {
+    <p-message severity="info" text="No products found."></p-message>
+  } @else {
+    <p-table 
+      [value]="products" 
+      [tableStyle]="{ 'min-width': '70rem' }"
+      styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 60px">ID</th>
+          <th>Name</th>
+          <th>SKU</th>
+          <th>Category</th>
+          <th style="width: 100px">Price</th>
+          <th style="width: 80px">Stock</th>
+          <th style="width: 100px">For Sale</th>
+          <th style="width: 80px">Status</th>
+          <th style="width: 80px">Factories</th>
+          <th style="width: 180px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-product>
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>
+              <span>{{ product.name }}</span>
+          </td>
+          <td><code>{{ product.sku }}</code></td>
+          <td>{{ product.category || '-' }}</td>
+          <td>{{ formatPrice(product.price) }}</td>
+          <td>
+            <p-tag [value]="product.totalQuantity.toString()" [severity]="getStockSeverity(product.totalQuantity)"></p-tag>
+          </td>
+          <td>
+            <p-tag 
+              [value]="product.forSale ? 'Yes' : 'No'" 
+              [severity]="getForSaleSeverity(product.forSale)"
+              [style]="{ cursor: 'pointer' }"
+              (click)="toggleForSale(product)"
+              pTooltip="Click to toggle">
+            </p-tag>
+          </td>
+          <td>
+            <p-tag 
+              [value]="product.active ? 'Active' : 'Inactive'" 
+              [severity]="getActiveSeverity(product.active)"
+              [style]="{ cursor: 'pointer' }"
+              (click)="toggleActive(product)"
+              pTooltip="Click to toggle">
+            </p-tag>
+          </td>
+          <td class="text-center">{{ product.factoryCount }}</td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                pButton 
+                icon="pi pi-eye" 
+                class="p-button-rounded p-button-text p-button-info"
+                [routerLink]="['/app/manager/products', product.id]"
+                pTooltip="View Details">
+              </button>
+              <button 
+                pButton 
+                icon="pi pi-pencil" 
+                class="p-button-rounded p-button-text p-button-warning"
+                [routerLink]="['/app/manager/products', product.id, 'edit']"
+                pTooltip="Edit">
+              </button>
+              <button 
+                pButton 
+                icon="pi pi-trash" 
+                class="p-button-rounded p-button-text p-button-danger"
+                (click)="confirmDelete(product)"
+                pTooltip="Delete">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-paginator 
+      [rows]="pageSize" 
+      [totalRecords]="totalRecords" 
+      [rowsPerPageOptions]="[10, 20, 50, 100]"
+      (onPageChange)="onPageChange($event)"
+      [first]="currentPage * pageSize">
+    </p-paginator>
+  }
+</p-card>

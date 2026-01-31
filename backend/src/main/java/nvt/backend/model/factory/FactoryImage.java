@@ -1,14 +1,18 @@
-package nvt.backend.model.product;
+package nvt.backend.model.factory;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
-@Table(name = "product_images")
+@Table(name = "factory_images")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductImage {
+public class FactoryImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +27,8 @@ public class ProductImage {
     private String contentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "factory_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Product product;
+    private Factory factory;
 }

@@ -20,7 +20,7 @@ import java.util.List;
     @Index(name = "idx_order_number", columnList = "orderNumber"),
     @Index(name = "idx_order_customer", columnList = "customer_id"),
     @Index(name = "idx_order_company", columnList = "company_id"),
-    @Index(name = "idx_order_status", columnList = "status"),
+//    @Index(name = "idx_order_status", columnList = "status"),
     @Index(name = "idx_order_created_at", columnList = "createdAt")
 })
 @Data

@@ -1,0 +1,245 @@
+<p-toast></p-toast>
+
+<p-card>
+  <ng-template pTemplate="header">
+    <div class="card-header">
+      <h2>
+        <i class="pi pi-box"></i> 
+        {{ isEditMode ? 'Edit Product' : 'Create Product' }}
+      </h2>
+    </div>
+  </ng-template>
+
+  @if (loading) {
+    <div class="loading-container">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  } @else {
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-field">
+            <label for="name">Product Name *</label>
+            <input 
+              pInputText 
+              id="name" 
+              formControlName="name" 
+              placeholder="Enter product name"
+              [class.p-invalid]="isFieldInvalid('name')" />
+            @if (isFieldInvalid('name')) {
+              <small class="p-error">{{ getFieldError('name') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="sku">SKU *</label>
+            <input 
+              pInputText 
+              id="sku" 
+              formControlName="sku" 
+              placeholder="Enter unique SKU"
+              [class.p-invalid]="isFieldInvalid('sku')" />
+            @if (isFieldInvalid('sku')) {
+              <small class="p-error">{{ getFieldError('sku') }}</small>
+            }
+            @if (isEditMode) {
+              <small class="p-help">SKU cannot be changed after creation</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="description">Description</label>
+            <textarea 
+              pTextarea 
+              id="description" 
+              formControlName="description" 
+              rows="4"
+              placeholder="Enter product description"
+              [class.p-invalid]="isFieldInvalid('description')">
+            </textarea>
+            @if (isFieldInvalid('description')) {
+              <small class="p-error">{{ getFieldError('description') }}</small>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="price">Price (EUR) *</label>
+              <p-inputNumber 
+                id="price" 
+                formControlName="price" 
+                mode="currency" 
+                currency="EUR"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                placeholder="0.00"
+                [class.p-invalid]="isFieldInvalid('price')">
+              </p-inputNumber>
+              @if (isFieldInvalid('price')) {
+                <small class="p-error">{{ getFieldError('price') }}</small>
+              }
+            </div>
+
+            <div class="form-field">
+              <label for="weight">Weight (kg)</label>
+              <p-inputNumber 
+                id="weight" 
+                formControlName="weight" 
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                placeholder="0.00">
+              </p-inputNumber>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="category">Category</label>
+              <p-select 
+                id="category"
+                formControlName="category" 
+                [options]="categories" 
+                placeholder="Select category"
+                [showClear]="true">
+              </p-select>
+            </div>
+
+            <div class="form-field">
+              <label for="unit">Unit</label>
+              <input 
+                pInputText 
+                id="unit" 
+                formControlName="unit" 
+                placeholder="e.g., kom, kg, l" />
+            </div>
+          </div>
+
+          <div class="form-field checkbox-field">
+            <p-checkbox 
+              formControlName="forSale" 
+              [binary]="true" 
+              inputId="forSale">
+            </p-checkbox>
+            <label for="forSale">Available for sale</label>
+          </div>
+        </div>
+
+        <!-- Manufacturing Section -->
+        <div class="form-section">
+          <h3>Manufacturing</h3>
+
+          <div class="form-field">
+            <label for="factories">Factories that produce this product</label>
+            <p-multiSelect 
+              id="factories"
+              formControlName="factories" 
+              [options]="factories" 
+              optionLabel="name"
+              placeholder="Select factories"
+              display="chip"
+              [showClear]="true"
+              [filter]="true"
+              filterPlaceholder="Search factories...">
+            </p-multiSelect>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Images Section -->
+        <div class="form-section full-width">
+          <h3>Product Images</h3>
+
+          @if (existingImages.length > 0) {
+            <div class="existing-images">
+              <h4>Existing Images</h4>
+              <div class="image-grid">
+                @for (image of existingImages; track image.id) {
+                  <div class="image-item" [class.marked-for-deletion]="image.markedForDeletion">
+                    <div class="image-placeholder">
+                      <i class="pi pi-image"></i>
+                      <span>{{ image.originalName }}</span>
+                    </div>
+                    <button 
+                      type="button"
+                      pButton 
+                      [icon]="image.markedForDeletion ? 'pi pi-undo' : 'pi pi-trash'"
+                      [class]="image.markedForDeletion ? 'p-button-success p-button-sm' : 'p-button-danger p-button-sm'"
+                      (click)="toggleImageDeletion(image)"
+                      [pTooltip]="image.markedForDeletion ? 'Restore' : 'Mark for deletion'">
+                    </button>
+                    @if (image.markedForDeletion) {
+                      <div class="deletion-overlay">
+                        <i class="pi pi-times-circle"></i>
+                        <span>Will be deleted</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="new-images">
+            <h4>{{ isEditMode ? 'Add New Images' : 'Upload Images' }}</h4>
+            <p-fileUpload 
+              name="images" 
+              [multiple]="true" 
+              accept="image/*" 
+              [maxFileSize]="10000000"
+              (onSelect)="onImagesSelect($event)"
+              [showUploadButton]="false"
+              [showCancelButton]="false"
+              chooseLabel="Choose Images">
+              <ng-template pTemplate="content">
+                @if (newImages.length > 0) {
+                  <div class="new-images-list">
+                    @for (file of newImages; track file.name; let i = $index) {
+                      <div class="new-image-item">
+                        <i class="pi pi-file-image"></i>
+                        <span>{{ file.name }}</span>
+                        <button 
+                          type="button"
+                          pButton 
+                          icon="pi pi-times" 
+                          class="p-button-danger p-button-sm p-button-text"
+                          (click)="removeNewImage(i)">
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </ng-template>
+            </p-fileUpload>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button"
+          pButton 
+          label="Cancel" 
+          icon="pi pi-times" 
+          class="p-button-outlined"
+          (click)="cancel()"
+          [disabled]="submitting">
+        </button>
+        <button 
+          type="submit"
+          pButton 
+          [label]="isEditMode ? 'Update Product' : 'Create Product'" 
+          icon="pi pi-check"
+          [loading]="submitting"
+          [disabled]="submitting">
+        </button>
+      </div>
+    </form>
+  }
+</p-card>

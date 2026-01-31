@@ -1,0 +1,85 @@
+:host {
+  display: block;
+}
+
+.image-card {
+  position: relative;
+  
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover .image-overlay {
+    opacity: 1;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Card styling
+:host ::ng-deep {
+  .p-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .p-card .p-card-header {
+    background-color: var(--surface-ground);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .p-tag {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Table styling
+:host ::ng-deep {
+  .p-datatable .p-datatable-thead > tr > th {
+    background-color: var(--surface-ground);
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+// Responsive adjustments
+@media screen and (max-width: 768px) {
+  .image-card {
+    .image-overlay {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// Loading state
+.loading-container {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Text utilities
+.text-overflow-ellipsis {
+  text-overflow: ellipsis;
+}

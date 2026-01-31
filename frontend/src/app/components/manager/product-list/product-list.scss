@@ -1,0 +1,133 @@
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--surface-border);
+
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-color);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.filters-section {
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+
+  .search-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .search-field {
+      flex: 1;
+
+      .search-input {
+        width: 100%;
+      }
+    }
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 150px;
+
+      label {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+}
+
+.product-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .product-thumbnail {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--surface-border);
+  }
+
+  .product-thumbnail-placeholder {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface-100);
+    border-radius: 4px;
+    border: 1px solid var(--surface-border);
+    color: var(--text-color-secondary);
+  }
+}
+
+code {
+  background-color: var(--surface-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-start;
+}
+
+:host ::ng-deep {
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 1.5rem;
+  }
+
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background-color: var(--surface-50);
+      font-weight: 600;
+    }
+  }
+
+  .p-paginator {
+    padding: 1rem;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .p-tag {
+    font-size: 0.75rem;
+  }
+}
