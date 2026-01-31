@@ -57,22 +57,26 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         
-        // Vehicle caches
+        // Vehicle caches - OPTIMIZED FOR PERFORMANCE
         cacheConfigurations.put("vehicleBrands", defaultConfig.entryTtl(Duration.ofHours(24)));
         cacheConfigurations.put("vehicleModels", defaultConfig.entryTtl(Duration.ofHours(24)));
         cacheConfigurations.put("vehicleById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-        cacheConfigurations.put("vehiclesPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
-        cacheConfigurations.put("vehicleSearch", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("vehiclesPage", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigurations.put("vehicleSearch", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+
+        // Vehicle tracking caches - IMPORTANT FOR PERFORMANCE
+        cacheConfigurations.put("vehicleStatusAll", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("vehicleStatusOnline", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+        cacheConfigurations.put("vehicleLocation", defaultConfig.entryTtl(Duration.ofMinutes(5)));
         
         // Registration request caches
-        cacheConfigurations.put("pendingRequestsCount", defaultConfig.entryTtl(Duration.ofMinutes(1)));
-        cacheConfigurations.put("requestsPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
-        cacheConfigurations.put("requestById", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("pendingRequestsCount", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("requestsPage", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigurations.put("requestById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
         
-        // Telemetry caches
-        cacheConfigurations.put("distanceStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        cacheConfigurations.put("availabilityStats", defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        cacheConfigurations.put("vehicleLocation", defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        // Telemetry caches - Longer TTL for better performance
+        cacheConfigurations.put("distanceStats", defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        cacheConfigurations.put("availabilityStats", defaultConfig.entryTtl(Duration.ofMinutes(15)));
         
         // Warehouse caches - IMPORTANT FOR PERFORMANCE
         cacheConfigurations.put("warehousesPage", defaultConfig.entryTtl(Duration.ofMinutes(2)));
@@ -95,6 +99,11 @@ public class RedisConfig {
         cacheConfigurations.put("customerOrders", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         cacheConfigurations.put("orderById", defaultConfig.entryTtl(Duration.ofMinutes(5)));
         cacheConfigurations.put("orderCount", defaultConfig.entryTtl(Duration.ofMinutes(10))); // COUNT cache - longer TTL
+
+        // Authentication caches - CRITICAL FOR PERFORMANCE (every request)
+        cacheConfigurations.put("tokenValidation", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("refreshTokenValidation", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("userDetails", defaultConfig.entryTtl(Duration.ofMinutes(10)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

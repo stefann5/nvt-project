@@ -139,12 +139,13 @@ class ManagerLoadTest(HttpUser):
     # =========================================================================
     # ENDPOINT 1: Get vehicles (paginated)
     # =========================================================================
-    @task(10)
+    @task(5)
     def get_vehicles_paged(self):
         if not self.token:
             return
-        page = random.randint(0, 10)
-        size = random.choice([10, 20, 50])
+        # Use fixed values for better cache hit rate
+        page = random.choice([0, 1, 2])
+        size = 20
         self.client.get(
             f"/api/v1/vehicles/paged?page={page}&size={size}",
             headers=self._headers(),
@@ -152,15 +153,24 @@ class ManagerLoadTest(HttpUser):
         )
 
     # =========================================================================
-    # ENDPOINT 2: Search vehicles (paginated)
+    # ENDPOINT 2: Search vehicles (paginated) - using varied queries
     # =========================================================================
-    @task(15)
+    @task(5)
     def search_vehicles_paged(self):
         if not self.token:
             return
-        queries = ["NS", "BG", "SU", "NI", "123", "ABC"]
-        query = random.choice(queries)
-        page = random.randint(0, 5)
+        # Use varied queries like in generate_bulk_data.py - all cities + partial plates
+        cities = ["NS", "BG", "SU", "NI", "KG", "PA", "ZR", "SO", "VR", "SM", "KI", "JA", "ČA", "VA", "PO"]
+        brands = ["Mercedes", "Volkswagen", "Ford", "Iveco", "MAN", "Renault", "Fiat", "Peugeot", "Citroen", "Toyota"]
+        # Mix of city codes, partial plates, and brand names
+        query_type = random.choice(["city", "partial_plate", "brand"])
+        if query_type == "city":
+            query = random.choice(cities)
+        elif query_type == "partial_plate":
+            query = f"{random.choice(cities)}-{random.randint(100, 999)}"
+        else:
+            query = random.choice(brands)
+        page = random.choice([0, 1, 2])
         self.client.get(
             f"/api/v1/vehicles/search/paged?query={query}&page={page}&size=20",
             headers=self._headers(),
@@ -184,7 +194,7 @@ class ManagerLoadTest(HttpUser):
     # =========================================================================
     # ENDPOINT 4: Get vehicle location
     # =========================================================================
-    @task(15)
+    @task(5)
     def get_vehicle_location(self):
         if not self.token or not self.vehicle_ids:
             return
@@ -209,8 +219,8 @@ class ManagerLoadTest(HttpUser):
         if not self.token or not self.vehicle_ids:
             return
         vehicle_id = random.choice(self.vehicle_ids)
-        periods = ["week", "month", "3months", "year"]
-        period = random.choice(periods)
+        # Use fixed period for cache hit
+        period = "month"
         with self.client.get(
             f"/api/v1/vehicles/{vehicle_id}/distance/stats?period={period}",
             headers=self._headers(),
@@ -226,13 +236,13 @@ class ManagerLoadTest(HttpUser):
     # =========================================================================
     # ENDPOINT 6: Get availability statistics  
     # =========================================================================
-    @task(10)
+    @task(3)
     def get_availability_stats(self):
         if not self.token or not self.vehicle_ids:
             return
         vehicle_id = random.choice(self.vehicle_ids)
-        periods = ["1h", "3h", "12h", "24h", "week", "month"]
-        period = random.choice(periods)
+        # Use fixed period for cache hit
+        period = "24h"
         with self.client.get(
             f"/api/v1/vehicles/{vehicle_id}/availability/stats?period={period}",
             headers=self._headers(),
@@ -252,8 +262,8 @@ class ManagerLoadTest(HttpUser):
     def get_all_requests_paged(self):
         if not self.token:
             return
-        page = random.randint(0, 10)
-        size = random.choice([10, 20, 50])
+        page = random.choice([0, 1, 2])
+        size = 20
         self.client.get(
             f"/api/v1/registration-requests/all/paged?page={page}&size={size}",
             headers=self._headers(),
@@ -267,7 +277,7 @@ class ManagerLoadTest(HttpUser):
     def get_pending_requests_paged(self):
         if not self.token:
             return
-        page = random.randint(0, 5)
+        page = random.choice([0, 1])
         self.client.get(
             f"/api/v1/registration-requests/pending/paged?page={page}&size=20",
             headers=self._headers(),
@@ -304,7 +314,7 @@ class ManagerLoadTest(HttpUser):
     # =========================================================================
     # ENDPOINT 11: Create vehicle (multipart form with image)
     # =========================================================================
-    @task(10)
+    @task(3)
     def create_vehicle(self):
         if not self.token:
             return

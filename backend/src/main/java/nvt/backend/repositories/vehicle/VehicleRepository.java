@@ -56,6 +56,42 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             nativeQuery = true)
     Page<Long> searchVehicleIds(@Param("search") String search, Pageable pageable);
 
+    /**
+     * Optimized search using GIN trigram indexes with direct LIMIT/OFFSET
+     * Uses UNION approach for better index utilization on each condition
+     */
+    @Query(value = "SELECT DISTINCT v.id FROM vehicles v " +
+            "WHERE v.license_plate ILIKE '%' || :search || '%' " +
+            "UNION " +
+            "SELECT DISTINCT v.id FROM vehicles v " +
+            "JOIN vehicle_brands b ON b.id = v.brand_id " +
+            "WHERE b.name ILIKE '%' || :search || '%' " +
+            "UNION " +
+            "SELECT DISTINCT v.id FROM vehicles v " +
+            "JOIN vehicle_models m ON m.id = v.model_id " +
+            "WHERE m.name ILIKE '%' || :search || '%' " +
+            "LIMIT :limit OFFSET :offset",
+            nativeQuery = true)
+    List<Long> searchVehicleIdsFast(@Param("search") String search, @Param("limit") int limit, @Param("offset") int offset);
+
+    /**
+     * Count query for trigram search - can be cached longer
+     */
+    @Query(value = "SELECT COUNT(*) FROM (" +
+            "SELECT DISTINCT v.id FROM vehicles v " +
+            "WHERE v.license_plate ILIKE '%' || :search || '%' " +
+            "UNION " +
+            "SELECT DISTINCT v.id FROM vehicles v " +
+            "JOIN vehicle_brands b ON b.id = v.brand_id " +
+            "WHERE b.name ILIKE '%' || :search || '%' " +
+            "UNION " +
+            "SELECT DISTINCT v.id FROM vehicles v " +
+            "JOIN vehicle_models m ON m.id = v.model_id " +
+            "WHERE m.name ILIKE '%' || :search || '%'" +
+            ") AS matched",
+            nativeQuery = true)
+    long countSearchResults(@Param("search") String search);
+
     @Query("SELECT v FROM Vehicle v JOIN v.images img WHERE img.id = :imageId")
     Optional<Vehicle> findByImageId(@Param("imageId") Long imageId);
 

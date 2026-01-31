@@ -465,6 +465,7 @@ export class VehicleDetailComponent implements OnInit, AfterViewInit, OnDestroy 
 
     request$.subscribe({
       next: (data) => {
+        console.log(data)
         this.availability = data;
         this.updateAvailabilityChart();
         this.availabilityLoading = false;
@@ -478,31 +479,37 @@ export class VehicleDetailComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private updateAvailabilityChart(): void {
-    if (!this.availability) return;
+    if (!this.availability?.dataPoints?.length) {
+      return;
+    }
 
     const labels = this.availability.dataPoints.map(dp => dp.label);
     const onlineData = this.availability.dataPoints.map(dp => dp.onlinePercentage);
     const offlineData = this.availability.dataPoints.map(dp => dp.offlinePercentage);
 
-    this.availabilityChartData = {
-      labels,
-      datasets: [
-        {
-          label: 'Online',
-          data: onlineData,
-          backgroundColor: 'rgba(34, 197, 94, 0.7)',
-          borderColor: 'rgb(34, 197, 94)',
-          borderWidth: 1
-        },
-        {
-          label: 'Offline',
-          data: offlineData,
-          backgroundColor: 'rgba(239, 68, 68, 0.7)',
-          borderColor: 'rgb(239, 68, 68)',
-          borderWidth: 1
-        }
-      ]
-    };
+    this.availabilityChartData = null;
+
+    setTimeout(() => {
+      this.availabilityChartData = {
+        labels,
+        datasets: [
+          {
+            label: 'Online',
+            data: onlineData,
+            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+            borderColor: 'rgb(34, 197, 94)',
+            borderWidth: 1
+          },
+          {
+            label: 'Offline',
+            data: offlineData,
+            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+            borderColor: 'rgb(239, 68, 68)',
+            borderWidth: 1
+          }
+        ]
+      };
+    }, 50);
   }
 
   applyAvailabilityCustomRange(): void {

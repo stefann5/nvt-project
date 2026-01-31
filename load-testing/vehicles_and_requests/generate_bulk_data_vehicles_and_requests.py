@@ -9,7 +9,8 @@ Relational Database (PostgreSQL):
 - 2,000,000 customers
 
 Time Series Database (InfluxDB):
-- Vehicle distance data: 100 vehicles * 5 years * 365.25 days * 144 readings/day = ~26.3M records
+- Vehicle telemetry data: 100 vehicles * 5 years * 365.25 days * 144 readings/day = ~26.3M records
+- Uses single measurement 'vehicle_telemetry' with fields: online, distance, latitude, longitude
 
 Usage:
     python generate_bulk_data.py --help
@@ -239,11 +240,11 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
     batch_data = []
     
     # Get existing usernames to avoid duplicates
-    cur.execute("SELECT username FROM \"user\"")
+    cur.execute("SELECT username FROM \"users\"")
     used_usernames = set(row[0] for row in cur.fetchall())
     
     # Get the current max ID and update the id_generator
-    cur.execute("SELECT COALESCE(MAX(id), 0) FROM \"user\"")
+    cur.execute("SELECT COALESCE(MAX(id), 0) FROM \"users\"")
     current_max_id = cur.fetchone()[0]
     
     # Update the id_generator table
@@ -281,7 +282,7 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
         if len(batch_data) >= batch_size:
             execute_values(
                 cur,
-                """INSERT INTO "user" (id, name, surname, username, password, role, authorities, active, user_type) 
+                """INSERT INTO "users" (id, name, surname, username, password, role, authorities, active, user_type)
                    VALUES %s""",
                 batch_data
             )
@@ -291,12 +292,12 @@ def generate_users(conn, count, user_type, role, authorities, batch_size=10000):
             rate = total_inserted / elapsed if elapsed > 0 else 0
             print(f"  {user_type}s: {total_inserted:,}/{count:,} ({rate:.0f}/sec)")
             batch_data = []
-    
+
     # Insert remaining
     if batch_data:
         execute_values(
             cur,
-            """INSERT INTO "user" (id, name, surname, username, password, role, authorities, active, user_type) 
+            """INSERT INTO "users" (id, name, surname, username, password, role, authorities, active, user_type)
                VALUES %s""",
             batch_data
         )
@@ -333,10 +334,22 @@ def generate_registration_requests(conn, count, batch_size=10000):
         country_ids = [1]  # Default
     
     # Get user IDs for owners
-    cur.execute("SELECT id FROM \"user\" WHERE user_type = 'Customer' LIMIT 1000")
+    cur.execute("SELECT id FROM \"users\" WHERE user_type = 'Customer' LIMIT 1000")
     owner_ids = [row[0] for row in cur.fetchall()]
     if not owner_ids:
         owner_ids = [1]  # Default to admin
+    
+    # Get the current max ID and update the id_generator
+    cur.execute("SELECT COALESCE(MAX(id), 0) FROM registration_requests")
+    current_max_id = cur.fetchone()[0]
+    
+    # Update the id_generator table
+    cur.execute("""
+        UPDATE id_generator SET next_val = %s WHERE sequence_name = 'registration_requests'
+    """, (current_max_id + 1,))
+    conn.commit()
+    
+    next_id = current_max_id + 1
     
     total_inserted = 0
     batch_data = []
@@ -359,6 +372,7 @@ def generate_registration_requests(conn, count, batch_size=10000):
         created_at = datetime.now() - timedelta(days=random.randint(0, 365))
         
         batch_data.append((
+            next_id,
             company_name,
             city_id,
             country_id,
@@ -370,12 +384,13 @@ def generate_registration_requests(conn, count, batch_size=10000):
             owner_id,
             created_at
         ))
+        next_id += 1
         
         if len(batch_data) >= batch_size:
             execute_values(
                 cur,
                 """INSERT INTO registration_requests 
-                   (name, city_id, country_id, street, street_number, latitude, longitude, status, owner_id, created_at) 
+                   (id, name, city_id, country_id, street, street_number, latitude, longitude, status, owner_id, created_at) 
                    VALUES %s""",
                 batch_data
             )
@@ -391,12 +406,18 @@ def generate_registration_requests(conn, count, batch_size=10000):
         execute_values(
             cur,
             """INSERT INTO registration_requests 
-               (name, city_id, country_id, street, street_number, latitude, longitude, status, owner_id, created_at) 
+               (id, name, city_id, country_id, street, street_number, latitude, longitude, status, owner_id, created_at) 
                VALUES %s""",
             batch_data
         )
         conn.commit()
         total_inserted += len(batch_data)
+    
+    # Update the id_generator for next time
+    cur.execute("""
+        UPDATE id_generator SET next_val = %s WHERE sequence_name = 'registration_requests'
+    """, (next_id,))
+    conn.commit()
     
     elapsed = time.time() - start_time
     print(f"  Completed: {total_inserted:,} requests in {elapsed:.1f}s ({total_inserted/elapsed:.0f}/sec)")
@@ -426,16 +447,16 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
         conn.close()
         
         if not vehicles:
-            print("  ✗ No vehicles found in database. Generate vehicles first with --vehicles")
+            print("No vehicles found in database. Generate vehicles first with --vehicles")
             return 0
         
         if len(vehicles) < num_vehicles:
-            print(f"  ⚠ Only {len(vehicles)} vehicles exist in database (requested {num_vehicles})")
+            print(f"Only {len(vehicles)} vehicles exist in database (requested {num_vehicles})")
         
-        print(f"  Found {len(vehicles)} existing vehicles in PostgreSQL")
+        print(f"Found {len(vehicles)} existing vehicles in PostgreSQL")
         
     except Exception as e:
-        print(f"  ✗ Failed to fetch vehicles from PostgreSQL: {e}")
+        print(f"Failed to fetch vehicles from PostgreSQL: {e}")
         return 0
     
     client = get_influx_client()
@@ -480,44 +501,31 @@ def generate_influx_vehicle_data(num_vehicles=100, years=5, readings_per_day=144
                 is_online = random.random() < 0.2
                 distance = random.uniform(0.1, 1.0) if is_online else 0.0
             
-            total_distance += distance
-            daily_distance += distance
-            
-            # Update position
-            if is_online and distance > 0:
-                lat += random.uniform(-0.01, 0.01)
-                lon += random.uniform(-0.01, 0.01)
-                # Keep within bounds
-                lat = max(42.0, min(46.2, lat))
-                lon = max(18.8, min(23.0, lon))
-            
-            timestamp = current_time
-            
-            # Create distance point
-            point_distance = Point("vehicle_distance") \
-                .tag("vehicleId", str(vehicle_id)) \
-                .tag("licensePlate", license_plate) \
-                .field("distance", distance) \
-                .time(timestamp, WritePrecision.MS)
-            points.append(point_distance)
-            
-            # Create availability point
-            point_availability = Point("vehicle_availability") \
-                .tag("vehicleId", str(vehicle_id)) \
-                .tag("licensePlate", license_plate) \
-                .field("online", 1 if is_online else 0) \
-                .time(timestamp, WritePrecision.MS)
-            points.append(point_availability)
-            
-            # Create location point (less frequently, every 10 readings)
-            if len(points) % 20 == 0:
-                point_location = Point("vehicle_location") \
+            # Only generate data when vehicle is online (vehicles don't send telemetry when offline)
+            if is_online:
+                total_distance += distance
+                daily_distance += distance
+                
+                # Update position
+                if distance > 0:
+                    lat += random.uniform(-0.01, 0.01)
+                    lon += random.uniform(-0.01, 0.01)
+                    # Keep within bounds
+                    lat = max(42.0, min(46.2, lat))
+                    lon = max(18.8, min(23.0, lon))
+                
+                timestamp = current_time
+                
+                # Create single combined telemetry point with all fields
+                point = Point("vehicle_telemetry") \
                     .tag("vehicleId", str(vehicle_id)) \
                     .tag("licensePlate", license_plate) \
+                    .field("online", 1) \
+                    .field("distance", distance) \
                     .field("latitude", lat) \
                     .field("longitude", lon) \
                     .time(timestamp, WritePrecision.MS)
-                points.append(point_location)
+                points.append(point)
             
             # Write batch
             if len(points) >= batch_size:
@@ -597,7 +605,7 @@ Examples:
     # Check if anything was requested
     if not any([args.vehicles, args.managers, args.customers, args.requests, args.influx_vehicles]):
         parser.print_help()
-        print("\n⚠️  No data generation requested. Use --help for options.")
+        print("\nNo data generation requested. Use --help for options.")
         return
     
     print("=" * 70)
@@ -608,7 +616,7 @@ Examples:
     
     # PostgreSQL data generation
     if not args.influx_only and any([args.vehicles, args.managers, args.customers, args.requests]):
-        print("\n📊 PostgreSQL Data Generation")
+        print("\nPostgreSQL Data Generation")
         print("-" * 40)
         
         try:
@@ -631,20 +639,21 @@ Examples:
                 generate_registration_requests(conn, args.requests, args.batch_size)
             
             conn.close()
-            print("✓ PostgreSQL data generation complete")
+            print("PostgreSQL data generation complete")
             
         except Exception as e:
-            print(f"✗ PostgreSQL error: {e}")
+            print(f"PostgreSQL error: {e}")
             import traceback
             traceback.print_exc()
     
     # InfluxDB data generation
     if args.influx_vehicles > 0:
-        print("\n📈 InfluxDB Data Generation")
+        print("\nInfluxDB Data Generation")
         print("-" * 40)
         
         try:
-            expected_records = int(args.influx_vehicles * args.influx_years * 365.25 * args.influx_readings * 2.5)
+            # Formula from specification: 100 vehicles * 5 years * 365.25 days * 144 readings/day = 26,298,000
+            expected_records = int(args.influx_vehicles * args.influx_years * 365.25 * args.influx_readings)
             print(f"  Target: ~{expected_records:,} records")
             print(f"  Vehicles: {args.influx_vehicles}")
             print(f"  Time span: {args.influx_years} years")
