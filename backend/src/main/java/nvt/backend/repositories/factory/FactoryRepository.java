@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ public interface FactoryRepository extends JpaRepository<Factory, Long> {
             "LEFT JOIN FETCH f.country " +
             "LEFT JOIN FETCH f.city " +
             "LEFT JOIN FETCH f.images " +
+            "LEFT JOIN FETCH f.products " +
             "WHERE f.id = :id")
     Optional<Factory> findByIdWithDetails(@Param("id") Long id);
 
@@ -29,6 +31,20 @@ public interface FactoryRepository extends JpaRepository<Factory, Long> {
             "LEFT JOIN FETCH f.images " +
             "WHERE f.id IN :ids")
     List<Factory> findAllByIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT DISTINCT f FROM Factory f " +
+            "LEFT JOIN FETCH f.country " +
+            "LEFT JOIN FETCH f.city " +
+            "LEFT JOIN FETCH f.products " +
+            "WHERE f.id IN :ids")
+    List<Factory> findAllByIdsWithDetails(@Param("ids") List<Long> ids);
+
+    @Query("SELECT DISTINCT f FROM Factory f " +
+            "LEFT JOIN FETCH f.country " +
+            "LEFT JOIN FETCH f.city " +
+            "LEFT JOIN FETCH f.products " +
+            "WHERE f.active = true")
+    List<Factory> findAllActiveWithDetails();
 
     @Query("SELECT f FROM Factory f WHERE f.id IN :ids")
     Set<Factory> findByIdIn(@Param("ids") List<Long> ids);
@@ -44,4 +60,22 @@ public interface FactoryRepository extends JpaRepository<Factory, Long> {
 
     @Query("SELECT f FROM Factory f WHERE f.active = true ORDER BY f.name")
     List<Factory> findAllActiveOrderByName();
+
+    @Query("SELECT f FROM Factory f " +
+            "LEFT JOIN FETCH f.country " +
+            "LEFT JOIN FETCH f.city " +
+            "WHERE f.active = true AND LOWER(f.name) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Factory> searchByName(@Param("query") String query);
+
+    boolean existsByName(String name);
+
+    long countByActiveTrue();
+
+    @Query("SELECT f FROM Factory f WHERE f.isOnline = true AND f.lastHeartbeat < :threshold")
+    List<Factory> findOnlineFactoriesWithOldHeartbeat(@Param("threshold") LocalDateTime threshold);
+
+    @Query("SELECT f FROM Factory f " +
+            "LEFT JOIN FETCH f.images " +
+            "WHERE EXISTS (SELECT img FROM FactoryImage img WHERE img.factory = f AND img.id = :imageId)")
+    Optional<Factory> findByImageId(@Param("imageId") Long imageId);
 }

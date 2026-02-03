@@ -3,7 +3,9 @@ package nvt.backend.model.product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import nvt.backend.model.factory.Factory;
 import org.hibernate.annotations.BatchSize;
 
@@ -25,6 +27,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"factories", "images"})
+@ToString(exclude = {"factories", "images"})
 public class Product {
 
     @Id

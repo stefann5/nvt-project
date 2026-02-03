@@ -1,0 +1,241 @@
+<p-toast></p-toast>
+
+<div class="flex justify-content-center p-4">
+  <div class="w-full" style="max-width: 900px;">
+    <p-button
+      label="Back to Factories"
+      icon="pi pi-arrow-left"
+      [outlined]="true"
+      (onClick)="goBack()"
+      class="mb-3">
+    </p-button>
+
+    <div class="flex justify-content-center p-4" *ngIf="loading">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+    </div>
+
+    <p-card [header]="isEditMode ? 'Edit Factory' : 'Add New Factory'" *ngIf="!loading">
+      <form [formGroup]="factoryForm" (ngSubmit)="onSubmit()">
+
+        <div class="flex flex-column gap-2 mb-4">
+          <label for="name" class="font-semibold">Factory Name *</label>
+          <input
+            pInputText
+            id="name"
+            formControlName="name"
+            placeholder="e.g. Main Production Facility"
+            class="w-full" />
+          @if (factoryForm.get('name')?.invalid && factoryForm.get('name')?.touched) {
+            <small class="text-red-500">Name is required (min. 2 characters)</small>
+          }
+        </div>
+
+        <div class="flex flex-column gap-2 mb-4">
+          <label for="description" class="font-semibold">Description</label>
+          <textarea
+            pTextarea
+            id="description"
+            formControlName="description"
+            placeholder="Enter factory description..."
+            rows="3"
+            class="w-full">
+          </textarea>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4 class="mt-0 mb-3">Location</h4>
+
+        <div class="grid mb-4">
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label for="country" class="font-semibold">Country *</label>
+              <p-select
+                id="country"
+                [options]="countries"
+                formControlName="country"
+                optionLabel="name"
+                placeholder="Select a country"
+                (onChange)="onCountryChange($event)"
+                class="w-full"
+                styleClass="w-full">
+              </p-select>
+              @if (factoryForm.get('country')?.invalid && factoryForm.get('country')?.touched) {
+                <small class="text-red-500">Country is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label for="city" class="font-semibold">City *</label>
+              <p-select
+                id="city"
+                [options]="cities"
+                formControlName="city"
+                optionLabel="name"
+                placeholder="Select a city"
+                [disabled]="!selectedCountry"
+                class="w-full"
+                styleClass="w-full">
+              </p-select>
+              @if (factoryForm.get('city')?.invalid && factoryForm.get('city')?.touched) {
+                <small class="text-red-500">City is required</small>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid mb-4">
+          <div class="col-12 md:col-8">
+            <div class="flex flex-column gap-2">
+              <label for="street" class="font-semibold">Street *</label>
+              <input
+                pInputText
+                id="street"
+                formControlName="street"
+                placeholder="e.g. Industrial Boulevard"
+                class="w-full" />
+              @if (factoryForm.get('street')?.invalid && factoryForm.get('street')?.touched) {
+                <small class="text-red-500">Street is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 md:col-4">
+            <div class="flex flex-column gap-2">
+              <label for="streetNumber" class="font-semibold">Number</label>
+              <input
+                pInputText
+                id="streetNumber"
+                formControlName="streetNumber"
+                placeholder="e.g. 123"
+                class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="mb-4">
+          <label class="font-semibold block mb-2">Location on Map *</label>
+          <p class="text-500 text-sm mb-3">Click on the map to mark the factory location or use the search.</p>
+          
+          @if (locationSelected) {
+            <p-message severity="success" class="mb-3 w-full">
+              Location selected: {{ selectedStreet || 'Lat: ' + selectedLatitude + ', Lng: ' + selectedLongitude }}
+            </p-message>
+          } @else {
+            <p-message severity="warn" class="mb-3 w-full">
+              Location not selected. Click on the map to select a location.
+            </p-message>
+          }
+          
+          <div class="border-1 border-round surface-border overflow-hidden" style="height: 400px;">
+            <app-map 
+              [showSearch]="true" 
+              (addressSelected)="onAddressSelected($event)">
+            </app-map>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4 class="mt-0 mb-3">Images</h4>
+
+        <!-- Existing Images (Edit Mode) -->
+        <div *ngIf="isEditMode && existingImages.length > 0" class="mb-4">
+          <label class="font-semibold block mb-2">Existing Images</label>
+          <div class="flex flex-wrap gap-3">
+            <div *ngFor="let image of existingImages" class="relative">
+              <div 
+                class="border-round overflow-hidden" 
+                [class.opacity-50]="isMarkedForDeletion(image.id)"
+                style="width: 150px; height: 100px;">
+                <img [src]="image.url" [alt]="image.originalName" class="w-full h-full" style="object-fit: cover;">
+              </div>
+              <div class="mt-1 text-sm text-overflow-ellipsis overflow-hidden white-space-nowrap" style="max-width: 150px;">
+                {{ image.originalName }}
+              </div>
+              <p-button
+                *ngIf="!isMarkedForDeletion(image.id)"
+                icon="pi pi-trash"
+                severity="danger"
+                [rounded]="true"
+                size="small"
+                class="absolute"
+                [style]="{'top': '-8px', 'right': '-8px'}"
+                (onClick)="markImageForDeletion(image.id)">
+              </p-button>
+              <p-button
+                *ngIf="isMarkedForDeletion(image.id)"
+                icon="pi pi-undo"
+                severity="success"
+                [rounded]="true"
+                size="small"
+                class="absolute"
+                [style]="{'top': '-8px', 'right': '-8px'}"
+                (onClick)="restoreImage(image.id)">
+              </p-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Images Upload -->
+        <div class="mb-4">
+          <label class="font-semibold block mb-2">{{ isEditMode ? 'Add New Images' : 'Factory Images *' }}</label>
+          <p-fileUpload
+            name="images"
+            [multiple]="true"
+            accept="image/*"
+            [maxFileSize]="10000000"
+            [auto]="false"
+            [customUpload]="true"
+            (onSelect)="onImageSelect($event)"
+            chooseLabel="Choose Images"
+            [showUploadButton]="false"
+            [showCancelButton]="false">
+            <ng-template pTemplate="content">
+              <div class="flex flex-wrap gap-3 p-3" *ngIf="newImages.length > 0">
+                <div *ngFor="let file of newImages; let i = index" class="relative">
+                  <div class="border-round overflow-hidden bg-gray-100" style="width: 150px; height: 100px;">
+                    <span class="flex align-items-center justify-content-center h-full text-sm text-500">
+                      {{ file.name }}
+                    </span>
+                  </div>
+                  <p-button
+                    icon="pi pi-times"
+                    severity="danger"
+                    [rounded]="true"
+                    size="small"
+                    class="absolute"
+                    [style]="{'top': '-8px', 'right': '-8px'}"
+                    (onClick)="removeNewImage(i)">
+                  </p-button>
+                </div>
+              </div>
+            </ng-template>
+          </p-fileUpload>
+          @if (!isEditMode && newImages.length === 0) {
+            <small class="text-orange-500">At least one image is required</small>
+          }
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="flex justify-content-end gap-2 mt-4">
+          <p-button
+            label="Cancel"
+            [outlined]="true"
+            (onClick)="goBack()">
+          </p-button>
+          <p-button
+            [label]="isEditMode ? 'Update Factory' : 'Create Factory'"
+            type="submit"
+            [loading]="submitting"
+            [disabled]="submitting">
+          </p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

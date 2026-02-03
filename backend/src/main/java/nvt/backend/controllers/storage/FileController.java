@@ -3,9 +3,11 @@ package nvt.backend.controllers.storage;
 import lombok.RequiredArgsConstructor;
 import nvt.backend.model.company.CompanyDocument;
 import nvt.backend.model.company.CompanyImage;
+import nvt.backend.model.factory.FactoryImage;
 import nvt.backend.model.vehicle.VehicleImage;
 import nvt.backend.model.warehouse.WarehouseImage;
 import nvt.backend.repositories.company.RegistrationRequestRepository;
+import nvt.backend.repositories.factory.FactoryRepository;
 import nvt.backend.repositories.vehicle.VehicleRepository;
 import nvt.backend.repositories.warehouse.WarehouseRepository;
 import nvt.backend.services.storage.MinioService;
@@ -26,6 +28,7 @@ public class FileController {
     private final RegistrationRequestRepository registrationRequestRepository;
     private final VehicleRepository vehicleRepository;
     private final WarehouseRepository warehouseRepository;
+    private final FactoryRepository factoryRepository;
 
     @GetMapping("/image/{imageId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
@@ -185,6 +188,51 @@ public class FileController {
         Map<String, Object> response = new HashMap<>();
 
         var imageUrls = warehouse.getImages().stream()
+                .map(img -> Map.of(
+                        "id", img.getId(),
+                        "originalName", img.getOriginalName(),
+                        "url", minioService.getPresignedUrl(img.getMinioBucket(), img.getMinioPath(), 60)
+                ))
+                .toList();
+
+        response.put("images", imageUrls);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/factory-image/{imageId}/url")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    public ResponseEntity<Map<String, String>> getFactoryImageUrl(@PathVariable Long imageId) {
+        var factory = factoryRepository.findByImageId(imageId)
+                .orElseThrow(() -> new RuntimeException("Factory image not found"));
+
+        FactoryImage image = factory.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        String url = minioService.getPresignedUrl(
+                image.getMinioBucket(),
+                image.getMinioPath(),
+                60
+        );
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", url);
+        response.put("originalName", image.getOriginalName());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/factory/{factoryId}/images")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    public ResponseEntity<Map<String, Object>> getFactoryImages(@PathVariable Long factoryId) {
+        var factory = factoryRepository.findByIdWithDetails(factoryId)
+                .orElseThrow(() -> new RuntimeException("Factory not found"));
+
+        Map<String, Object> response = new HashMap<>();
+
+        var imageUrls = factory.getImages().stream()
                 .map(img -> Map.of(
                         "id", img.getId(),
                         "originalName", img.getOriginalName(),
