@@ -15,6 +15,9 @@ import { VehicleDetailComponent } from './components/manager/vehicle-detail/vehi
 import { WarehouseListComponent } from './components/manager/warehouse-list/warehouse-list';
 import { WarehouseFormComponent } from './components/manager/warehouse-form/warehouse-form';
 import { WarehouseDetailComponent } from './components/manager/warehouse-detail/warehouse-detail';
+import { FactoryListComponent } from './components/manager/factory-list/factory-list';
+import { FactoryFormComponent } from './components/manager/factory-form/factory-form';
+import { FactoryDetailComponent } from './components/manager/factory-detail/factory-detail';
 import { CreateOrderComponent } from './components/customer/create-order/create-order';
 import { MyOrdersComponent } from './components/customer/my-orders/my-orders';
 import { ProductCatalogComponent } from './components/customer/product-catalog/product-catalog';
@@ -85,6 +88,26 @@ export const routes: Routes = [
             {
                 path: 'manager/warehouses/:id/edit',
                 component: WarehouseFormComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/factories',
+                component: FactoryListComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/factories/new',
+                component: FactoryFormComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/factories/:id',
+                component: FactoryDetailComponent,
+                canActivate: [ManagerGuard]
+            },
+            {
+                path: 'manager/factories/:id/edit',
+                component: FactoryFormComponent,
                 canActivate: [ManagerGuard]
             },
             {
