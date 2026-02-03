@@ -28,6 +28,13 @@ public class RabbitMQConfig {
     public static final String WAREHOUSE_HEARTBEAT_QUEUE = "warehouse.heartbeat.queue";
     public static final String WAREHOUSE_TEMPERATURE_QUEUE = "warehouse.temperature.queue";
 
+    // Factory exchanges and queues
+    public static final String FACTORY_HEARTBEAT_EXCHANGE = "factory.heartbeat";
+    public static final String FACTORY_PRODUCTION_EXCHANGE = "factory.production";
+
+    public static final String FACTORY_HEARTBEAT_QUEUE = "factory.heartbeat.queue";
+    public static final String FACTORY_PRODUCTION_QUEUE = "factory.production.queue";
+
     // Vehicle exchanges
     @Bean
     public TopicExchange heartbeatExchange() {
@@ -53,6 +60,17 @@ public class RabbitMQConfig {
     @Bean
     public TopicExchange warehouseTemperatureExchange() {
         return new TopicExchange(WAREHOUSE_TEMPERATURE_EXCHANGE);
+    }
+
+    // Factory exchanges
+    @Bean
+    public TopicExchange factoryHeartbeatExchange() {
+        return new TopicExchange(FACTORY_HEARTBEAT_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange factoryProductionExchange() {
+        return new TopicExchange(FACTORY_PRODUCTION_EXCHANGE);
     }
 
     // Vehicle queues
@@ -82,6 +100,17 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(WAREHOUSE_TEMPERATURE_QUEUE).build();
     }
 
+    // Factory queues
+    @Bean
+    public Queue factoryHeartbeatQueue() {
+        return QueueBuilder.durable(FACTORY_HEARTBEAT_QUEUE).build();
+    }
+
+    @Bean
+    public Queue factoryProductionQueue() {
+        return QueueBuilder.durable(FACTORY_PRODUCTION_QUEUE).build();
+    }
+
     // Vehicle bindings
     @Bean
     public Binding heartbeatBinding(Queue heartbeatQueue, TopicExchange heartbeatExchange) {
@@ -107,6 +136,17 @@ public class RabbitMQConfig {
     @Bean
     public Binding warehouseTemperatureBinding(Queue warehouseTemperatureQueue, TopicExchange warehouseTemperatureExchange) {
         return BindingBuilder.bind(warehouseTemperatureQueue).to(warehouseTemperatureExchange).with("warehouse.*.temperature");
+    }
+
+    // Factory bindings
+    @Bean
+    public Binding factoryHeartbeatBinding(Queue factoryHeartbeatQueue, TopicExchange factoryHeartbeatExchange) {
+        return BindingBuilder.bind(factoryHeartbeatQueue).to(factoryHeartbeatExchange).with("factory.*.heartbeat");
+    }
+
+    @Bean
+    public Binding factoryProductionBinding(Queue factoryProductionQueue, TopicExchange factoryProductionExchange) {
+        return BindingBuilder.bind(factoryProductionQueue).to(factoryProductionExchange).with("factory.*.production");
     }
 
     @Bean

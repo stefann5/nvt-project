@@ -3,7 +3,9 @@ package nvt.backend.model.factory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import nvt.backend.model.common.City;
 import nvt.backend.model.common.Country;
 import nvt.backend.model.product.Product;
@@ -22,6 +24,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"products", "images"})
+@ToString(exclude = {"products", "images"})
 public class Factory {
 
     @Id

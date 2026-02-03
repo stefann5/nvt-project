@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CityRepository extends JpaRepository<City, Long> {
     List<City> findByCountryId(Long countryId);
+    List<City> findByCountryIdOrderByNameAsc(Long countryId);
 }
