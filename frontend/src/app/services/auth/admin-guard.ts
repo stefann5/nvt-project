@@ -10,9 +10,11 @@ export class AdminGuard implements CanActivate {
     constructor(private authService: AuthService, private router: Router) { }
   
     canActivate(): boolean {
-      if (this.authService.IsAdmin()) {
+      // Super Admin (S) has admin privileges
+      if (this.authService.IsSuperAdmin()) {
         return true;
       } else {
+        this.router.navigate(['/app']);
         return false;
       }
     }

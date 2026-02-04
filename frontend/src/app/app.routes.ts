@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
 import { Login } from './components/auth/login/login';
 import { Register } from './components/auth/register/register';
+import { ChangePasswordComponent } from './components/auth/change-password/change-password';
 import { Dashboard } from './components/dashboard/dashboard';
 import { AuthGuard } from './services/auth/auth-guard';
+import { PasswordChangeGuard } from './services/auth/password-change-guard';
 import { MapComponent } from './components/map/map.component';
 import { RegisterRequestForm } from './components/register-request-form/register-request-form';
 import { ManagerGuard } from './services/auth/manager-guard';
@@ -26,19 +28,34 @@ import { OrderDetailComponent } from './components/manager/order-detail/order-de
 import { ProductListComponent } from './components/manager/product-list/product-list';
 import { ProductFormComponent } from './components/manager/product-form/product-form';
 import { ProductDetailComponent } from './components/manager/product-detail/product-detail';
+import { AdminGuard } from './services/auth/admin-guard';
+import { ManagerListComponent } from './components/admin/manager-list/manager-list';
+import { ManagerFormComponent } from './components/admin/manager-form/manager-form';
 
 export const routes: Routes = [
     { path: '', component: Login },
     { path: 'register', component: Register },
+    { path: 'change-password', component: ChangePasswordComponent },
     {
         path: 'app',
         component: Dashboard,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, PasswordChangeGuard],
         children: [
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             {
                 path: 'home',
                 component: RegisterRequestForm
+            },
+            // Admin routes (Super Admin only)
+            {
+                path: 'admin/managers',
+                component: ManagerListComponent,
+                canActivate: [AdminGuard]
+            },
+            {
+                path: 'admin/managers/new',
+                component: ManagerFormComponent,
+                canActivate: [AdminGuard]
             },
             {
                 path: 'manager/requests',

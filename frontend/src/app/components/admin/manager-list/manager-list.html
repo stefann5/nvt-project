@@ -1,0 +1,136 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="p-4">
+    <!-- Header -->
+    <div class="flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="m-0 text-2xl font-bold">Managers</h2>
+            <p class="text-500 mt-1 mb-0">Manage system managers</p>
+        </div>
+        <p-button 
+            label="Add Manager" 
+            icon="pi pi-plus" 
+            (onClick)="navigateToCreate()">
+        </p-button>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-4">
+        <span class="p-input-icon-left w-full md:w-30rem">
+            <i class="pi pi-search"></i>
+            <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="searchQuery"
+                (input)="onSearch()"
+                placeholder="Search by name, surname or email..." 
+                class="w-full" />
+        </span>
+    </div>
+
+    <!-- Table -->
+    <p-table 
+        [value]="managers" 
+        [lazy]="true"
+        [paginator]="true" 
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [first]="first"
+        (onPage)="onPageChange($event)"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} managers"
+        styleClass="p-datatable-striped">
+        
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 60px"></th>
+                <th pSortableColumn="name">Name</th>
+                <th pSortableColumn="username">Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th style="width: 150px">Actions</th>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-manager>
+            <tr>
+                <td>
+                    <p-avatar 
+                        *ngIf="manager.photo; else initials"
+                        [image]="manager.photo" 
+                        shape="circle"
+                        size="large">
+                    </p-avatar>
+                    <ng-template #initials>
+                        <p-avatar 
+                            [label]="getInitials(manager)" 
+                            shape="circle"
+                            size="large"
+                            [style]="{'background-color': '#2196F3', 'color': '#ffffff'}">
+                        </p-avatar>
+                    </ng-template>
+                </td>
+                <td>
+                    <span class="font-semibold">{{ manager.name }} {{ manager.surname }}</span>
+                </td>
+                <td>{{ manager.username }}</td>
+                <td>{{ manager.phoneNumber || '-' }}</td>
+                <td>
+                    <p-tag 
+                        [value]="getRoleLabel(manager.role)" 
+                        [severity]="getRoleSeverity(manager.role)">
+                    </p-tag>
+                </td>
+                <td>
+                    <p-tag 
+                        [value]="getStatusLabel(manager)" 
+                        [severity]="getStatusSeverity(manager)">
+                    </p-tag>
+                </td>
+                <td>
+                    <div class="flex gap-2">
+                        <p-button 
+                            *ngIf="!manager.blocked && manager.role !== 'S'"
+                            icon="pi pi-ban" 
+                            [rounded]="true" 
+                            [text]="true" 
+                            severity="danger"
+                            pTooltip="Block Manager"
+                            (onClick)="confirmBlock(manager)">
+                        </p-button>
+                        <p-button 
+                            *ngIf="manager.blocked"
+                            icon="pi pi-check-circle" 
+                            [rounded]="true" 
+                            [text]="true" 
+                            severity="success"
+                            pTooltip="Unblock Manager"
+                            (onClick)="confirmUnblock(manager)">
+                        </p-button>
+                        <p-button 
+                            *ngIf="manager.role === 'S'"
+                            icon="pi pi-shield" 
+                            [rounded]="true" 
+                            [text]="true" 
+                            [disabled]="true"
+                            pTooltip="Super Admin cannot be blocked">
+                        </p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center p-4">
+                    <i class="pi pi-users text-4xl text-300 mb-3 block"></i>
+                    <span class="text-500">No managers found</span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

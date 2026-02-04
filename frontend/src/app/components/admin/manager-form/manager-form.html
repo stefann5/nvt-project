@@ -1,0 +1,155 @@
+<p-toast></p-toast>
+
+<div class="p-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="m-0 text-2xl font-bold">Add New Manager</h2>
+        <p class="text-500 mt-1 mb-0">Create a new manager account</p>
+    </div>
+
+    <p-card>
+        <form [formGroup]="managerForm" (ngSubmit)="onSubmit()">
+            <div class="grid">
+                <!-- Profile Image -->
+                <div class="col-12 md:col-4 flex flex-column align-items-center">
+                    <div class="mb-3">
+                        <h4 class="m-0 mb-2">Profile Photo</h4>
+                        <p class="text-500 text-sm m-0">Upload a profile picture (optional)</p>
+                    </div>
+                    
+                    <div *ngIf="imagePreview; else uploadPlaceholder" class="relative">
+                        <img [src]="imagePreview" alt="Profile Preview" 
+                             class="border-circle" 
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                        <p-button 
+                            icon="pi pi-times" 
+                            [rounded]="true" 
+                            severity="danger"
+                            class="absolute"
+                            [style]="{'top': '-10px', 'right': '-10px'}"
+                            (onClick)="removeImage()">
+                        </p-button>
+                    </div>
+                    
+                    <ng-template #uploadPlaceholder>
+                        <div class="border-circle bg-100 flex align-items-center justify-content-center"
+                             style="width: 150px; height: 150px;">
+                            <i class="pi pi-user text-5xl text-400"></i>
+                        </div>
+                    </ng-template>
+
+                    <p-fileUpload 
+                        *ngIf="!imagePreview"
+                        mode="basic" 
+                        accept="image/*" 
+                        [maxFileSize]="5000000"
+                        chooseLabel="Choose Image"
+                        chooseIcon="pi pi-upload"
+                        class="mt-3"
+                        (onSelect)="onFileSelect($event)">
+                    </p-fileUpload>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="col-12 md:col-8">
+                    <div class="grid">
+                        <!-- Email -->
+                        <div class="col-12">
+                            <label for="username" class="block font-semibold mb-2">
+                                Email <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                pInputText 
+                                id="username" 
+                                formControlName="username"
+                                placeholder="manager@company.com"
+                                class="w-full"
+                                [class.ng-invalid]="isUsernameInvalid"
+                                [class.ng-dirty]="isUsernameInvalid" />
+                            <small class="p-error block mt-1" *ngIf="isUsernameInvalid">
+                                {{ usernameErrorMessage }}
+                            </small>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="col-12 md:col-6">
+                            <label for="name" class="block font-semibold mb-2">
+                                First Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                pInputText 
+                                id="name" 
+                                formControlName="name"
+                                placeholder="John"
+                                class="w-full"
+                                [class.ng-invalid]="isNameInvalid"
+                                [class.ng-dirty]="isNameInvalid" />
+                            <small class="p-error block mt-1" *ngIf="isNameInvalid">
+                                {{ nameErrorMessage }}
+                            </small>
+                        </div>
+
+                        <!-- Surname -->
+                        <div class="col-12 md:col-6">
+                            <label for="surname" class="block font-semibold mb-2">
+                                Last Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                pInputText 
+                                id="surname" 
+                                formControlName="surname"
+                                placeholder="Doe"
+                                class="w-full"
+                                [class.ng-invalid]="isSurnameInvalid"
+                                [class.ng-dirty]="isSurnameInvalid" />
+                            <small class="p-error block mt-1" *ngIf="isSurnameInvalid">
+                                {{ surnameErrorMessage }}
+                            </small>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-12">
+                            <label for="phoneNumber" class="block font-semibold mb-2">
+                                Phone Number
+                            </label>
+                            <input 
+                                pInputText 
+                                id="phoneNumber" 
+                                formControlName="phoneNumber"
+                                placeholder="+1 234 567 8900"
+                                class="w-full" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Message -->
+            <div class="mt-4 p-3 border-round bg-blue-50 border-1 border-blue-200">
+                <div class="flex align-items-center">
+                    <i class="pi pi-info-circle text-blue-500 mr-2"></i>
+                    <span class="text-blue-700">
+                        A temporary password will be generated and sent to the manager's email. 
+                        They will be required to change it upon first login.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-content-end gap-2 mt-4">
+                <p-button 
+                    label="Cancel" 
+                    severity="secondary" 
+                    [outlined]="true"
+                    (onClick)="cancel()">
+                </p-button>
+                <p-button 
+                    type="submit" 
+                    label="Create Manager" 
+                    icon="pi pi-check"
+                    [loading]="isLoading"
+                    [disabled]="managerForm.invalid || isLoading">
+                </p-button>
+            </div>
+        </form>
+    </p-card>
+</div>
