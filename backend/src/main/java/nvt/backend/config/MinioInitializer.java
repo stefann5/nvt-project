@@ -25,11 +25,15 @@ public class MinioInitializer implements CommandLineRunner {
     @Value("${minio.bucket.vehicle-images}")
     private String vehicleImagesBucket;
 
+    @Value("${minio.bucket.profile-images:profile-images}")
+    private String profileImagesBucket;
+
     @Override
     public void run(String... args) {
         createBucketIfNotExists(companyImagesBucket);
         createBucketIfNotExists(companyDocumentsBucket);
         createBucketIfNotExists(vehicleImagesBucket);
+        createBucketIfNotExists(profileImagesBucket);
     }
 
     private void createBucketIfNotExists(String bucketName) {

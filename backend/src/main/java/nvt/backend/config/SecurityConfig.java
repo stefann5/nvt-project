@@ -1,6 +1,7 @@
 package nvt.backend.config;
 
 import nvt.backend.filter.JwtAuthenticationFilter;
+import nvt.backend.filter.PasswordChangeRequiredFilter;
 import nvt.backend.services.auth.UserDetailsServiceImp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +28,16 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImp userDetailsServiceImp;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final PasswordChangeRequiredFilter passwordChangeRequiredFilter;
     private final CustomLogoutHandler logoutHandler;
 
     public SecurityConfig(UserDetailsServiceImp userDetailsServiceImp,
                           JwtAuthenticationFilter jwtAuthenticationFilter,
+                          PasswordChangeRequiredFilter passwordChangeRequiredFilter,
                           CustomLogoutHandler logoutHandler) {
         this.userDetailsServiceImp = userDetailsServiceImp;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.passwordChangeRequiredFilter = passwordChangeRequiredFilter;
         this.logoutHandler = logoutHandler;
     }
 
@@ -83,6 +87,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/registration-requests")
                         .hasAnyAuthority("CUSTOMER", "MANAGER", "ADMIN")
 
+                        .requestMatchers("/api/v1/managers/**")
+                        .hasAuthority("ADMIN")
+
+                        .requestMatchers("/api/v1/auth/change-password")
+                        .authenticated()
+
                         .anyRequest()
                         .permitAll()
                 )
@@ -93,6 +103,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(passwordChangeRequiredFilter, JwtAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)

@@ -8,8 +8,10 @@ import nvt.backend.exceptions.UserAuthenticationException;
 import nvt.backend.model.auth.Role;
 import nvt.backend.model.auth.Token;
 import nvt.backend.model.user.Customer;
+import nvt.backend.model.user.Manager;
 import nvt.backend.model.user.User;
 import nvt.backend.repositories.auth.TokenRepository;
+import nvt.backend.repositories.user.ManagerRepository;
 import nvt.backend.repositories.user.UserRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -34,7 +37,9 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final ManagerRepository managerRepository;
     private final EmailService emailService;
+    private final UserDetailsServiceImp userDetailsService;
 
     private String generateSecurePassword() {
         SecureRandom secureRandom = new SecureRandom();
@@ -118,6 +123,17 @@ public class AuthenticationService {
             );
         }
 
+        // Check if manager is blocked
+        if (user instanceof Manager) {
+            Manager manager = (Manager) user;
+            if (manager.isBlocked()) {
+                throw new UserAuthenticationException(
+                        "Your account has been blocked",
+                        UserAuthenticationException.ErrorType.ACCOUNT_BLOCKED
+                );
+            }
+        }
+
         // Generate tokens for the user
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -128,7 +144,13 @@ public class AuthenticationService {
         // Save new tokens
         saveUserToken(accessToken, refreshToken, user);
 
-        return new LoginResponseDTO(accessToken, refreshToken);
+        // Check if manager must change password
+        boolean mustChangePassword = false;
+        if (user instanceof Manager) {
+            mustChangePassword = ((Manager) user).isMustChangePassword();
+        }
+
+        return new LoginResponseDTO(accessToken, refreshToken, mustChangePassword);
     }
 
 
@@ -217,6 +239,55 @@ public class AuthenticationService {
                     .body(new AuthenticationResponse(null, null, "Token refresh failed"));
         }
     }
+
+    @Transactional
+    public void changePassword(ChangePasswordDTO request) {
+        // Get current authenticated user
+        org.springframework.security.core.Authentication authentication = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String username = authentication.getName();
+        User user = repository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        System.out.println("Found user: " + user.getUsername() + ", class: " + user.getClass().getSimpleName());
+        System.out.println("Is Manager instance: " + (user instanceof Manager));
+
+        // Validate current password
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        // Validate new password matches confirmation
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("New password and confirmation do not match");
+        }
+
+        // Validate new password is different from current
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new RuntimeException("New password must be different from current password");
+        }
+
+        // Update password
+        String encodedPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(encodedPassword);
+
+        // If user is a Manager, set mustChangePassword to false and save
+        if (user instanceof Manager) {
+            Manager manager = (Manager) user;
+            manager.setMustChangePassword(false);
+            repository.saveAndFlush(manager);
+        } else {
+            repository.saveAndFlush(user);
+        }
+        
+        // IMPORTANT: Clear the user from cache so new password is used for authentication
+        userDetailsService.evictUserFromCache(username);
+        
+        System.out.println("Password changed successfully for: " + username);
+    }
 }
-
-
