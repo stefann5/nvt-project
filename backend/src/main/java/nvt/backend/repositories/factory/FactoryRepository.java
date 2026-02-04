@@ -78,4 +78,24 @@ public interface FactoryRepository extends JpaRepository<Factory, Long> {
             "LEFT JOIN FETCH f.images " +
             "WHERE EXISTS (SELECT img FROM FactoryImage img WHERE img.factory = f AND img.id = :imageId)")
     Optional<Factory> findByImageId(@Param("imageId") Long imageId);
+
+    @Query(value = "SELECT f.id FROM factories f " +
+            "WHERE f.active = true " +
+            "AND (:name IS NULL OR f.name ILIKE CONCAT('%', :name, '%')) " +
+            "AND (:countryId IS NULL OR f.country_id = :countryId) " +
+            "AND (:cityId IS NULL OR f.city_id = :cityId) " +
+            "AND (:online IS NULL OR f.is_online = :online)",
+            countQuery = "SELECT COUNT(f.id) FROM factories f " +
+                    "WHERE f.active = true " +
+                    "AND (:name IS NULL OR f.name ILIKE CONCAT('%', :name, '%')) " +
+                    "AND (:countryId IS NULL OR f.country_id = :countryId) " +
+                    "AND (:cityId IS NULL OR f.city_id = :cityId) " +
+                    "AND (:online IS NULL OR f.is_online = :online)",
+            nativeQuery = true)
+    Page<Long> filterFactoryIds(
+            @Param("name") String name,
+            @Param("countryId") Long countryId,
+            @Param("cityId") Long cityId,
+            @Param("online") Boolean online,
+            Pageable pageable);
 }

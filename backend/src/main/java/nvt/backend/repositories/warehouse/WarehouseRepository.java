@@ -120,4 +120,40 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     @Modifying
     @Query("UPDATE Warehouse w SET w.online = false WHERE w.online = true AND w.lastHeartbeat < :threshold")
     int markWarehousesOffline(@Param("threshold") LocalDateTime threshold);
+
+    /**
+     * Find warehouse in the same city that stores a specific product.
+     * Used when factory produces items and needs to store them in a nearby warehouse.
+     */
+    @Query("SELECT DISTINCT w FROM Warehouse w " +
+           "JOIN w.sectors s " +
+           "JOIN s.inventory i " +
+           "WHERE w.city.id = :cityId " +
+           "AND i.product.id = :productId " +
+           "AND w.active = true")
+    Optional<Warehouse> findByCityAndProduct(@Param("cityId") Long cityId, 
+                                              @Param("productId") Long productId);
+
+    /**
+     * Find any active warehouse in a specific city.
+     * Fallback when no warehouse with the product is found.
+     */
+    @Query("SELECT w FROM Warehouse w " +
+           "WHERE w.city.id = :cityId " +
+           "AND w.active = true " +
+           "ORDER BY w.id ASC")
+    List<Warehouse> findActiveByCityId(@Param("cityId") Long cityId);
+
+    /**
+     * Find any warehouse (globally) that stores a specific product and has available capacity.
+     * Returns warehouses ordered by available capacity (most space first).
+     */
+    @Query("SELECT DISTINCT w FROM Warehouse w " +
+           "JOIN w.sectors s " +
+           "JOIN s.inventory i " +
+           "WHERE i.product.id = :productId " +
+           "AND w.active = true " +
+           "AND (s.capacity IS NULL OR s.capacity >= (SELECT COALESCE(SUM(inv.quantity), 0) FROM Inventory inv WHERE inv.sector.id = s.id) + :requiredQuantity)")
+    List<Warehouse> findByProductWithAvailableCapacity(@Param("productId") Long productId, 
+                                                        @Param("requiredQuantity") Integer requiredQuantity);
 }

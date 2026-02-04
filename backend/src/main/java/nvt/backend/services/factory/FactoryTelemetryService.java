@@ -103,8 +103,6 @@ public class FactoryTelemetryService {
 
         List<FactoryProductionStatisticsDTO.ProductionDataPoint> dataPoints = new ArrayList<>();
         long totalQuantity = 0;
-        int minQuantity = Integer.MAX_VALUE;
-        int maxQuantity = Integer.MIN_VALUE;
         int dataPointCount = 0;
 
         try {
@@ -139,8 +137,6 @@ public class FactoryTelemetryService {
                         Integer sumQuantity = ((Number) record.getValue()).intValue();
 
                         totalQuantity += sumQuantity;
-                        minQuantity = Math.min(minQuantity, sumQuantity);
-                        maxQuantity = Math.max(maxQuantity, sumQuantity);
                         dataPointCount++;
 
                         LocalDate pointEndDate = switch (aggregationType) {
@@ -179,9 +175,6 @@ public class FactoryTelemetryService {
                 .aggregationType(aggregationType)
                 .dataPoints(dataPoints)
                 .totalQuantity(totalQuantity)
-                .averageQuantity(Math.round(avgQuantity * 100.0) / 100.0)
-                .minQuantity(minQuantity == Integer.MAX_VALUE ? 0 : minQuantity)
-                .maxQuantity(maxQuantity == Integer.MIN_VALUE ? 0 : maxQuantity)
                 .dataPointCount(dataPointCount)
                 .build();
     }

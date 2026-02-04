@@ -92,6 +92,18 @@ public class FactoryController {
         return ResponseEntity.ok(factoryService.searchPaged(query, page, size));
     }
 
+    @GetMapping("/filter")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
+    public ResponseEntity<PageResponseDTO<FactoryListDTO>> filterFactories(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long countryId,
+            @RequestParam(required = false) Long cityId,
+            @RequestParam(required = false) Boolean online,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(factoryService.filterFactories(name, countryId, cityId, online, page, size));
+    }
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public ResponseEntity<?> update(

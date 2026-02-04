@@ -22,9 +22,6 @@ public class FactoryProductionStatisticsDTO {
     private String aggregationType;
     private List<ProductionDataPoint> dataPoints;
     private Long totalQuantity;
-    private Double averageQuantity;
-    private Integer minQuantity;
-    private Integer maxQuantity;
     private Integer dataPointCount;
 
     @Data
