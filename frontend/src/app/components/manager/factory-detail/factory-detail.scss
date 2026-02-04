@@ -6,3 +6,19 @@
   background: transparent;
   border: none;
 }
+
+.selected-row {
+  background-color: var(--p-highlight-background) !important;
+  color: var(--p-highlight-text-color) !important;
+}
+
+:host ::ng-deep {
+  .p-datatable .p-datatable-tbody > tr.selected-row {
+    background-color: var(--p-highlight-background);
+    color: var(--p-highlight-text-color);
+  }
+  
+  .p-datatable .p-datatable-tbody > tr:hover {
+    cursor: pointer;
+  }
+}

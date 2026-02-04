@@ -2,42 +2,108 @@
 <p-confirmDialog></p-confirmDialog>
 
 <div class="flex justify-content-center p-4">
-  <p-card class="w-full" [style]="{'max-width': '1200px'}">
+  <p-card class="w-full" [style]="{'max-width': '1400px'}">
     <ng-template pTemplate="header">
       <div class="flex justify-content-between align-items-center p-3 flex-wrap gap-3">
         <h2 class="m-0">Factories</h2>
-        <div class="flex gap-2 align-items-center flex-wrap">
-          <p-iconfield>
+        <p-button
+          label="Add Factory"
+          icon="pi pi-plus"
+          routerLink="/app/manager/factories/new">
+        </p-button>
+      </div>
+    </ng-template>
+
+    <!-- Filters Section -->
+    <div class="surface-100 border-round p-3 mb-4">
+      <div class="flex align-items-center gap-2 mb-3">
+        <i class="pi pi-filter text-primary"></i>
+        <span class="font-semibold">Filters</span>
+        <p-button 
+          *ngIf="hasActiveFilters()"
+          label="Clear All" 
+          icon="pi pi-times" 
+          [text]="true" 
+          size="small"
+          (onClick)="clearAllFilters()">
+        </p-button>
+      </div>
+      
+      <div class="grid">
+        <!-- Name Search -->
+        <div class="col-12 md:col-3">
+          <label class="block text-500 text-sm mb-2">Name</label>
+          <p-iconfield class="w-full">
             <p-inputicon styleClass="pi pi-search"></p-inputicon>
             <input
               pInputText
-              [(ngModel)]="searchQuery"
-              (input)="onSearch()"
-              placeholder="Search factories..."
-              class="w-full md:w-auto" />
+              [(ngModel)]="filterName"
+              (input)="onFilterChange()"
+              placeholder="Search by name..."
+              class="w-full" />
           </p-iconfield>
-          <p-button
-            *ngIf="searchQuery"
-            icon="pi pi-times"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="clearSearch()">
-          </p-button>
-          <p-button
-            label="Add Factory"
-            icon="pi pi-plus"
-            routerLink="/app/manager/factories/new">
-          </p-button>
+        </div>
+
+        <!-- Country Filter -->
+        <div class="col-12 md:col-3">
+          <label class="block text-500 text-sm mb-2">Country</label>
+          <p-select
+            [options]="countries"
+            [(ngModel)]="selectedCountry"
+            optionLabel="name"
+            placeholder="All Countries"
+            [showClear]="true"
+            (onChange)="onCountryChange($event)"
+            class="w-full"
+            styleClass="w-full">
+          </p-select>
+        </div>
+
+        <!-- City Filter -->
+        <div class="col-12 md:col-3">
+          <label class="block text-500 text-sm mb-2">City</label>
+          <p-select
+            [options]="cities"
+            [(ngModel)]="selectedCity"
+            optionLabel="name"
+            placeholder="All Cities"
+            [showClear]="true"
+            [disabled]="!selectedCountry"
+            (onChange)="onFilterChange()"
+            class="w-full"
+            styleClass="w-full">
+          </p-select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-12 md:col-3">
+          <label class="block text-500 text-sm mb-2">Status</label>
+          <p-select
+            [options]="statusOptions"
+            [(ngModel)]="selectedStatus"
+            placeholder="All Statuses"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+            class="w-full"
+            styleClass="w-full">
+          </p-select>
         </div>
       </div>
-    </ng-template>
+    </div>
+
+    <!-- Results summary -->
+    <div class="flex justify-content-between align-items-center mb-3">
+      <span class="text-500">
+        Showing {{ factories.length }} of {{ totalRecords }} factories
+      </span>
+    </div>
 
     <div class="flex justify-content-center p-4" *ngIf="loading">
       <p-progressSpinner strokeWidth="4"></p-progressSpinner>
     </div>
 
     <p-message severity="info" class="w-full" *ngIf="!loading && factories.length === 0">
-      No factories found.
+      No factories found matching your criteria.
     </p-message>
 
     <p-table
@@ -51,29 +117,40 @@
           <th>Location</th>
           <th>Products</th>
           <th>Status</th>
-          <th>Created</th>
+          <th>Last Heartbeat</th>
           <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-factory>
         <tr>
           <td class="font-semibold">{{ factory.name }}</td>
-          <td>{{ factory.cityName }}, {{ factory.countryName }}</td>
-          <td>{{ factory.productCount }}</td>
+          <td>
+            <div class="flex flex-column">
+              <span>{{ factory.cityName }}</span>
+              <span class="text-500 text-sm">{{ factory.countryName }}</span>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="factory.productCount + ' products'" severity="info"></p-tag>
+          </td>
           <td>
             <p-tag
               [severity]="getStatusSeverity(factory.online)"
               [value]="getStatusLabel(factory.online)">
             </p-tag>
           </td>
-          <td>{{ formatDate(factory.createdAt) }}</td>
+          <td>
+            <span [class.text-500]="!factory.lastHeartbeat">
+              {{ formatDate(factory.lastHeartbeat) }}
+            </span>
+          </td>
           <td>
             <div class="flex gap-2">
               <p-button
                 icon="pi pi-eye"
                 [rounded]="true"
                 [text]="true"
-                pTooltip="View Details"
+                pTooltip="View Details & Statistics"
                 [routerLink]="['/app/manager/factories', factory.id]">
               </p-button>
               <p-button

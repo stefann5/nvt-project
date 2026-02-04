@@ -12,6 +12,11 @@ import {
 import { PageResponseDTO } from '../../dto/common/PageResponseDTO';
 import { CountryDTO } from '../../dto/company/CountryDTO';
 import { CityDTO } from '../../dto/company/CityDTO';
+import { 
+  FactoryProductionStatisticsDTO, 
+  FactoryAvailabilityStatisticsDTO, 
+  TimePeriod 
+} from '../../dto/factory/FactoryStatisticsDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -94,5 +99,68 @@ export class FactoryService {
     return this.http.get<{
       images: { id: number; originalName: string; url: string }[];
     }>(`${this.baseUrl}files/factory/${factoryId}/images`);
+  }
+
+  // Statistics endpoints
+  getProductionStatistics(
+    factoryId: number, 
+    productId: number, 
+    period?: TimePeriod,
+    startDate?: string,
+    endDate?: string
+  ): Observable<FactoryProductionStatisticsDTO> {
+    let params = new HttpParams();
+    
+    if (period && period !== 'custom') {
+      params = params.set('period', period);
+    } else if (startDate && endDate) {
+      params = params.set('startDate', startDate).set('endDate', endDate);
+    }
+    
+    return this.http.get<FactoryProductionStatisticsDTO>(
+      `${this.baseUrl}factories/${factoryId}/products/${productId}/production/stats`,
+      { params }
+    );
+  }
+
+  getAvailabilityStatistics(
+    factoryId: number,
+    period?: TimePeriod,
+    startDate?: string,
+    endDate?: string
+  ): Observable<FactoryAvailabilityStatisticsDTO> {
+    let params = new HttpParams();
+    
+    if (period && period !== 'custom') {
+      params = params.set('period', period);
+    } else if (startDate && endDate) {
+      params = params.set('startDate', startDate).set('endDate', endDate);
+    }
+    
+    return this.http.get<FactoryAvailabilityStatisticsDTO>(
+      `${this.baseUrl}factories/${factoryId}/availability/stats`,
+      { params }
+    );
+  }
+
+  // Filtered search
+  searchFiltered(
+    page: number = 0, 
+    size: number = 20,
+    name?: string,
+    countryId?: number,
+    cityId?: number,
+    online?: boolean
+  ): Observable<PageResponseDTO<FactoryListDTO>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (name) params = params.set('name', name);
+    if (countryId) params = params.set('countryId', countryId.toString());
+    if (cityId) params = params.set('cityId', cityId.toString());
+    if (online !== undefined) params = params.set('online', online.toString());
+    
+    return this.http.get<PageResponseDTO<FactoryListDTO>>(`${this.baseUrl}factories/filter`, { params });
   }
 }

@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { FactoryService } from '../../../services/factory/factory.service';
 import { FactoryListDTO } from '../../../dto/factory/FactoryDTO';
 import { PageResponseDTO } from '../../../dto/common/PageResponseDTO';
+import { CountryDTO } from '../../../dto/company/CountryDTO';
+import { CityDTO } from '../../../dto/company/CityDTO';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +21,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
+
+interface StatusOption {
+  label: string;
+  value: boolean;
+}
 
 @Component({
   selector: 'app-factory-list',
@@ -39,7 +47,8 @@ import { TagModule } from 'primeng/tag';
     InputIconModule,
     TooltipModule,
     PaginatorModule,
-    TagModule
+    TagModule,
+    SelectModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './factory-list.html',
@@ -48,14 +57,25 @@ import { TagModule } from 'primeng/tag';
 export class FactoryListComponent implements OnInit {
   factories: FactoryListDTO[] = [];
   loading = false;
-  searchQuery = '';
-  private searchTimeout: any;
+  
+  // Filters
+  filterName = '';
+  selectedCountry: CountryDTO | null = null;
+  selectedCity: CityDTO | null = null;
+  selectedStatus: StatusOption | null = null;
+  
+  countries: CountryDTO[] = [];
+  cities: CityDTO[] = [];
+  statusOptions: StatusOption[] = [
+    { label: 'Online', value: true },
+    { label: 'Offline', value: false }
+  ];
+
+  private filterTimeout: any;
 
   currentPage = 0;
   pageSize = 20;
   totalRecords = 0;
-  sortField = 'id';
-  sortOrder = 'asc';
 
   constructor(
     private factoryService: FactoryService,
@@ -64,68 +84,112 @@ export class FactoryListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadCountries();
     this.loadFactories();
+  }
+
+  loadCountries(): void {
+    this.factoryService.getAllCountries().subscribe({
+      next: (countries) => {
+        this.countries = countries;
+      },
+      error: (err) => {
+        console.error('Failed to load countries', err);
+      }
+    });
+  }
+
+  onCountryChange(event: any): void {
+    this.selectedCity = null;
+    this.cities = [];
+    
+    if (this.selectedCountry) {
+      this.factoryService.getCitiesByCountry(this.selectedCountry.id).subscribe({
+        next: (cities) => {
+          this.cities = cities;
+        },
+        error: (err) => {
+          console.error('Failed to load cities', err);
+        }
+      });
+    }
+    
+    this.onFilterChange();
+  }
+
+  onFilterChange(): void {
+    if (this.filterTimeout) {
+      clearTimeout(this.filterTimeout);
+    }
+
+    this.filterTimeout = setTimeout(() => {
+      this.currentPage = 0;
+      this.loadFactories();
+    }, 300);
   }
 
   loadFactories(): void {
     this.loading = true;
-    this.factoryService.getAllPaged(this.currentPage, this.pageSize, this.sortField, this.sortOrder).subscribe({
-      next: (response: PageResponseDTO<FactoryListDTO>) => {
-        this.factories = response.content;
-        this.totalRecords = response.totalElements;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load factories' });
-        this.loading = false;
-        console.error(err);
-      }
-    });
+    
+    const name = this.filterName.trim() || undefined;
+    const countryId = this.selectedCountry?.id;
+    const cityId = this.selectedCity?.id;
+    const online = this.selectedStatus?.value;
+
+    // Use filtered endpoint if any filter is active
+    if (name || countryId || cityId || online !== undefined) {
+      this.factoryService.searchFiltered(
+        this.currentPage, 
+        this.pageSize, 
+        name, 
+        countryId, 
+        cityId, 
+        online
+      ).subscribe({
+        next: (response: PageResponseDTO<FactoryListDTO>) => {
+          this.factories = response.content;
+          this.totalRecords = response.totalElements;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load factories' });
+          this.loading = false;
+          console.error(err);
+        }
+      });
+    } else {
+      // No filters - use regular paged endpoint
+      this.factoryService.getAllPaged(this.currentPage, this.pageSize).subscribe({
+        next: (response: PageResponseDTO<FactoryListDTO>) => {
+          this.factories = response.content;
+          this.totalRecords = response.totalElements;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load factories' });
+          this.loading = false;
+          console.error(err);
+        }
+      });
+    }
   }
 
   onPageChange(event: any): void {
     this.currentPage = event.page;
     this.pageSize = event.rows;
-    if (this.searchQuery.trim()) {
-      this.performSearch();
-    } else {
-      this.loadFactories();
-    }
+    this.loadFactories();
   }
 
-  onSearch(): void {
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-
-    this.searchTimeout = setTimeout(() => {
-      this.currentPage = 0;
-      if (this.searchQuery.trim()) {
-        this.performSearch();
-      } else {
-        this.loadFactories();
-      }
-    }, 300);
+  hasActiveFilters(): boolean {
+    return !!(this.filterName.trim() || this.selectedCountry || this.selectedCity || this.selectedStatus);
   }
 
-  private performSearch(): void {
-    this.loading = true;
-    this.factoryService.searchPaged(this.searchQuery, this.currentPage, this.pageSize).subscribe({
-      next: (response: PageResponseDTO<FactoryListDTO>) => {
-        this.factories = response.content;
-        this.totalRecords = response.totalElements;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Search failed' });
-        this.loading = false;
-        console.error(err);
-      }
-    });
-  }
-
-  clearSearch(): void {
-    this.searchQuery = '';
+  clearAllFilters(): void {
+    this.filterName = '';
+    this.selectedCountry = null;
+    this.selectedCity = null;
+    this.selectedStatus = null;
+    this.cities = [];
     this.currentPage = 0;
     this.loadFactories();
   }
@@ -156,11 +220,13 @@ export class FactoryListComponent implements OnInit {
   }
 
   formatDate(dateString: string | undefined): string {
-    if (!dateString) return '-';
+    if (!dateString) return 'Never';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
