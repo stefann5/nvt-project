@@ -41,8 +41,8 @@ def get_factories_from_db():
             cursor.execute("""
                 SELECT p.id, p.name 
                 FROM products p
-                JOIN factory_products fp ON fp.product_id = p.id
-                WHERE fp.factory_id = %s AND p.active = true
+                JOIN product_factories pf ON pf.product_id = p.id
+                WHERE pf.factory_id = %s AND p.active = true
             """, (factory_id,))
             products = [{'id': pid, 'name': pname, 'min_quantity': 50, 'max_quantity': 200} 
                        for pid, pname in cursor.fetchall()]

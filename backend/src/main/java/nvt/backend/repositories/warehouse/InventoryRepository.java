@@ -49,6 +49,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     Optional<Inventory> findByProductIdAndWarehouseId(Long productId, Long warehouseId);
 
+    Optional<Inventory> findFirstByProductId(Long productId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM Inventory i WHERE i.product.id = :productId AND (i.quantity - i.reservedQuantity) > 0 ORDER BY i.quantity DESC")
     List<Inventory> findAvailableInventoryForProduct(@Param("productId") Long productId);
@@ -56,4 +58,25 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Modifying
     @Query("UPDATE Inventory i SET i.quantity = i.quantity - :quantity WHERE i.id = :inventoryId AND i.quantity >= :quantity")
     int decreaseQuantity(@Param("inventoryId") Long inventoryId, @Param("quantity") Integer quantity);
+
+    /**
+     * Increase inventory quantity for a specific product in a warehouse.
+     * Used when factory produces items and stores them in warehouse.
+     */
+    @Modifying
+    @Query("UPDATE Inventory i SET i.quantity = i.quantity + :quantity, i.updatedAt = CURRENT_TIMESTAMP " +
+           "WHERE i.warehouse.id = :warehouseId AND i.product.id = :productId")
+    int addQuantity(@Param("warehouseId") Long warehouseId, 
+                    @Param("productId") Long productId, 
+                    @Param("quantity") Integer quantity);
+
+    /**
+     * Find inventory by warehouse and product with sector info.
+     */
+    @Query("SELECT i FROM Inventory i " +
+           "LEFT JOIN FETCH i.sector " +
+           "WHERE i.warehouse.id = :warehouseId AND i.product.id = :productId")
+    Optional<Inventory> findByWarehouseIdAndProductIdWithSector(
+            @Param("warehouseId") Long warehouseId, 
+            @Param("productId") Long productId);
 }

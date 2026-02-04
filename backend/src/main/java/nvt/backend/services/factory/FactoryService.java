@@ -189,6 +189,29 @@ public class FactoryService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public PageResponseDTO<FactoryListDTO> filterFactories(String name, Long countryId, Long cityId, Boolean online, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Long> idsPage = factoryRepository.filterFactoryIds(name, countryId, cityId, online, pageable);
+        List<Factory> factories = idsPage.getContent().isEmpty() ? 
+                List.of() : factoryRepository.findAllByIdsWithDetails(idsPage.getContent());
+
+        List<FactoryListDTO> dtos = factories.stream()
+                .map(FactoryListDTO::fromEntity)
+                .toList();
+
+        return PageResponseDTO.<FactoryListDTO>builder()
+                .content(dtos)
+                .page(page)
+                .size(size)
+                .totalElements(idsPage.getTotalElements())
+                .totalPages(idsPage.getTotalPages())
+                .first(idsPage.isFirst())
+                .last(idsPage.isLast())
+                .build();
+    }
+
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "factoriesPage", allEntries = true),
