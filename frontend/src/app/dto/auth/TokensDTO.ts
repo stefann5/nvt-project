@@ -1,4 +1,5 @@
 export interface TokensDto{
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
+    mustChangePassword?: boolean
 }

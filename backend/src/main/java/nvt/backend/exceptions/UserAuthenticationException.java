@@ -8,6 +8,7 @@ public class UserAuthenticationException extends RuntimeException {
         USER_NOT_FOUND,
         USER_SUSPENDED,
         ACCOUNT_NOT_VERIFIED,
+        ACCOUNT_BLOCKED,
         INVALID_CREDENTIALS
     }
 

@@ -83,6 +83,14 @@ export class Dashboard {
         routerLink: '/app/customer/orders'
       });
     }
+
+    if (this.authService.IsSuperAdmin()) {
+      this.menuItems[0].items?.push({
+        label: 'Manage Managers',
+        icon: 'pi pi-users',
+        routerLink: '/app/admin/managers'
+      });
+    }
   }
 
   logout(): void {

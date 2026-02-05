@@ -53,4 +53,12 @@ public class UserDetailsServiceImp implements UserDetailsService {
         userDetailsCache.put(username, userDetails);
         userDetailsCacheTimestamp.put(username, System.currentTimeMillis());
     }
+
+    /**
+     * Invalidate cache for a specific user - call this after password change
+     */
+    public void evictUserFromCache(String username) {
+        userDetailsCache.remove(username);
+        userDetailsCacheTimestamp.remove(username);
+    }
 }

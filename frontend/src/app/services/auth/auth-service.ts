@@ -28,6 +28,7 @@ export interface DecodedToken {
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'secure_app_tokens';
+  private readonly MUST_CHANGE_PASSWORD_KEY = 'must_change_password';
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -89,12 +90,23 @@ export class AuthService {
   private handleLoginSuccess(response: TokensDto): void {
     // Store tokens
     localStorage.setItem(this.TOKEN_KEY, JSON.stringify(response));
+    
+    // Store mustChangePassword flag
+    if (response.mustChangePassword) {
+      localStorage.setItem(this.MUST_CHANGE_PASSWORD_KEY, 'true');
+    } else {
+      localStorage.removeItem(this.MUST_CHANGE_PASSWORD_KEY);
+    }
 
     // Update subjects
     this.isAuthenticatedSubject.next(true);
     
-    // Redirect to dashboard
-    this.router.navigate(['/app']);
+    // Redirect based on mustChangePassword
+    if (response.mustChangePassword) {
+      this.router.navigate(['/change-password']);
+    } else {
+      this.router.navigate(['/app']);
+    }
   }
 
   /**
@@ -110,6 +122,7 @@ export class AuthService {
    */
   private clearAuthData(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.MUST_CHANGE_PASSWORD_KEY);
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
   }
@@ -260,6 +273,10 @@ export class AuthService {
     return this.getRoleFromToken() == 'A';
   }
 
+  IsSuperAdmin(): boolean {
+    return this.getRoleFromToken() == 'S';
+  }
+
   getRoleFromToken(): string | undefined {
     if (this.getStoredTokens()?.accessToken != null) {
       const accessToken = this.getStoredTokens()?.accessToken;
@@ -270,5 +287,38 @@ export class AuthService {
       }
     }
     return '';
+  }
+
+  /**
+   * Check if user must change password
+   */
+  mustChangePassword(): boolean {
+    return localStorage.getItem(this.MUST_CHANGE_PASSWORD_KEY) === 'true';
+  }
+
+  /**
+   * Clear mustChangePassword flag after successful password change
+   */
+  clearMustChangePassword(): void {
+    localStorage.removeItem(this.MUST_CHANGE_PASSWORD_KEY);
+  }
+
+  /**
+   * Change password
+   */
+  changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}auth/change-password`, {
+      currentPassword,
+      newPassword,
+      confirmPassword
+    }).pipe(
+      tap(() => {
+        this.clearMustChangePassword();
+      }),
+      catchError((error) => {
+        console.error('Password change failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }

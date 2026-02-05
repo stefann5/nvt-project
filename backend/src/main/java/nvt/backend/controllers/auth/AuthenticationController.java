@@ -56,6 +56,16 @@ public class  AuthenticationController {
         return authService.refreshToken(request, response);
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO request) {
+        try {
+            authService.changePassword(request);
+            return ResponseEntity.ok().body("{\"message\": \"Password changed successfully\"}");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @ExceptionHandler(UserAuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthException(UserAuthenticationException e) {
         ErrorResponse error = new ErrorResponse(e.getMessage(), e.getErrorType());
