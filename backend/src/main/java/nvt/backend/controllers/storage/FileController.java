@@ -1,5 +1,12 @@
 package nvt.backend.controllers.storage;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import nvt.backend.model.company.CompanyDocument;
 import nvt.backend.model.company.CompanyImage;
@@ -22,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
+@Tag(name = "File Storage", description = "File and image URL retrieval endpoints")
 public class FileController {
 
     private final MinioService minioService;
@@ -30,9 +38,21 @@ public class FileController {
     private final WarehouseRepository warehouseRepository;
     private final FactoryRepository factoryRepository;
 
+    @Operation(
+            summary = "Get company image URL",
+            description = "Retrieves a presigned URL for a company registration image. Requires ADMIN, CUSTOMER, or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(example = "{\"url\": \"https://...\", \"originalName\": \"image.jpg\"}"))),
+            @ApiResponse(responseCode = "404", description = "Image not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/image/{imageId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
-    public ResponseEntity<Map<String, String>> getImageUrl(@PathVariable Long imageId) {
+    public ResponseEntity<Map<String, String>> getImageUrl(
+            @Parameter(description = "Image ID", required = true)
+            @PathVariable Long imageId) {
         var request = registrationRequestRepository.findByImageId(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 
@@ -54,9 +74,21 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get company document URL",
+            description = "Retrieves a presigned URL for a company registration document. Requires ADMIN, CUSTOMER, or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Document URL retrieved successfully",
+                    content = @Content(schema = @Schema(example = "{\"url\": \"https://...\", \"originalName\": \"document.pdf\", \"contentType\": \"application/pdf\"}"))),
+            @ApiResponse(responseCode = "404", description = "Document not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/document/{documentId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
-    public ResponseEntity<Map<String, String>> getDocumentUrl(@PathVariable Long documentId) {
+    public ResponseEntity<Map<String, String>> getDocumentUrl(
+            @Parameter(description = "Document ID", required = true)
+            @PathVariable Long documentId) {
         var request = registrationRequestRepository.findByDocumentId(documentId)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
 
@@ -79,9 +111,20 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get all files for a registration request",
+            description = "Retrieves presigned URLs for all images and documents of a registration request. Requires ADMIN, CUSTOMER, or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Files retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Request not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/request/{requestId}/files")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getRequestFiles(@PathVariable Long requestId) {
+    public ResponseEntity<Map<String, Object>> getRequestFiles(
+            @Parameter(description = "Registration request ID", required = true)
+            @PathVariable Long requestId) {
         var request = registrationRequestRepository.findByIdWithDetails(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
@@ -110,9 +153,21 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get vehicle image URL",
+            description = "Retrieves a presigned URL for a vehicle image. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(example = "{\"url\": \"https://...\", \"originalName\": \"vehicle.jpg\"}"))),
+            @ApiResponse(responseCode = "404", description = "Vehicle image not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/vehicle-image/{imageId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, String>> getVehicleImageUrl(@PathVariable Long imageId) {
+    public ResponseEntity<Map<String, String>> getVehicleImageUrl(
+            @Parameter(description = "Image ID", required = true)
+            @PathVariable Long imageId) {
         var vehicle = vehicleRepository.findByImageId(imageId)
                 .orElseThrow(() -> new RuntimeException("Vehicle image not found"));
 
@@ -134,9 +189,20 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get all vehicle images",
+            description = "Retrieves presigned URLs for all images of a vehicle. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Vehicle images retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/vehicle/{vehicleId}/images")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getVehicleImages(@PathVariable Long vehicleId) {
+    public ResponseEntity<Map<String, Object>> getVehicleImages(
+            @Parameter(description = "Vehicle ID", required = true)
+            @PathVariable Long vehicleId) {
         var vehicle = vehicleRepository.findByIdWithDetails(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
@@ -155,9 +221,21 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get warehouse image URL",
+            description = "Retrieves a presigned URL for a warehouse image. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(example = "{\"url\": \"https://...\", \"originalName\": \"warehouse.jpg\"}"))),
+            @ApiResponse(responseCode = "404", description = "Warehouse image not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/warehouse-image/{imageId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, String>> getWarehouseImageUrl(@PathVariable Long imageId) {
+    public ResponseEntity<Map<String, String>> getWarehouseImageUrl(
+            @Parameter(description = "Image ID", required = true)
+            @PathVariable Long imageId) {
         var warehouse = warehouseRepository.findByImageId(imageId)
                 .orElseThrow(() -> new RuntimeException("Warehouse image not found"));
 
@@ -179,9 +257,20 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get all warehouse images",
+            description = "Retrieves presigned URLs for all images of a warehouse. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Warehouse images retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Warehouse not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/warehouse/{warehouseId}/images")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getWarehouseImages(@PathVariable Long warehouseId) {
+    public ResponseEntity<Map<String, Object>> getWarehouseImages(
+            @Parameter(description = "Warehouse ID", required = true)
+            @PathVariable Long warehouseId) {
         var warehouse = warehouseRepository.findByIdWithDetails(warehouseId)
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
 
@@ -200,9 +289,21 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get factory image URL",
+            description = "Retrieves a presigned URL for a factory image. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(example = "{\"url\": \"https://...\", \"originalName\": \"factory.jpg\"}"))),
+            @ApiResponse(responseCode = "404", description = "Factory image not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/factory-image/{imageId}/url")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, String>> getFactoryImageUrl(@PathVariable Long imageId) {
+    public ResponseEntity<Map<String, String>> getFactoryImageUrl(
+            @Parameter(description = "Image ID", required = true)
+            @PathVariable Long imageId) {
         var factory = factoryRepository.findByImageId(imageId)
                 .orElseThrow(() -> new RuntimeException("Factory image not found"));
 
@@ -224,9 +325,20 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get all factory images",
+            description = "Retrieves presigned URLs for all images of a factory. Requires ADMIN or MANAGER role."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Factory images retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Factory not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
     @GetMapping("/factory/{factoryId}/images")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getFactoryImages(@PathVariable Long factoryId) {
+    public ResponseEntity<Map<String, Object>> getFactoryImages(
+            @Parameter(description = "Factory ID", required = true)
+            @PathVariable Long factoryId) {
         var factory = factoryRepository.findByIdWithDetails(factoryId)
                 .orElseThrow(() -> new RuntimeException("Factory not found"));
 

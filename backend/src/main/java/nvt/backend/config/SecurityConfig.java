@@ -52,6 +52,10 @@ public class SecurityConfig {
                                 "/api/v1/auth/register", "/api/v1/auth/activate")
                         .permitAll()
 
+                        // OpenAPI / Swagger endpoints
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
+
                         // WebSocket endpoint
                         .requestMatchers("/ws/**")
                         .permitAll()
