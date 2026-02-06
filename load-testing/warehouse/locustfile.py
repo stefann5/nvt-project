@@ -83,7 +83,7 @@ class SharedState:
             logger.info("Initializing shared state...")
             
             # Login as Manager
-            cls.manager_token = cls._login(client, "admin", "sifra", "Manager")
+            cls.manager_token = cls._login(client, "admin", "sifra123", "Manager")
             
             # Login as Customer
             cls.customer_token = cls._login(client, "miki", "sifra", "Customer")

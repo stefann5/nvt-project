@@ -51,7 +51,7 @@ class SharedState:
                 try:
                     response = client.post(
                         "/api/v1/auth/login",
-                        json={"username": "admin", "password": "sifra"},
+                        json={"username": "admin", "password": "sifra123"},
                         name="[Setup] Login"
                     )
                     if response.status_code == 200:
