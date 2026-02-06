@@ -95,3 +95,158 @@
 [2026-01-27 00:13:12,699] DESKTOP-HJJNH7D/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
 [2026-01-27 00:17:13,589] DESKTOP-HJJNH7D/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
 [2026-01-27 00:17:13,592] DESKTOP-HJJNH7D/INFO/locust.main: Shutting down (exit code 0)
+[2026-02-06 18:41:11,021] DESKTOP-UGTBHSB/INFO/locust.main: Starting Locust 2.43.2
+[2026-02-06 18:41:11,022] DESKTOP-UGTBHSB/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-02-06 18:41:47,580] DESKTOP-UGTBHSB/INFO/locust.runners: Ramping to 0 users at a rate of 100.00 per second
+[2026-02-06 18:41:47,580] DESKTOP-UGTBHSB/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 0, "ManagerLoadTest": 0} (0 total users)
+[2026-02-06 18:41:52,405] DESKTOP-UGTBHSB/INFO/locust.main: Starting Locust 2.43.2
+[2026-02-06 18:41:52,407] DESKTOP-UGTBHSB/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-02-06 18:41:58,308] DESKTOP-UGTBHSB/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-02-06 18:41:58,312] DESKTOP-UGTBHSB/INFO/locust.main: Shutting down (exit code 0)
+[2026-02-06 18:42:01,152] DESKTOP-UGTBHSB/INFO/locust.main: Starting Locust 2.43.2
+[2026-02-06 18:42:01,153] DESKTOP-UGTBHSB/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-02-06 18:42:19,585] DESKTOP-UGTBHSB/INFO/locust.runners: Ramping to 1000 users at a rate of 100.00 per second
+[2026-02-06 18:42:19,611] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:19,798] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:20,415] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:21,050] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:21,737] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:21,737] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:21,738] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:21,842] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:22,469] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:23,107] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:23,741] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:23,741] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:23,741] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:23,845] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:24,477] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:25,086] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:25,711] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:25,711] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:25,712] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:25,826] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:26,473] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:27,130] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:27,768] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:27,768] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:27,768] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:27,887] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:28,518] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:28,658] DESKTOP-UGTBHSB/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
+[2026-02-06 18:42:29,141] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:29,784] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:29,784] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:29,785] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:29,892] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:30,514] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:31,146] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:31,765] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:31,765] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:31,766] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:31,861] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:32,479] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:33,114] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:33,729] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:33,729] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:33,730] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:33,828] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:34,439] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:35,076] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:35,705] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:35,705] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:35,706] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:35,802] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:36,432] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:37,042] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:37,674] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:37,674] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:37,675] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:37,774] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:38,376] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:39,000] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:39,647] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:39,647] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:39,647] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:39,755] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:40,363] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:40,962] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:41,587] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:41,587] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:41,588] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:41,702] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:42,331] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:42,962] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:43,581] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:43,582] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:43,582] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:43,680] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:44,313] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:44,941] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:45,565] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:45,566] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:45,566] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:45,667] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:46,301] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:46,917] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:47,534] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:47,534] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:47,535] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:47,630] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:48,237] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:48,854] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:49,510] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:49,510] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:49,511] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:49,607] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:50,203] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:50,841] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:51,447] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:51,447] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:51,447] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:51,541] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:52,183] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:52,867] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:53,501] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:53,501] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:53,501] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:53,594] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:54,198] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:54,825] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:55,464] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:55,464] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:55,464] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:55,562] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:56,183] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:56,801] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:57,429] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:57,429] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:57,429] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:57,525] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:58,153] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:58,749] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:42:59,352] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:42:59,352] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:42:59,353] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:42:59,442] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:43:00,040] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:43:00,678] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:43:01,318] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:43:01,318] DESKTOP-UGTBHSB/ERROR/locustfile: Failed to obtain manager token
+[2026-02-06 18:43:01,318] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:43:01,425] DESKTOP-UGTBHSB/WARNING/locustfile: Manager login failed with status 401
+[2026-02-06 18:43:52,144] DESKTOP-UGTBHSB/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-02-06 18:43:52,148] DESKTOP-UGTBHSB/INFO/locust.main: Shutting down (exit code 1)
+[2026-02-06 18:43:56,690] DESKTOP-UGTBHSB/INFO/locust.main: Starting Locust 2.43.2
+[2026-02-06 18:43:56,695] DESKTOP-UGTBHSB/INFO/locust.main: Starting web interface at http://localhost:8089, press enter to open your default browser.
+[2026-02-06 18:44:18,667] DESKTOP-UGTBHSB/INFO/locust.runners: Ramping to 1000 users at a rate of 100.00 per second
+[2026-02-06 18:44:18,693] DESKTOP-UGTBHSB/INFO/locustfile: Initializing shared state...
+[2026-02-06 18:44:18,866] DESKTOP-UGTBHSB/INFO/locustfile: Manager login successful
+[2026-02-06 18:44:19,053] DESKTOP-UGTBHSB/INFO/locustfile: Customer login successful
+[2026-02-06 18:44:19,143] DESKTOP-UGTBHSB/INFO/locustfile: Fetched 100 warehouses
+[2026-02-06 18:44:19,178] DESKTOP-UGTBHSB/INFO/locustfile: Fetched 30 products
+[2026-02-06 18:44:19,847] DESKTOP-UGTBHSB/INFO/locustfile: Fetched 1975 companies
+[2026-02-06 18:44:19,847] DESKTOP-UGTBHSB/INFO/locustfile: SharedState initialized: 100 warehouses, 30 products, 1975 companies
+[2026-02-06 18:44:30,605] DESKTOP-UGTBHSB/INFO/locust.runners: All users spawned: {"CustomerLoadTest": 400, "ManagerLoadTest": 600} (1000 total users)
+[2026-02-06 18:45:00,259] DESKTOP-UGTBHSB/INFO/locust.main: writing html report to file: results/warehouse_load_test_report.html
+[2026-02-06 18:45:00,262] DESKTOP-UGTBHSB/INFO/locust.main: Shutting down (exit code 0)
