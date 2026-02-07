@@ -1,0 +1,21 @@
+# Requirements for Load Testing - Student 1
+# NVT Project - Factory & Product Management
+
+# Load Testing Framework
+locust>=2.20.0
+
+# Database connections
+psycopg2-binary>=2.9.9
+influxdb-client>=1.38.0
+
+# Data generation
+faker>=22.0.0
+tqdm>=4.66.0
+
+# Data analysis & reporting
+pandas>=2.1.0
+matplotlib>=3.8.0
+jinja2>=3.1.0
+
+# Utilities
+python-dotenv>=1.0.0
